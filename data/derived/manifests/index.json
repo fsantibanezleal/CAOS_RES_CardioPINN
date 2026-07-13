@@ -1,0 +1,1 @@
+{"schema":"cardiopinn.index/v1","engine_version":"0.01.000","n_cases":1,"cases":[{"case_id":"act-eikonal-mapping","category":"electrophysiology-activation","title":"Cardiac activation mapping (Eikonal PINN)","manifest_path":"manifests/act-eikonal-mapping.json","lane":"live"}]}

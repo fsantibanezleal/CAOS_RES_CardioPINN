@@ -1,0 +1,18 @@
+# OFFLINE pipeline (heavy, local GPU). Install into .venv-pipeline. The bake runs on a local NVIDIA GPU;
+# artifacts (ONNX + traces + manifests) are committed, so neither CI nor the web ever runs this stack.
+#
+# torch: install the CUDA build first for the GPU (RTX-class), then the rest:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+#   pip install -r data-pipeline/requirements.txt
+# (the CPU wheel also works; the cardiac PINNs are small MLPs that train in minutes.)
+torch>=2.5
+numpy>=2.0,<2.3
+scipy>=1.13
+scikit-fmm>=2025.6          # exact heterogeneous isotropic Eikonal ground truth (fim-python is the reference
+                            # anisotropic-on-mesh tool; it has no Windows wheel, so scikit-fmm is the runtime solver)
+onnx>=1.19
+onnxruntime>=1.22           # offline parity check of the exported nets before shipping
+trimesh>=4.0                # mesh IO / decimation / glTF export for the browser render
+meshio>=5.3                 # openCARP / VTK mesh IO
+robust-laplacian>=0.3       # Sharp-Crane robust Laplacian on real (nonmanifold) cardiac meshes (Delta-PINN)
+potpourri3d>=1.0            # geodesics / heat-method operators (Delta-PINN geometry)

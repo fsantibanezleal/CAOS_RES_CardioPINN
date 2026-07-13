@@ -1,0 +1,5 @@
+# Light deps to import the data contracts and run the pure-python tests (gate, manifest, trace, ingestion
+# contract). The heavy offline pipeline (torch + the cardiac PINN engine) is data-pipeline/requirements.txt,
+# installed into .venv-pipeline for the local GPU bake. The web is static (no Python at runtime).
+numpy>=2.0,<2.3
+scipy>=1.13
