@@ -8,4 +8,4 @@ traces. The two data contracts, the staged pipeline, the measured lane gate and 
 frozen ADR-0057 base; the engine (core/ + cases/) is the cardiac specialization.
 """
 
-__version__ = "0.08.000"  # REAL-data pivot; display X.XX.XXX
+__version__ = "0.10.000"  # deep content to ADR-0016/0017 bar

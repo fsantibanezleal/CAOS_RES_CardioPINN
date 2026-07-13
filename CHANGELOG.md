@@ -3,6 +3,22 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.10.000], 2026-07-14
+
+### Added
+- Deep content to the ADR-0016/0017 bar. The App is now a per-case WORKBENCH with a Tabs strip that walks the
+  full pedagogy: The problem, The target, How the PDE arises (torso volume conduction -> the linear forward
+  operator), Traditional approach (Tikhonov), Physics-informed proposal, and the interactive Reconstruction.
+  Each content tab carries bilingual EN/ES prose, captioned KaTeX equations with symbol glossaries, a
+  theme-aware SVG, an honest-scope callout, and inline <Cite> + a per-section <Refs> with real DOIs (never a
+  bibliography dump). The five doc pages were rewritten to the ADR floors: Introduction (>=5 sections +
+  10-item glossary + pipeline SVG), Methodology (6 method SubTabs: forward operator, Tikhonov, parameter
+  choice, graph-Laplacian prior, physics-constrained, ensemble UQ), Implementation (architecture SVG +
+  pipeline + artifact contract + data governance), Experiments (design + leakage-safe protocol + coverage +
+  real results), Benchmark (fair method comparison, honest finding). Centered .page-body (ADR-0017 layout
+  contract), ADR-0016 footer. A citation registry (real DOIs) + Cite/Refs/Callout/SubTabs/Equation-caption
+  components. Screenshot-verified every page + App tab, light+dark, 0 console errors.
+
 ## [0.08.000], 2026-07-14
 
 ### Added
