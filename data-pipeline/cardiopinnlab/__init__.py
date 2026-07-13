@@ -8,4 +8,4 @@ traces. The two data contracts, the staged pipeline, the measured lane gate and 
 frozen ADR-0057 base; the engine (core/ + cases/) is the cardiac specialization.
 """
 
-__version__ = "0.07.000"  # display X.XX.XXX; PEP 440 form in pyproject.toml (0.7.0)
+__version__ = "0.08.000"  # REAL-data pivot; display X.XX.XXX

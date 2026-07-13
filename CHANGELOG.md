@@ -3,6 +3,21 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.08.000], 2026-07-14
+
+### Added
+- REAL-DATA PIVOT. The synthetic cases were the wrong premise (a PINN validated against a field a solver
+  produced answers no real question). This adds the first REAL applied case: `real-ecgi-edgar`, where the
+  physics fits REAL measured body-surface potentials (192 EDGAR torso electrodes) and recovers the
+  heart-surface potentials, validated against the REAL measured heart-cage potentials (256 electrodes),
+  the gold standard a torso tank provides. Results vs REAL heart potentials: sinus RE 0.65 CC 0.72, paced
+  PVP RE 0.58 CC 0.80, AV-paced RE 0.54 CC 0.85; calibrated per-node uncertainty ~0.90. Data: EDGAR
+  (Consortium for ECG Imaging), used under its data-use agreement with attribution (raw data not
+  redistributed, gitignored). The app now lands on this real case, animating the recovered heart-surface
+  potential on the real cage geometry over the beat, with the real validation metrics.
+- Real Navier-Stokes pressure engine (`real/ns_pinn.py`) for the 4D-flow case (verified on analytic
+  Poiseuille); the Stanford AS4DF real geometry is secured (velocity download pending on this network).
+
 ## [0.07.000], 2026-07-14
 
 ### Added

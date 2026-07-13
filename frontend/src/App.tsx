@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import { RealEcgi } from './pages/RealEcgi';
 import { Workbench } from './pages/Workbench';
 import { Introduction } from './pages/Introduction';
 import { Methodology } from './pages/Methodology';
@@ -11,13 +12,14 @@ export default function App() {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<Workbench />} />
+        <Route path="/" element={<RealEcgi />} />
+        <Route path="/methods-lab" element={<Workbench />} />
         <Route path="/introduction" element={<Introduction />} />
         <Route path="/methodology" element={<Methodology />} />
         <Route path="/implementation" element={<Implementation />} />
         <Route path="/experiments" element={<Experiments />} />
         <Route path="/benchmark" element={<Benchmark />} />
-        <Route path="*" element={<Workbench />} />
+        <Route path="*" element={<RealEcgi />} />
       </Routes>
     </Layout>
   );

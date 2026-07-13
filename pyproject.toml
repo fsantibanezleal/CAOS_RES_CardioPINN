@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cardiopinnlab"
 # PEP 440 form of the display version X.XX.XXX (see CHANGELOG.md + cardiopinnlab.__version__).
-version = "0.7.0"
+version = "0.8.0"
 description = "CardioPINN: physics-informed neural networks for cardiac electrophysiology and cardiovascular medicine (offline pipeline)."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -27,3 +27,7 @@ markers = ["slow: full GPU bake (skipped unless torch + a GPU are available)"]
 [tool.ruff]
 line-length = 110
 target-version = "py311"
+
+[tool.ruff.lint]
+# E702: compact multiple-statement lines (semicolons) are intentional in the numeric assembly code.
+ignore = ["E702"]

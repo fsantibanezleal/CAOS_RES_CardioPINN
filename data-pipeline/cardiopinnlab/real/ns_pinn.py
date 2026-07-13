@@ -80,7 +80,6 @@ def test_poiseuille() -> dict:
     R, L = 5.0, 20.0          # mm
     mu, rho = 3.5e-3, 1.06e-3  # blood-like, in mm/ms/g units (illustrative for the analytic check)
     U = 0.5                    # centreline velocity mm/ms
-    dpdz_true = -8.0 * mu * U / (R ** 2)   # not used directly; Poiseuille: w = U(1 - r^2/R^2), dp/dz const
 
     rng = np.random.default_rng(0)
     n = 3000
