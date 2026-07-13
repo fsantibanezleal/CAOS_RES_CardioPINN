@@ -7,11 +7,13 @@ from .cases.act_eikonal_mapping import SPEC as ACT_EIKONAL
 from .cases.base import CaseSpec
 from .cases.delta_pinn_geometry import SPEC as DELTA_PINN
 from .cases.fiber_conductivity_inverse import SPEC as FIBER_INVERSE
+from .cases.joint_cv_scar_uq import SPEC as JOINT_CV_SCAR
 
 CASES: list[CaseSpec] = [
     ACT_EIKONAL,
     DELTA_PINN,
     FIBER_INVERSE,
+    JOINT_CV_SCAR,
 ]
 
 _BY_ID: dict[str, CaseSpec] = {c.id: c for c in CASES}

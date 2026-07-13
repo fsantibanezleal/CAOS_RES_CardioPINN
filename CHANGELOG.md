@@ -3,6 +3,23 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.03.000], 2026-07-13
+
+### Added
+- Anisotropic conduction spine (`core/anisotropic.py`): fiber conductivity tensor + graph-based
+  anisotropic-Eikonal ground truth.
+- Vertical 3, `fiber-conductivity-inverse` (FiberNet / PIEMAP): recovers the myocardial fiber-angle field and
+  the along/across conduction velocities from several activation maps (shared fiber-angle net + learnable
+  cl, ct, anisotropic Eikonal residual per map) with a deep-ensemble uncertainty. Baked: fiber-angle RMSE
+  ~16 deg, cl ~0.65 (true 0.70), anisotropy underestimated (transverse CV weakly observed, stated honestly);
+  fiber net live. Reproduces Grandits et al. arXiv:2102.10863 + DOI 10.1007/s00366-022-01709-3.
+- Vertical 4 (flagship, beyond SOTA), `joint-cv-scar-uq`: joint activation + conduction-velocity recovery,
+  low-conduction-substrate localization, and a deep-ensemble per-node uncertainty with variance recalibration.
+  Baked: activation rel-L2 ~0.053, CV RMSE ~0.080, substrate IoU ~0.31, reliability within 2 sigma lifted
+  from ~0.34 (raw, overconfident) to ~0.82 (recalibrated); CV net live. The calibrated node uncertainty and
+  the substrate map are what the single-field SOTA lacks.
+- Frontend: verticals 3 and 4 wired (bilingual Context + registry).
+
 ## [0.02.000], 2026-07-13
 
 ### Added
