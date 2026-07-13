@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch();
+const pg = await b.newPage({ viewport: { width: 1320, height: 940 } });
+const errs = [];
+pg.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+await pg.goto('http://localhost:4188/', { waitUntil: 'networkidle', timeout: 45000 });
+await pg.waitForTimeout(2500);
+const opts = await pg.locator('select option').allTextContents();
+console.log('LOCAL verticals (' + opts.length + '):', opts.join(' | '));
+console.log('errors:', errs.length ? errs.join(' || ') : 'NONE');
+await pg.screenshot({ path: '_shots/cardiopinn/LOCAL-8verticals.png' });
+await b.close();
