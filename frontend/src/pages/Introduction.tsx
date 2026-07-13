@@ -7,21 +7,30 @@ export function Introduction() {
       <div className="panel">
         <h1 style={{ marginTop: 0 }}>CardioPINN</h1>
         <p>{pick(lang,
-          'Physics-informed neural networks (PINNs) embed a governing equation into the training loss, so a network learns a field that both fits sparse measurements and obeys physics. CardioPINN applies this to cardiac electrophysiology and cardiovascular medicine, where measurements are sparse, noisy and expensive, and the physics (wave propagation, reaction-diffusion, blood flow) is well characterized.',
-          'Las redes neuronales informadas por fisica (PINNs) incrustan una ecuacion gobernante en la perdida de entrenamiento, de modo que una red aprende un campo que ajusta mediciones dispersas y obedece la fisica. CardioPINN aplica esto a la electrofisiologia cardiaca y la medicina cardiovascular, donde las mediciones son dispersas, ruidosas y costosas, y la fisica (propagacion de ondas, reaccion-difusion, flujo sanguineo) esta bien caracterizada.')}</p>
+          'CardioPINN is an applied framework for physics-informed reconstruction of cardiac quantities that cannot be measured directly, from data that CAN be measured. Every case fits a REAL measured signal and is validated against a REAL gold standard. There is no synthetic ground truth: a network that only re-solves an equation a classical solver already solves answers no clinical question, so it is not what this project does.',
+          'CardioPINN es un marco aplicado para la reconstruccion informada por fisica de cantidades cardiacas que no se pueden medir directamente, a partir de datos que SI se pueden medir. Cada caso ajusta una senal real medida y se valida contra un patron de oro real. No hay verdad de referencia sintetica: una red que solo vuelve a resolver una ecuacion que un solucionador clasico ya resuelve no responde ninguna pregunta clinica.')}</p>
       </div>
       <div className="panel">
-        <h2>{pick(lang, 'Each case is a research topic', 'Cada caso es un tema de investigacion')}</h2>
+        <h2>{pick(lang, 'The flagship case: ECG imaging', 'El caso insignia: imagen de ECG')}</h2>
         <p>{pick(lang,
-          'Unlike a didactic PINN catalogue, every vertical here is a real research problem carrying its own theory, governing equations, real or realistic data, and a model ladder: the classical baseline, the current state of the art, and a concrete beyond-SOTA proposal. The catalogue spans cardiac electrophysiology (activation mapping, conduction-velocity and fiber inference, geometry-aware PINNs, atrial-fibrillation phase mapping) and cardiovascular hemodynamics (4D-flow pressure estimation, pulmonary-artery pressure).',
-          'A diferencia de un catalogo didactico de PINNs, cada vertical aqui es un problema de investigacion real con su propia teoria, ecuaciones gobernantes, datos reales o realistas, y una escalera de modelos: el baseline clasico, el estado del arte actual, y una propuesta concreta mas alla del estado del arte. El catalogo abarca la electrofisiologia cardiaca (mapeo de activacion, inferencia de velocidad de conduccion y fibra, PINNs conscientes de la geometria, mapeo de fase de fibrilacion auricular) y la hemodinamica cardiovascular (estimacion de presion por 4D-flow, presion de arteria pulmonar).')}</p>
+          'Electrocardiographic imaging (ECGi) reconstructs the electrical potentials on the heart surface from a body-surface recording, non-invasively, to localize an arrhythmia and guide ablation. It is a severely ill-posed inverse problem. We use a real torso-tank experiment (EDGAR, Consortium for ECG Imaging) that recorded, simultaneously, the body-surface potentials AND the true heart-surface potentials, so we can fit the real body-surface data, recover the heart-surface potentials, and check them against the real measured truth.',
+          'La imagen electrocardiografica (ECGi) reconstruye los potenciales electricos en la superficie del corazon a partir de un registro de superficie corporal, de forma no invasiva, para localizar una arritmia y guiar la ablacion. Es un problema inverso severamente mal planteado. Usamos un experimento real de tanque de torso (EDGAR) que registro simultaneamente los potenciales de superficie corporal Y los potenciales verdaderos de superficie cardiaca.')}</p>
       </div>
       <div className="panel">
-        <h2>{pick(lang, 'Honesty model', 'Modelo de honestidad')}</h2>
+        <h2>{pick(lang, 'The four questions every case answers', 'Las cuatro preguntas que responde cada caso')}</h2>
         <ul>
-          <li>{pick(lang, 'Numbers come from the committed bake (measured), never from a claim.', 'Los numeros provienen del horneado comprometido (medido), nunca de una afirmacion.')}</li>
-          <li>{pick(lang, 'Every case carries a real-or-synthetic flag; the current cases are validated in-silico against exact ground truth. No case is clinically validated.', 'Cada caso lleva una bandera real-o-sintetico; los casos actuales se validan in-silico contra la verdad de referencia exacta. Ningun caso esta validado clinicamente.')}</li>
-          <li>{pick(lang, 'A PINN does not replace a good forward solver on a well-posed forward problem; its value is the inverse, assimilating sparse data and recovering hidden fields (conduction velocity, fiber, pressure) with uncertainty.', 'Una PINN no reemplaza a un buen solucionador directo en un problema directo bien planteado; su valor es el inverso, asimilar datos dispersos y recuperar campos ocultos (velocidad de conduccion, fibra, presion) con incertidumbre.')}</li>
+          <li><b>{pick(lang, 'The case', 'El caso')}:</b> {pick(lang, 'a concrete clinical scenario on real data.', 'un escenario clinico concreto sobre datos reales.')}</li>
+          <li><b>{pick(lang, 'The need', 'La necesidad')}:</b> {pick(lang, 'a quantity that matters and cannot be measured directly in a patient.', 'una cantidad que importa y no se puede medir directamente en un paciente.')}</li>
+          <li><b>{pick(lang, 'How the physics helps', 'Como ayuda la fisica')}:</b> {pick(lang, 'fitting the real measured signal under the governing equations makes the ill-posed recovery possible.', 'ajustar la senal real medida bajo las ecuaciones gobernantes hace posible la recuperacion mal planteada.')}</li>
+          <li><b>{pick(lang, 'What we compute', 'Que calculamos')}:</b> {pick(lang, 'the unmeasurable quantity, validated against a real gold standard.', 'la cantidad no medible, validada contra un patron de oro real.')}</li>
+        </ul>
+      </div>
+      <div className="panel">
+        <h2>{pick(lang, 'Honesty', 'Honestidad')}</h2>
+        <ul>
+          <li>{pick(lang, 'Real measured target, real gold-standard validation. No synthetic data.', 'Objetivo real medido, validacion con patron de oro real. Sin datos sinteticos.')}</li>
+          <li>{pick(lang, 'Numbers are the measured reconstruction quality against real truth (relative error, correlation), not error against a field we invented.', 'Los numeros son la calidad de reconstruccion medida contra la verdad real (error relativo, correlacion), no el error contra un campo que inventamos.')}</li>
+          <li>{pick(lang, 'Not clinically deployed: a validated methodological result on real experimental data. Raw datasets are used under their data-use agreements and are not redistributed.', 'No desplegado clinicamente: un resultado metodologico validado sobre datos experimentales reales. Los datos crudos se usan bajo sus acuerdos de uso y no se redistribuyen.')}</li>
         </ul>
       </div>
     </div>

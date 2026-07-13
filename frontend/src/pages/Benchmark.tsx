@@ -1,38 +1,33 @@
 import { useEffect, useState } from 'react';
-import { loadIndex, loadManifest } from '../api/artifacts';
 import { useLang, pick } from '../store';
-import type { CaseManifest } from '../lib/contract.types';
+
+const BASE = import.meta.env.BASE_URL;
 
 export function Benchmark() {
   const lang = useLang();
-  const [manifests, setManifests] = useState<CaseManifest[]>([]);
-  useEffect(() => {
-    loadIndex().then((idx) => Promise.all(idx.cases.map((c) => loadManifest(c.case_id))).then(setManifests));
-  }, []);
-
-  const allKeys = Array.from(new Set(manifests.flatMap((m) => Object.keys(m.metrics))));
-
+  const [art, setArt] = useState<any>(null);
+  useEffect(() => { fetch(`${BASE}data/real-ecgi-edgar/trace.json`).then((r) => r.json()).then(setArt).catch(() => setArt(null)); }, []);
+  if (!art) return <div className="panel">Loading...</div>;
+  const m = art.rhythms['avp'].metrics;
+  const rows = [
+    ['Tikhonov (classical, oracle lambda)', m.relative_error_tikhonov, m.correlation_tikhonov, pick(lang, 'none', 'ninguna')],
+    ['Graph-regularized (heart-surface prior)', m.relative_error_graph_reg, m.correlation_graph_reg, pick(lang, 'none', 'ninguna')],
+    ['Ensemble (graph + node UQ)', m.relative_error_ensemble, m.correlation_ensemble, `${m.uq_calibration_2sigma} (2 sigma)`],
+  ];
   return (
     <div className="grid" style={{ gap: 16 }}>
       <div className="panel">
-        <h1 style={{ marginTop: 0 }}>Benchmark</h1>
+        <h1 style={{ marginTop: 0 }}>{pick(lang, 'Method comparison', 'Comparacion de metodos')}</h1>
         <p>{pick(lang,
-          'The measured metrics of every baked vertical, read from the committed manifests. Values are the exact numbers the offline GPU bake produced; the ONNX parity is the PyTorch-vs-onnxruntime max-abs error that licenses live in-browser re-inference.',
-          'Las metricas medidas de cada vertical horneado, leidas de los manifests comprometidos. Los valores son los numeros exactos que produjo el horneado GPU offline; la paridad ONNX es el error max-abs PyTorch-vs-onnxruntime que autoriza la re-inferencia en vivo en el navegador.')}</p>
+          'The reconstruction methods on the AV-paced beat, all validated against the REAL measured heart-surface potentials. The honest finding: a well-tuned classical Tikhonov is a strong baseline; the graph-regularized reconstruction matches it, and the real added value is the calibrated per-node uncertainty, which a single point estimate cannot provide. Improving the forward operator (boundary elements) would lift all methods.',
+          'Los metodos de reconstruccion en el latido con marcapaso AV, todos validados contra los potenciales reales medidos de superficie cardiaca. El hallazgo honesto: un Tikhonov clasico bien ajustado es un baseline fuerte; la reconstruccion regularizada por grafo lo iguala, y el valor agregado real es la incertidumbre por nodo calibrada.')}</p>
       </div>
       <div className="panel overflow-x">
         <table>
-          <thead>
-            <tr><th>Vertical</th>{allKeys.map((k) => <th key={k}>{k}</th>)}<th>ONNX bytes</th><th>parity</th></tr>
-          </thead>
+          <thead><tr><th>{pick(lang, 'Method', 'Metodo')}</th><th>{pick(lang, 'Relative error', 'Error relativo')}</th><th>{pick(lang, 'Correlation', 'Correlacion')}</th><th>{pick(lang, 'Per-node uncertainty', 'Incertidumbre por nodo')}</th></tr></thead>
           <tbody>
-            {manifests.map((m) => (
-              <tr key={m.case_id}>
-                <td><b>{m.title}</b></td>
-                {allKeys.map((k) => <td key={k} className="mono">{k in m.metrics ? String(m.metrics[k]) : '-'}</td>)}
-                <td className="mono">{m.onnx ? m.onnx.bytes : '-'}</td>
-                <td className="mono">{m.onnx ? m.onnx.parity_max_abs.toExponential(1) : '-'}</td>
-              </tr>
+            {rows.map((r, i) => (
+              <tr key={i}><td>{r[0]}</td><td className="mono">{r[1]}</td><td className="mono">{r[2]}</td><td className="mono">{r[3]}</td></tr>
             ))}
           </tbody>
         </table>

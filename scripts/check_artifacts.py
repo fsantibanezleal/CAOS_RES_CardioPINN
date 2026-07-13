@@ -1,9 +1,7 @@
-"""Validate CONTRACT 2 on disk (the pipeline -> web artifact contract): the index references every case; each
-manifest exists; each artifact exists, is non-empty, and its byte size matches the manifest; the lane matches the
-gate verdict. Stdlib only (runs in CI WITHOUT installing the package). Exit non-zero on any drift.
-
-Used by scripts/smoke.* and by .github/workflows/ci.yml, the mechanical guard that a product can't regress to
-serving artifacts that don't match their manifests."""
+"""Validate the committed REAL-case artifact (the derived reconstruction the web reads). Stdlib only (runs in
+CI without installing the package). Exit non-zero on any drift. The product is real-data-first: the app reads
+data/derived/real-ecgi-edgar/trace.json (the EDGAR ECGi reconstruction); raw datasets are not committed
+(data-use agreements)."""
 from __future__ import annotations
 
 import json
@@ -11,40 +9,33 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DERIVED = ROOT / "data" / "derived"
-MANIFESTS = DERIVED / "manifests"
 
 
 def main() -> int:
-    idx_path = MANIFESTS / "index.json"
-    if not idx_path.exists():
-        print(f"FAIL: missing {idx_path} (run scripts/precompute.sh first)")
+    art = ROOT / "data" / "derived" / "real-ecgi-edgar" / "trace.json"
+    if not art.exists():
+        print(f"FAIL: missing {art} (run the real ECGi bake)")
         return 1
-    index = json.loads(idx_path.read_text(encoding="utf-8"))
-    errs: list[str] = []
-    for entry in index.get("cases", []):
-        mp = DERIVED / entry["manifest_path"]
-        if not mp.exists():
-            errs.append(f"missing manifest: {mp}")
-            continue
-        m = json.loads(mp.read_text(encoding="utf-8"))
-        art = DERIVED / m["artifact"]["path"]
-        if not art.exists():
-            errs.append(f"missing artifact: {art}")
-            continue
-        size = art.stat().st_size
-        if size != m["artifact"]["bytes"]:
-            errs.append(f"byte drift {art}: manifest={m['artifact']['bytes']} disk={size}")
-        if size == 0:
-            errs.append(f"empty artifact: {art}")
-        if m.get("gate", {}).get("lane") != m.get("lane"):
-            errs.append(f"lane/gate mismatch: {entry['case_id']}")
-    if errs:
-        print("CONTRACT 2 DRIFT:")
-        for e in errs:
-            print("  -", e)
+    try:
+        d = json.loads(art.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        print(f"FAIL: {art} is not valid JSON: {e}")
         return 1
-    print(f"CONTRACT 2 OK: {len(index.get('cases', []))} cases, manifests <-> artifacts consistent.")
+    rhythms = d.get("rhythms", {})
+    if not rhythms:
+        print("FAIL: no rhythms in the real ECGi artifact")
+        return 1
+    for name, rd in rhythms.items():
+        for key in ("mesh", "times_ms", "fields_over_time", "metrics"):
+            if key not in rd:
+                print(f"FAIL: rhythm {name} missing '{key}'")
+                return 1
+        m = rd["metrics"]
+        for mk in ("relative_error_tikhonov", "correlation_tikhonov", "uq_calibration_2sigma"):
+            if mk not in m:
+                print(f"FAIL: rhythm {name} missing metric '{mk}'")
+                return 1
+    print(f"REAL artifact OK: {len(rhythms)} rhythms, real EDGAR ECGi reconstruction validated fields present.")
     return 0
 
 

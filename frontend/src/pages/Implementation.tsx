@@ -7,36 +7,36 @@ export function Implementation() {
       <div className="panel">
         <h1 style={{ marginTop: 0 }}>{pick(lang, 'Implementation', 'Implementacion')}</h1>
         <p>{pick(lang,
-          'Two worlds joined by one artifact contract. A heavy offline pipeline trains and exports on a local NVIDIA GPU; a static web app consumes only the committed artifacts.',
-          'Dos mundos unidos por un contrato de artefactos. Un pipeline offline pesado entrena y exporta en una GPU NVIDIA local; una web estatica consume solo los artefactos comprometidos.')}</p>
+          'The real data is processed offline; the static web app shows the committed result. The raw datasets carry data-use agreements, so they are read from a local path and are not redistributed; only the derived reconstruction is committed and displayed.',
+          'Los datos reales se procesan offline; la web estatica muestra el resultado comprometido. Los datos crudos tienen acuerdos de uso, asi que se leen desde una ruta local y no se redistribuyen; solo la reconstruccion derivada se compromete y se muestra.')}</p>
       </div>
       <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div className="panel">
           <h2>{pick(lang, 'Offline pipeline', 'Pipeline offline')}</h2>
-          <p className="small mono">cardiopinnlab (PyTorch, CUDA)</p>
+          <p className="small mono">cardiopinnlab/real/ecgi_edgar.py (NumPy/SciPy)</p>
           <ul className="small">
-            <li>{pick(lang, 'ground truth: fast-marching Eikonal (scikit-fmm), simulators, public data', 'verdad de referencia: Eikonal por fast-marching (scikit-fmm), simuladores, datos publicos')}</li>
-            <li>{pick(lang, 'PINN training loop: Adam then L-BFGS; Eikonal / monodomain / Navier-Stokes residuals', 'bucle de entrenamiento PINN: Adam luego L-BFGS; residuos Eikonal / monodominio / Navier-Stokes')}</li>
-            <li>{pick(lang, 'baselines: linear and Gaussian-process interpolation', 'baselines: interpolacion lineal y por proceso gaussiano')}</li>
-            <li>{pick(lang, 'export: torch to ONNX (opset 17) with a measured PyTorch-vs-onnxruntime parity check', 'exportacion: torch a ONNX (opset 17) con verificacion medida de paridad PyTorch-vs-onnxruntime')}</li>
+            <li>{pick(lang, 'load the REAL EDGAR torso + cage geometry and the measured potentials (3 rhythms)', 'cargar la geometria real EDGAR torso + jaula y los potenciales medidos (3 ritmos)')}</li>
+            <li>{pick(lang, 'build the forward operator on the real geometry', 'construir el operador directo sobre la geometria real')}</li>
+            <li>{pick(lang, 'reconstruct: Tikhonov, graph-regularized, and a deep ensemble', 'reconstruir: Tikhonov, regularizado por grafo, y un ensemble profundo')}</li>
+            <li>{pick(lang, 'validate vs the REAL measured heart potentials; bake the compact result', 'validar contra los potenciales cardiacos reales medidos; hornear el resultado compacto')}</li>
           </ul>
         </div>
         <div className="panel">
           <h2>{pick(lang, 'Static web app', 'Web estatica')}</h2>
-          <p className="small mono">Vite + React + three.js + onnxruntime-web</p>
+          <p className="small mono">Vite + React + three.js</p>
           <ul className="small">
-            <li>{pick(lang, 'loads the committed field trace + manifest + ONNX net', 'carga el trace de campo + manifest + red ONNX comprometidos')}</li>
-            <li>{pick(lang, 'renders the field on the real mesh (CardiacMeshKit)', 'renderiza el campo sobre la malla real (CardiacMeshKit)')}</li>
-            <li>{pick(lang, 'live: re-runs the exported PINN in the browser (onnxruntime-web)', 'en vivo: re-ejecuta la PINN exportada en el navegador (onnxruntime-web)')}</li>
-            <li>{pick(lang, 'replay: animates the baked trace when a case is not live-drivable', 'replay: anima el trace horneado cuando un caso no es ejecutable en vivo')}</li>
+            <li>{pick(lang, 'loads the committed reconstruction (mesh + fields over the beat + metrics)', 'carga la reconstruccion comprometida (malla + campos durante el latido + metricas)')}</li>
+            <li>{pick(lang, 'renders the recovered heart-surface potential on the REAL cage geometry', 'renderiza el potencial de superficie cardiaca recuperado sobre la geometria real de la jaula')}</li>
+            <li>{pick(lang, 'animates the beat; toggles recovered / measured / error / uncertainty', 'anima el latido; alterna recuperado / medido / error / incertidumbre')}</li>
+            <li>{pick(lang, 'shows the real validation metrics per rhythm', 'muestra las metricas de validacion reales por ritmo')}</li>
           </ul>
         </div>
       </div>
       <div className="panel">
-        <h2>{pick(lang, 'The two data contracts', 'Los dos contratos de datos')}</h2>
+        <h2>{pick(lang, 'Data governance', 'Gobernanza de datos')}</h2>
         <p className="small">{pick(lang,
-          'CONTRACT 1 (ingestion): the schema (x, y, z, t) and outlier policy of an electroanatomical map, the bring-your-own-data gate. CONTRACT 2 (artifact): the mesh-field trace + ONNX net + manifest the web reads; a TypeScript type mirrors the schema so any drift fails the build. A measured lane gate (ONNX size, parity, browser-drivability, trace size) decides live vs replay; the gate verdict is committed in the manifest and enforced in CI.',
-          'CONTRATO 1 (ingesta): el esquema (x, y, z, t) y la politica de outliers de un mapa electroanatomico, la puerta de trae-tus-datos. CONTRATO 2 (artefacto): el trace de malla-campo + red ONNX + manifest que lee la web; un tipo TypeScript refleja el esquema para que cualquier deriva rompa el build. Una compuerta medida (tamano ONNX, paridad, ejecutabilidad en navegador, tamano del trace) decide vivo vs replay; el veredicto se compromete en el manifest y se verifica en CI.')}</p>
+          'EDGAR data (Consortium for ECG Imaging) is used under its data-use agreement with attribution. The raw .mat files are gitignored and never committed; the repository contains only the derived reconstruction result and the code.',
+          'Los datos EDGAR (Consortium for ECG Imaging) se usan bajo su acuerdo de uso con atribucion. Los archivos .mat crudos estan en gitignore y nunca se comprometen; el repositorio contiene solo el resultado de reconstruccion derivado y el codigo.')}</p>
       </div>
     </div>
   );

@@ -1,37 +1,47 @@
 import { useEffect, useState } from 'react';
-import { loadIndex, loadManifest } from '../api/artifacts';
 import { useLang, pick } from '../store';
-import type { CaseManifest } from '../lib/contract.types';
+
+const BASE = import.meta.env.BASE_URL;
 
 export function Experiments() {
   const lang = useLang();
-  const [manifests, setManifests] = useState<CaseManifest[]>([]);
-  useEffect(() => {
-    loadIndex().then((idx) => Promise.all(idx.cases.map((c) => loadManifest(c.case_id))).then(setManifests));
-  }, []);
+  const [art, setArt] = useState<any>(null);
+  useEffect(() => { fetch(`${BASE}data/real-ecgi-edgar/trace.json`).then((r) => r.json()).then(setArt).catch(() => setArt(null)); }, []);
+  if (!art) return <div className="panel">Loading real results...</div>;
+  const rhythms = Object.keys(art.rhythms);
   return (
     <div className="grid" style={{ gap: 16 }}>
       <div className="panel">
-        <h1 style={{ marginTop: 0 }}>{pick(lang, 'Experiments', 'Experimentos')}</h1>
+        <h1 style={{ marginTop: 0 }}>{pick(lang, 'Real results', 'Resultados reales')}</h1>
         <p>{pick(lang,
-          'Each vertical is a research experiment: a governing equation, a ground-truth source, a PINN, and a comparison against the classical baselines. The table lists every vertical, its category, physics ladder, and lane (live in-browser inference vs baked replay).',
-          'Cada vertical es un experimento de investigacion: una ecuacion gobernante, una fuente de verdad de referencia, una PINN, y una comparacion contra los baselines clasicos. La tabla lista cada vertical, su categoria, escalera de fisica, y lane (inferencia en vivo en el navegador vs replay horneado).')}</p>
+          'Every number below is the measured reconstruction quality on the REAL EDGAR torso-tank data, validated against the REAL measured heart-surface potentials. Nothing is validated against a synthetic field. The relative error (RE) and the spatial correlation (CC) are the standard ECGi metrics; the node-UQ reliability is the fraction of heart nodes whose true error falls within two standard deviations of the reported uncertainty.',
+          'Cada numero de abajo es la calidad de reconstruccion medida sobre los datos reales del tanque de torso EDGAR, validada contra los potenciales reales medidos de superficie cardiaca. Nada se valida contra un campo sintetico. El error relativo (RE) y la correlacion espacial (CC) son las metricas estandar de ECGi.')}</p>
       </div>
       <div className="panel overflow-x">
         <table>
-          <thead><tr><th>Vertical</th><th>Category</th><th>Lane</th><th>SOTA method</th><th>Beyond SOTA</th></tr></thead>
+          <thead><tr><th>{pick(lang, 'Rhythm', 'Ritmo')}</th><th>RE (Tikhonov)</th><th>CC (Tikhonov)</th><th>RE (graph)</th><th>CC (graph)</th><th>Node-UQ 2 sigma</th><th>{pick(lang, 'Frames', 'Cuadros')}</th></tr></thead>
           <tbody>
-            {manifests.map((m) => (
-              <tr key={m.case_id}>
-                <td><b>{m.title}</b><div className="small muted">{m.real_or_synthetic}</div></td>
-                <td className="small">{m.category}</td>
-                <td><span className={`badge ${m.lane === 'live' ? 'live' : 'replay'}`}>{m.lane}</span></td>
-                <td className="small">{m.ladder.sota}</td>
-                <td className="small">{m.ladder.novel}</td>
-              </tr>
-            ))}
+            {rhythms.map((r) => {
+              const m = art.rhythms[r].metrics;
+              return (
+                <tr key={r}>
+                  <td><b>{r}</b></td>
+                  <td className="mono">{m.relative_error_tikhonov}</td>
+                  <td className="mono">{m.correlation_tikhonov}</td>
+                  <td className="mono">{m.relative_error_graph_reg}</td>
+                  <td className="mono">{m.correlation_graph_reg}</td>
+                  <td className="mono">{m.uq_calibration_2sigma}</td>
+                  <td className="mono">{m.n_time_frames}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
+      </div>
+      <div className="panel small muted">
+        {pick(lang,
+          'Paced beats (PVP, AVP) reconstruct with higher correlation than sinus, which is physically expected: a focal paced activation is easier to localize than the diffuse sinus wavefront. The absolute numbers are capped by the single-layer forward model; a boundary-element operator would improve them. Data: EDGAR (Consortium for ECG Imaging), Utah torso-tank 2018-08-09, used with attribution under the EDGAR data-use agreement.',
+          'Los latidos con marcapaso (PVP, AVP) reconstruyen con mayor correlacion que el sinusal, lo cual es fisicamente esperado. Los numeros absolutos estan limitados por el modelo directo de capa simple; un operador de elementos de contorno los mejoraria. Datos: EDGAR, tanque de torso Utah 2018-08-09.')}
       </div>
     </div>
   );
