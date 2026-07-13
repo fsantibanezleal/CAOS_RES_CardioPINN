@@ -6,10 +6,12 @@ from __future__ import annotations
 from .cases.act_eikonal_mapping import SPEC as ACT_EIKONAL
 from .cases.base import CaseSpec
 from .cases.delta_pinn_geometry import SPEC as DELTA_PINN
+from .cases.fiber_conductivity_inverse import SPEC as FIBER_INVERSE
 
 CASES: list[CaseSpec] = [
     ACT_EIKONAL,
     DELTA_PINN,
+    FIBER_INVERSE,
 ]
 
 _BY_ID: dict[str, CaseSpec] = {c.id: c for c in CASES}
