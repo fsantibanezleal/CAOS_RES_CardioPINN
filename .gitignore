@@ -52,3 +52,7 @@ models/*.pth
 .DS_Store
 Thumbs.db
 *.log
+
+# build-time overlays (copy-data.mjs copies canonical data/derived + models here)
+frontend/public/data/
+frontend/public/models/
