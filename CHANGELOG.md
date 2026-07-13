@@ -3,6 +3,22 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.05.000], 2026-07-13
+
+### Added
+- Vertical 7 (beyond SOTA), `flow4d-ns-pressure`: a Navier-Stokes PINN recovers pressure from noisy velocity
+  (4D-flow-like) on the Kovasznay analytic flow, with a hematocrit-dependent viscosity setting the Reynolds
+  number, and a calibrated per-voxel pressure uncertainty. Baked: velocity rel-L2 ~0.004, pressure rel-L2
+  ~0.008, pressure reliability within 2 sigma ~0.94 (recalibrated); Re ~40 at hematocrit 0.45; pressure net
+  live. Reproduces Sierpe et al. arXiv:2508.03326 (2025) + adds the calibrated pressure UQ.
+- Vertical 8 (beyond SOTA), `pa-pressure-1dns`: non-invasive pulmonary-artery pressure via a 1D reduced-order
+  Navier-Stokes PINN across a normal-to-pulmonary-hypertension cohort with uncertainty. Baked: normal ~11,
+  elevated ~20, pulmonary-hypertension ~33 mmHg predicted (true ~10.5 / ~18.3 / ~28.1), mean absolute error
+  ~2.6 mmHg, normal-vs-PH classification correct; replay. Reproduces the Valparaiso 1D-NS PA-pressure PINN
+  (Jara et al., Biomedicines 2025, DOI 10.3390/biomedicines13092058) + adds the cohort and UQ.
+- Frontend: verticals 7 and 8 wired (bilingual Context + registry). This completes the eight core research
+  verticals across cardiac electrophysiology and cardiovascular hemodynamics.
+
 ## [0.04.000], 2026-07-13
 
 ### Added

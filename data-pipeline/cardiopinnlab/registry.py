@@ -10,6 +10,8 @@ from .cases.fiber_conductivity_inverse import SPEC as FIBER_INVERSE
 from .cases.joint_cv_scar_uq import SPEC as JOINT_CV_SCAR
 from .cases.active_sensing import SPEC as ACTIVE_SENSING
 from .cases.af_phase_rotor import SPEC as AF_ROTOR
+from .cases.flow4d_ns_pressure import SPEC as FLOW4D
+from .cases.pa_pressure_1dns import SPEC as PA_PRESSURE
 
 CASES: list[CaseSpec] = [
     ACT_EIKONAL,
@@ -18,6 +20,8 @@ CASES: list[CaseSpec] = [
     JOINT_CV_SCAR,
     ACTIVE_SENSING,
     AF_ROTOR,
+    FLOW4D,
+    PA_PRESSURE,
 ]
 
 _BY_ID: dict[str, CaseSpec] = {c.id: c for c in CASES}
