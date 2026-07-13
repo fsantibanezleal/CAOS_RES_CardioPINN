@@ -3,6 +3,22 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.04.000], 2026-07-13
+
+### Added
+- Vertical 5 (beyond SOTA), `active-sensing`: uncertainty-driven next-best-electrode acquisition. An offline
+  hold-out study compares active (max GP-posterior-variance) vs random vs uniform placement; active reaches a
+  10% rel-L2 target with 15 electrodes vs 30 (random) and 44 (uniform), and the final Eikonal PINN reconstructs
+  better on the actively-chosen sites. Live. Closes the acquisition loop the SOTA mapping PINN leaves open.
+- Reaction-diffusion spine (`core/reaction_diffusion.py`): Aliev-Panfilov monodomain spiral generator + phase
+  field + topological-charge phase-singularity detection.
+- Vertical 6 (beyond SOTA), `af-phase-rotor`: atrial-fibrillation phase mapping with probabilistic rotor
+  localization. From sparse noisy electrodes (about 3.4% coverage) the complex phasor is interpolated and an
+  ensemble produces a probabilistic rotor-location heatmap + confidence radius; the rotor is localized to
+  ~0.9 mm with a ~0.9 mm confidence radius. Replay. Aliev-Panfilov DOI 10.1016/0960-0779(95)00089-5;
+  EP-PINNs DOI 10.3389/fcvm.2021.768419.
+- Frontend: verticals 5 and 6 wired (bilingual Context + registry).
+
 ## [0.03.000], 2026-07-13
 
 ### Added
