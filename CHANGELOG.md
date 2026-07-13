@@ -3,6 +3,22 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.06.000], 2026-07-14
+
+### Added
+- Vertical 9 (stretch, beyond SOTA), `inverse-ecgi`: the inverse ECG imaging problem. A single-layer forward
+  operator, an oracle-best Tikhonov baseline (fair), and a physics-constrained ensemble reconstruction with a
+  recalibrated per-node uncertainty. Baked: PINN relative error ~0.16 vs oracle-Tikhonov ~0.20, correlation
+  ~0.99 vs ~0.98, node UQ ~0.91 within 2 sigma; live. The honest win is the calibrated node uncertainty
+  (Tikhonov is a strong baseline). Sensors 23:1841; generative direction arXiv:2601.18615.
+- Vertical 10 (stretch, beyond SOTA), `amortized-operator`: amortized inference for instant personalization. A
+  heteroscedastic encoder trained once on a 700-patient simulated Eikonal population maps a new patient's
+  sparse activation times in one ~1 ms forward pass to a calibrated parameter posterior. Baked: substrate
+  location error ~0.12 mm, posterior calibration ~0.93 within 2 sigma, ~60000x faster than a per-patient fit;
+  replay. Neural-operator direction arXiv:2512.01702.
+- Custom domain cardiopinn.fasl-work.com wired (Felipe created the DNS CNAME 2026-07-14).
+- Frontend: verticals 9 and 10 wired. This completes all 10 planned verticals (8 core + 2 stretch).
+
 ## [0.05.000], 2026-07-13
 
 ### Added
