@@ -114,7 +114,7 @@ export function Workbench() {
 
       {trace && sub === 'compare' && (
         <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          {['T_pinn', 'T_truth', 'T_gp', 'abs_err_pinn'].filter((f) => trace.fields[f]).map((f) => (
+          {fieldKeys.slice(0, 4).map((f) => (
             <div key={f} className="grid" style={{ gap: 6 }}>
               <div className="small muted">{f}</div>
               <CardiacMeshKit trace={trace} field={f} timeCursor={1} showSensors={false} />

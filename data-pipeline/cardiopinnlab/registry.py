@@ -5,9 +5,11 @@ from __future__ import annotations
 
 from .cases.act_eikonal_mapping import SPEC as ACT_EIKONAL
 from .cases.base import CaseSpec
+from .cases.delta_pinn_geometry import SPEC as DELTA_PINN
 
 CASES: list[CaseSpec] = [
     ACT_EIKONAL,
+    DELTA_PINN,
 ]
 
 _BY_ID: dict[str, CaseSpec] = {c.id: c for c in CASES}
