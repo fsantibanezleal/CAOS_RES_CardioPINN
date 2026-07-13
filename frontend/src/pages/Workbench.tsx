@@ -4,6 +4,7 @@ import { Tabs } from '../components/Tabs';
 import { Refs } from '../components/Refs';
 import { CardiacMeshKit } from '../kits/CardiacMeshKit';
 import { CONTEXT_REGISTRY } from '../content/registry';
+import { ContextTriad } from '../content/contextTriads';
 import { runField } from '../lib/onnx';
 import { t } from '../i18n';
 import { useLang, useStore, pick } from '../store';
@@ -147,6 +148,7 @@ export function Workbench() {
               <div className="rung novel"><b>Beyond SOTA</b>: {manifest.ladder.novel}</div>
             </div>
           </div>
+          {caseId && <ContextTriad caseId={caseId} />}
           {ContextBlock && <ContextBlock />}
           <Refs items={manifest.references} />
         </div>

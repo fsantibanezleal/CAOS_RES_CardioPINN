@@ -3,6 +3,22 @@
 Vertical id: `delta-pinn-geometry` - category: electrophysiology-activation - lane: replay (the input is the
 precomputed mesh eigenbasis, not a browser-suppliable coordinate).
 
+## Medical, biological and physical context
+
+**Medical.** Cardiac chambers are geometrically complex, especially the atria with their appendages,
+pulmonary-vein junctions and thin folded walls. Mapping and modelling must respect that true surface;
+otherwise activation appears to jump between tissue that is close in space but far along the wall, corrupting
+the clinical picture.
+
+**Biological.** The atrial wall is a thin, folded muscular sheet. Two points can be a few millimetres apart in
+space yet electrically far apart along the tissue (for example across a fold or the coronary sinus).
+Electrical propagation follows the tissue surface (geodesic distance), not straight-line 3D distance.
+
+**Physical.** A network fed raw (x, y, z) cannot separate points that are close in space but far along the
+surface. Delta-PINNs replace the coordinate input with the Laplace-Beltrami eigenfunctions of the actual mesh,
+the natural harmonics of the surface, so the network respects the true geometry and the Eikonal equation is
+enforced intrinsically on the manifold.
+
 ## The research topic
 
 Real cardiac chambers are curved surfaces, not flat patches, and some are geometrically hard: two regions

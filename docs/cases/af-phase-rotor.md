@@ -3,6 +3,21 @@
 Vertical id: `af-phase-rotor` - category: electrophysiology-fibrillation - lane: replay (a phase-field snapshot,
 not a coordinate network).
 
+## Medical, biological and physical context
+
+**Medical.** In atrial fibrillation the atria quiver instead of contracting, raising stroke risk. Rotors
+(spiral-wave cores) may sustain the arrhythmia and could be ablation targets, but locating them from sparse
+noisy electrodes is uncertain, so a probability map is more honest than a single point.
+
+**Biological.** Fibrillation is disorganized electrical activity: wavefronts break up in the atrial tissue (an
+excitable medium) into self-sustaining spirals. At the core of each spiral, the phase singularity, all
+activation phases meet and the tissue never fully rests or fully excites.
+
+**Physical.** The excitation is a reaction-diffusion spiral (Aliev-Panfilov). The activation phase winds by a
+full turn around the core (a topological charge). From sparse electrodes the complex phasor is interpolated to
+respect the cyclic phase, and an ensemble over noise draws yields a probabilistic core-location heatmap with a
+confidence radius.
+
 ## The research topic
 
 During atrial fibrillation the excitation organizes into rotating spiral waves whose cores are phase

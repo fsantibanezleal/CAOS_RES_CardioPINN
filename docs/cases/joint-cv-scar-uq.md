@@ -3,6 +3,21 @@
 Vertical id: `joint-cv-scar-uq` - category: electrophysiology-inverse - lane: live (the conduction-velocity
 network is coordinate-driven and re-runs in the browser).
 
+## Medical, biological and physical context
+
+**Medical.** Scar and slow-conducting fibrosis are the substrate for reentrant ventricular tachycardia, a
+life-threatening arrhythmia. Localizing that substrate, and knowing where the map can be trusted, directs
+where the clinician ablates. Low-voltage, slow-conduction zones are the ablation targets.
+
+**Biological.** After a myocardial infarction or in cardiomyopathy, dead myocytes are replaced by collagen
+(fibrosis). Surviving muscle strands weave through the scar and conduct slowly, forming the circuits that
+sustain arrhythmia. Conduction velocity drops sharply where the tissue is diseased.
+
+**Physical.** The Eikonal PINN recovers the activation time and the conduction-velocity field jointly; the
+substrate appears as a depression in the recovered velocity. Because the inverse is ill-posed where data is
+sparse, a deep ensemble with a variance recalibration gives a per-node uncertainty, telling you where the
+recovered map is reliable.
+
 ## What is new here
 
 The state-of-the-art Eikonal PINN (Sahli Costabal et al. 2020, vertical 1) recovers the activation map and a

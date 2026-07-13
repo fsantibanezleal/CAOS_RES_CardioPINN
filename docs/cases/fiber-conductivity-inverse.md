@@ -3,6 +3,21 @@
 Vertical id: `fiber-conductivity-inverse` - category: electrophysiology-fiber - lane: live (the fiber-angle
 network is coordinate-driven and re-runs in the browser).
 
+## Medical, biological and physical context
+
+**Medical.** Fibre orientation and conduction anisotropy shape how arrhythmias form and how ablation lesions
+behave. Patient-specific fibres improve simulation-guided therapy, but they cannot be measured directly in a
+living patient, so they must be inferred from the activation the clinician does measure.
+
+**Biological.** Myocardium is built of aligned muscle fibres. Electrical conduction is two to three times
+faster along the fibre than across it, because the gap junctions that couple cells concentrate at the fibre
+ends. The fibre orientation also rotates smoothly through the wall thickness.
+
+**Physical.** Anisotropic conduction is captured by a conductivity tensor in the Eikonal equation, built from
+the local fibre angle and the along and across conduction velocities. A single activation map underdetermines
+the fibres because the wavefront only probes some directions; several maps from different stimulus sites
+jointly constrain the shared fibre field.
+
 ## The research topic
 
 Myocardium is anisotropic: it conducts faster along the muscle fiber than across it. Activation therefore

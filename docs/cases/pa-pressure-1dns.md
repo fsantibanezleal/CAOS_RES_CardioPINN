@@ -3,6 +3,20 @@
 Vertical id: `pa-pressure-1dns` - category: hemodynamics-pressure - lane: replay (a cohort of pressure fields
 over space and time).
 
+## Medical, biological and physical context
+
+**Medical.** Pulmonary hypertension is diagnosed by right-heart catheterization, an invasive procedure, when
+the mean pulmonary-artery pressure exceeds 20 mmHg. A non-invasive estimate from imaging plus the measurable
+wedge pressure would screen and monitor patients without repeated catheterization.
+
+**Biological.** The pulmonary arteries carry blood from the right ventricle to the lungs at low pressure. In
+pulmonary hypertension the vessels remodel and stiffen and the vascular resistance rises, so the right
+ventricle must generate a higher pressure. The flow varies pulsatilely over the cardiac cycle.
+
+**Physical.** A one-dimensional reduced-order blood-flow model relates the pressure gradient along the vessel
+to the velocity (fluid inertia plus a resistance term). Integrating from the clinically measurable distal
+wedge pressure gives the pressure along the artery and hence the mean pulmonary-artery pressure.
+
 ## The research topic
 
 Pulmonary artery pressure (PAP) is measured by right-heart catheterization, an invasive procedure. From a

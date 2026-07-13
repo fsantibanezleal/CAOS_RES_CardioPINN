@@ -3,6 +3,20 @@
 Vertical id: `amortized-operator` - category: electrophysiology-inverse - lane: replay (the operator input is a
 sparse activation-time vector, not a coordinate).
 
+## Medical, biological and physical context
+
+**Medical.** Building a patient-specific cardiac model (a digital twin) today needs a slow per-patient fit. An
+amortized operator lets a clinic personalize the model in near real time from routine sparse measurements,
+enabling same-visit, simulation-guided decisions.
+
+**Biological.** Every patient heart differs in conduction velocity, fibre architecture and scar. These
+parameters determine how arrhythmias arise and respond to therapy, so a useful model must estimate them for
+each individual rather than assume population averages.
+
+**Physical.** Instead of solving the inverse problem separately for every patient, an operator is trained once
+on a simulated population to map sparse data directly to a parameter posterior (amortized inference). At
+inference it returns the estimate and its uncertainty in a single forward pass.
+
 ## The research topic
 
 The per-patient inverse verticals (activation mapping, fiber and conductivity, substrate) each fit a fresh

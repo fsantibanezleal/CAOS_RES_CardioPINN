@@ -3,6 +3,20 @@
 Vertical id: `inverse-ecgi` - category: electrophysiology-inverse - lane: live (the reconstructed potential
 network is coordinate-driven and re-runs in the browser).
 
+## Medical, biological and physical context
+
+**Medical.** ECG imaging reconstructs the heart-surface electrical activity from a vest of body-surface
+electrodes, non-invasively, to guide diagnosis and plan ablation. The reconstruction is unstable, so knowing
+where on the heart surface it can be trusted is as important as the map itself.
+
+**Biological.** The heart is an electrical source inside the torso, which acts as a passive volume conductor.
+The heart-surface potentials spread through the body tissues and reach the skin attenuated and smeared, so the
+surface ECG is a blurred projection of the true cardiac potentials.
+
+**Physical.** The forward map from heart-surface to body-surface potentials is a linear operator set by the
+torso geometry; its inverse is severely ill-posed (small noise produces large error). Tikhonov regularization
+stabilizes it, and a physics-constrained ensemble adds a calibrated per-node uncertainty.
+
 ## The research topic
 
 Electrocardiographic imaging reconstructs the heart-surface potentials from body-surface potentials measured

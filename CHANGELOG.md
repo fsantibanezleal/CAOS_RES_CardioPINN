@@ -3,6 +3,14 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.07.000], 2026-07-14
+
+### Added
+- Per-case medical, biological and physical context, so a viewer understands what is shown and why. Every
+  vertical now carries a three-layer context triad (the clinical picture, the underlying cardiac physiology,
+  and the physics being modeled), color-coded in the app Context tab (bilingual EN/ES) and added to each
+  docs/cases/*.md as a "Medical, biological and physical context" section.
+
 ## [0.06.000], 2026-07-14
 
 ### Added

@@ -3,6 +3,20 @@
 Vertical id: `flow4d-ns-pressure` - category: hemodynamics-flow - lane: live (the pressure network is
 coordinate-driven and re-runs in the browser).
 
+## Medical, biological and physical context
+
+**Medical.** Pressure gradients across valves and vessels (aortic stenosis, coarctation) drive clinical
+decisions, but measuring pressure means passing an invasive catheter. 4D-flow MRI gives the blood velocity
+non-invasively, and the pressure can be recovered from it, avoiding the catheter.
+
+**Biological.** Blood is not a simple fluid: it is a suspension of red cells, and its viscosity rises with the
+haematocrit (the red-cell fraction). That rheology changes the flow and the pressure field. Flow in the great
+vessels is pulsatile and often swirling rather than smooth.
+
+**Physical.** Incompressible Navier-Stokes couples velocity and pressure through conservation of mass and
+momentum. A network fits the measured (noisy) velocity and enforces those equations, recovering the pressure
+that was never measured; the viscosity term is haematocrit dependent.
+
 ## The research topic
 
 4D-flow MRI measures the blood velocity field but not pressure. Recovering the pressure (and pressure drops

@@ -3,6 +3,20 @@
 Vertical id: `active-sensing` - category: electrophysiology-inverse - lane: live (the final activation
 network is coordinate-driven and re-runs in the browser).
 
+## Medical, biological and physical context
+
+**Medical.** A mapping procedure is long and points are taken one at a time, under X-ray and anaesthesia.
+Guiding the catheter to the most informative next site shortens the procedure and reduces radiation and
+anaesthetic exposure for the patient.
+
+**Biological.** The heart-surface electrical field is smooth over healthy tissue but changes sharply at the
+borders of scar and slow-conduction zones. Those borders carry the most diagnostic information, and are
+exactly where an extra measurement most improves the reconstruction.
+
+**Physical.** The reconstruction posterior variance is highest where data is sparse or the field is complex.
+Greedily sampling the maximum-variance site (uncertainty sampling, a form of active learning) drives the error
+down fastest per acquired point, so the target accuracy is reached with fewer electrodes.
+
 ## The research topic
 
 A mapping catheter acquires points one at a time and the procedure is long, so where the next point goes

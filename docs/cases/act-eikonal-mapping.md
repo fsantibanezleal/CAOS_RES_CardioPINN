@@ -2,6 +2,21 @@
 
 Vertical id: `act-eikonal-mapping` - category: electrophysiology-activation - lane: live (onnxruntime-web).
 
+## Medical, biological and physical context
+
+**Medical.** In an electrophysiology study for arrhythmia, a catheter records when each site of the chamber
+activates. The activation map tells the clinician whether the rhythm is a focal source or a reentrant circuit,
+and regions of slowed conduction mark the arrhythmogenic substrate that is targeted by ablation.
+
+**Biological.** The heartbeat is an electrical wave: each cardiomyocyte depolarizes (a fast sodium influx) and
+passes the excitation to its neighbours through gap junctions, so a wavefront sweeps across the tissue. The
+local activation time is the moment that wavefront arrives; the conduction velocity depends on membrane
+excitability and cell-to-cell coupling.
+
+**Physical.** In the front-arrival limit of the monodomain reaction-diffusion model, the activation time obeys
+the Eikonal equation: the magnitude of its spatial gradient equals the local slowness (one over the conduction
+velocity). The network solves this inverse problem from sparse measured arrival times.
+
 ## The research topic
 
 During a catheter electroanatomical mapping study, a clinician records the **local activation time** (LAT),

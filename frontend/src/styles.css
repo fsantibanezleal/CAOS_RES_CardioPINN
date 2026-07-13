@@ -101,3 +101,13 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--b
 .ladder .rung { padding: 10px 12px; border-left: 3px solid var(--border); background: var(--panel-2); border-radius: 0 8px 8px 0; }
 .ladder .rung.sota { border-left-color: var(--accent-2); }
 .ladder .rung.novel { border-left-color: var(--accent); }
+
+.triad { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.ctx { border-top: 3px solid var(--border); }
+.ctx .ctx-h { font-weight: 700; font-size: 13px; letter-spacing: 0.3px; text-transform: uppercase; margin-bottom: 8px; }
+.ctx-med { border-top-color: var(--accent); }
+.ctx-med .ctx-h { color: var(--accent); }
+.ctx-bio { border-top-color: var(--good); }
+.ctx-bio .ctx-h { color: var(--good); }
+.ctx-phy { border-top-color: var(--accent-2); }
+.ctx-phy .ctx-h { color: var(--accent-2); }
