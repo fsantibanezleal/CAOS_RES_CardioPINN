@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLang, pick } from '../store';
 
 // ADR-0058: the in-app "How it works" modal. A tab strip; each tab pairs ONE hand-authored, themed SVG
@@ -264,10 +264,20 @@ export function ArchitectureModal({ onClose }: { onClose: () => void }) {
   const [tab, setTab] = useState('app');
   const active = TABS.find((t) => t.id === tab) ?? TABS[0];
   const Svg = active.Svg;
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    ref.current?.focus();
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   return (
     <div className="modal-back" onClick={onClose}>
       <style>{SVG_STYLE}</style>
-      <div className="modal arch-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+      <div className="modal arch-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"
+        aria-label={pick(lang, 'How CardioPINN works', 'Como funciona CardioPINN')} ref={ref} tabIndex={-1}>
         <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ margin: 0 }}>{pick(lang, 'How CardioPINN works', 'Como funciona CardioPINN')}</h2>
           <button className="iconbtn" onClick={onClose}>{pick(lang, 'Close', 'Cerrar')}</button>

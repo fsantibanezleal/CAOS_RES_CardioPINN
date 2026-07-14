@@ -7,7 +7,15 @@ import { Cite } from '../components/Cite';
 import { Equation, InlineMath } from '../components/Equation';
 import { Refs } from '../components/Refs';
 import { Tabs } from '../components/Tabs';
-import { turbo, turboCss } from '../kits/colormap';
+import { seq, div, seqCss, divCss } from '../kits/colormap';
+
+// robust range (2nd-98th percentile); relative pressure is signed (diverging), speed is magnitude (sequential)
+function lumenStats(vals: number[]): { lo: number; hi: number } {
+  const sorted = [...vals].sort((a, b) => a - b);
+  const lo = sorted[Math.floor(sorted.length * 0.02)];
+  const hi = sorted[Math.floor(sorted.length * 0.98)] || lo + 1;
+  return { lo, hi: hi === lo ? lo + 1 : hi };
+}
 import { useLang, pick } from '../store';
 
 const BASE = import.meta.env.BASE_URL;
@@ -39,11 +47,10 @@ function LumenCloud({ tr, field, frame }: { tr: Flow4dTrace; field: FlowField; f
 
   useEffect(() => {
     const vals = field === 'pressure' ? tr.pressure_mmHg : tr.speed_ms_over_time[frame];
-    const sorted = [...vals].sort((a, b) => a - b);
-    const lo = sorted[Math.floor(sorted.length * 0.02)];
-    const hi = sorted[Math.floor(sorted.length * 0.98)] || lo + 1;
+    const { lo, hi } = lumenStats(vals);
+    const cmap = field === 'pressure' ? div : seq;   // relative pressure signed -> diverging; speed -> sequential
     const color = geom.getAttribute('color') as THREE.BufferAttribute;
-    for (let i = 0; i < vals.length; i++) { const [r, g2, b] = turbo((vals[i] - lo) / (hi - lo || 1)); color.setXYZ(i, r, g2, b); }
+    for (let i = 0; i < vals.length; i++) { const [r, g2, b] = cmap((vals[i] - lo) / (hi - lo || 1)); color.setXYZ(i, r, g2, b); }
     color.needsUpdate = true;
   }, [geom, tr, field, frame]);
 
@@ -260,18 +267,35 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
         <section>
           <h2>{pick(lang, 'The recovered pressure field, on the real aorta', 'El campo de presion recuperado, sobre la aorta real')}</h2>
           <p>{pick(lang, 'Use the LEFT COLUMN to switch the field (recovered relative pressure at peak systole, or the measured speed over the cardiac cycle) and to read the live hemodynamics of the real scan. Orbit the aortic lumen below.', 'Usa la COLUMNA IZQUIERDA para cambiar el campo (presion relativa recuperada en sistole pico, o la rapidez medida durante el ciclo cardiaco) y para leer la hemodinamica en vivo del escaneo real. Orbita el lumen aortico abajo.')}</p>
-          <div className="canvas-wrap">
-            <Canvas camera={{ position: [90, -70, 70], fov: 40, up: [0, 0, 1] }}>
-              <ambientLight intensity={0.7} />
-              <LumenCloud tr={tr} field={field} frame={Math.min(frame, tr.times_ms.length - 1)} />
-              <OrbitControls target={[0, 0, 0]} />
-            </Canvas>
-            <div className="legend">
-              <div>{field === 'pressure' ? pick(lang, 'Relative pressure (mmHg)', 'Presion relativa (mmHg)') : pick(lang, 'Speed (m/s)', 'Rapidez (m/s)')}</div>
-              <div className="bar" style={{ background: `linear-gradient(90deg, ${turboCss(0)}, ${turboCss(0.5)}, ${turboCss(1)})` }} />
-            </div>
-            <div className="readout">{field === 'speed' ? `t = ${tr.times_ms[Math.min(frame, tr.times_ms.length - 1)]} ms` : pick(lang, 'peak systole', 'sistole pico')}</div>
-          </div>
+          {(() => {
+            const rf = Math.min(frame, tr.times_ms.length - 1);
+            const vals = field === 'pressure' ? tr.pressure_mmHg : tr.speed_ms_over_time[rf];
+            const { lo, hi } = lumenStats(vals);
+            const gradCss = field === 'pressure' ? divCss : seqCss;
+            const unit = field === 'pressure' ? 'mmHg' : 'm/s';
+            // detected feature: the argmax voxel of the current field
+            let mi = 0; for (let i = 1; i < vals.length; i++) if (vals[i] > vals[mi]) mi = i;
+            return (
+              <>
+                <div className="canvas-wrap">
+                  <Canvas camera={{ position: [90, -70, 70], fov: 40, up: [0, 0, 1] }} aria-hidden="true">
+                    <ambientLight intensity={0.7} />
+                    <LumenCloud tr={tr} field={field} frame={rf} />
+                    <OrbitControls target={[0, 0, 0]} />
+                  </Canvas>
+                  <div className="legend">
+                    <div>{field === 'pressure' ? pick(lang, 'Relative pressure (mmHg)', 'Presion relativa (mmHg)') : pick(lang, 'Speed (m/s)', 'Rapidez (m/s)')}</div>
+                    <div className="bar" style={{ background: `linear-gradient(90deg, ${gradCss(0)}, ${gradCss(0.5)}, ${gradCss(1)})` }} />
+                    <div className="legend-ticks"><span>{lo.toFixed(2)}</span><span>{((lo + hi) / 2).toFixed(2)}</span><span>{hi.toFixed(2)}</span></div>
+                  </div>
+                  <div className="readout">{field === 'speed' ? `t = ${tr.times_ms[rf]} ms` : pick(lang, 'peak systole', 'sistole pico')} · {pick(lang, 'max', 'max')} {vals[mi].toFixed(2)} {unit}</div>
+                </div>
+                <p className="sr-summary">{pick(lang,
+                  `3D view: ${field === 'pressure' ? 'recovered relative pressure at peak systole' : `measured speed at t = ${tr.times_ms[rf]} ms`} on the ${tr.metrics.n_lumen_voxels}-voxel aortic lumen; range ${lo.toFixed(2)} to ${hi.toFixed(2)} ${unit}; peak velocity ${tr.metrics.peak_velocity_ms} m/s; PPE pressure range ${tr.metrics.ppe_pressure_drop_mmHg} mmHg vs clinical Bernoulli ${tr.metrics.bernoulli_mmHg} mmHg.`,
+                  `Vista 3D: ${field === 'pressure' ? 'presion relativa recuperada en sistole pico' : `rapidez medida en t = ${tr.times_ms[rf]} ms`} sobre el lumen aortico de ${tr.metrics.n_lumen_voxels} voxeles; rango ${lo.toFixed(2)} a ${hi.toFixed(2)} ${unit}; velocidad pico ${tr.metrics.peak_velocity_ms} m/s; rango de presion PPE ${tr.metrics.ppe_pressure_drop_mmHg} mmHg vs Bernoulli clinico ${tr.metrics.bernoulli_mmHg} mmHg.`)}</p>
+              </>
+            );
+          })()}
           {field === 'speed' && (
             <div className="row" style={{ marginTop: 10 }}>
               <span className="muted small">{pick(lang, 'Cardiac phase', 'Fase cardiaca')}:</span>

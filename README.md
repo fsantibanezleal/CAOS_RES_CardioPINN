@@ -7,7 +7,7 @@ solves answers no clinical question.
 
 Live: https://cardiopinn.fasl-work.com/
 
-> Status: real-data-first (0.0.x). Not clinically deployed; validated methodological results on real
+> Status: real-data-first (0.1x, validated methodological results). Not clinically deployed; validated methodological results on real
 > experimental data. Raw datasets are used under their data-use agreements and are not redistributed.
 
 The app is a catalogue of real applied cases across TWO different physics domains, each recovering an
@@ -44,10 +44,12 @@ and velocity are tied by the fluid equations, so the pressure field follows from
   from the network's ANALYTIC derivatives (computing the source and Neumann flux analytically, not by finite
   differences at the lumen edge, is what removes the boundary artifact that otherwise wrecks the map).
 - **What we validate.** There is no invasive pressure gold standard (the reason the method exists). The engine
-  is gated on an analytic converging duct whose exact pressure drop is known (correlation 1.00, 4.74 vs 4.73
-  mmHg) before any real data is trusted; the real-scan map is physiological (a 14.87 mmHg range, bulk -10 to
-  +4 mmHg) and brackets the clinical simplified-Bernoulli estimate (2.37 mmHg from the same scan's 0.77 m/s
-  peak velocity). The absolute magnitude carries the method's uncertainty.
+  is gated on an analytic converging duct whose exact pressure drop is known (correlation 1.00) and on a
+  time-varying Poiseuille flow for the unsteady term (dv/dt correlation 0.995) before any real data is trusted.
+  A space-time PINN gives the analytic unsteady acceleration over the whole cycle; with it the real-scan map is
+  physiological (a 0.79 mmHg relative-pressure range, small for this unobstructed aorta) and the same order as
+  the clinical simplified-Bernoulli estimate (2.51 mmHg from the same scan's 0.791 m/s peak velocity). The
+  absolute magnitude carries the method's uncertainty.
 
 ## Repository
 

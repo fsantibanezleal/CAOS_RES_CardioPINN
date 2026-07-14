@@ -1,6 +1,6 @@
 name: Deploy Pages
 
-# The offline GPU bake is committed (ONNX + traces + manifests under data/derived + models/), so deploy is a
+# The offline bake is committed (JSON traces under data/derived), so deploy is a
 # pure frontend build: copy-data.mjs overlays data/derived -> public/ and Vite builds the static SPA. No
 # Python, no retraining on CI (the physics is a pure function of (case, seed), baked locally on the GPU).
 

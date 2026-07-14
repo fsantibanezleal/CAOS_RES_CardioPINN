@@ -8,7 +8,7 @@ real measured velocity field and the pressure is forced out of it by the physics
 
 - **The case.** A real thoracic-aorta 4D-flow MRI scan (Philips, venc 120 cm/s, distortion-corrected) measures
   the full three-directional blood velocity in the aorta at 16 frames across the cardiac cycle, on a 2.5 mm
-  isotropic grid. Physiological peak velocity 0.77 m/s.
+  isotropic grid. Physiological peak velocity 0.791 m/s.
 - **The need.** The clinically decisive quantity for a stenosis or coarctation is the pressure drop across the
   narrowing. The reference measurement is invasive cardiac catheterization. 4D-flow measures velocity
   non-invasively but not pressure; pressure and velocity are tied by the fluid equations, so the pressure field
@@ -37,13 +37,13 @@ exists. The validation is therefore threefold:
 2. **Physiological range on the real scan.** The recovered relative pressure spans about 0.79 mmHg across the
    segment, small and physiological for an unobstructed aorta (with the analytic space-time unsteady term; the
    earlier three-frame finite difference inflated the unsteady contribution and gave ~15 mmHg), not thousands.
-3. **Clinical bracket.** The routine simplified-Bernoulli estimate from the same scan's 0.77 m/s peak velocity
-   is 4 * Vmax^2 = 2.37 mmHg; the physics-based field brackets it, exactly what an unobstructed aorta should
+3. **Clinical bracket.** The routine simplified-Bernoulli estimate from the same scan's 0.791 m/s peak velocity
+   is 4 * Vmax^2 = 2.51 mmHg; the physics-based field brackets it, exactly what an unobstructed aorta should
    show, while additionally revealing where the pressure varies (which a single Bernoulli number cannot).
 
 | Quantity | Value |
 |---|---|
-| Peak velocity (real scan) | 0.79 m/s |
+| Peak velocity (real scan) | 0.791 m/s |
 | PPE relative-pressure range | 0.79 mmHg (space-time unsteady term) |
 | Clinical Bernoulli 4*Vmax^2 | 2.51 mmHg |
 | Lumen voxels resolved | 47902 |
