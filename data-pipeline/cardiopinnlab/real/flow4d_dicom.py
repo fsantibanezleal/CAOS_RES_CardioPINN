@@ -1,87 +1,119 @@
 """Load a REAL 4D-flow MRI acquisition into a time-resolved 3-directional velocity field.
 
-Source: Stanford AS4DF (Aortic Stiffness 4D Flow, purl.stanford.edu/dz488kx6180, open). The 4D-flow series
-(`4DFLOWWIP_*F_fullVel`, post distortion correction) stores, per frame, a magnitude image and three
-phase images encoding velocity along the read/phase/slice axes. Phase in [-pi, pi] maps to velocity by the
-encoding velocity (venc): v = phase / pi * venc. Voxel positions come from the DICOM ImagePositionPatient /
-ImageOrientationPatient / PixelSpacing, so the velocity samples land in the same physical (patient) frame as
-the aorta STL geometry.
+Source: a real thoracic-aorta 4D-flow study (`4DFLOWWIP_16F_fullvel`, Philips, post distortion correction).
+Per cardiac frame the scan stores a magnitude image (`WIP_fl3d1r3`) and three phase-contrast velocity images
+encoding velocity along the patient RL, AP and FH axes (`WIP_f_v120rl / v120in / v120fh`, venc 120 cm/s). The
+12-bit phase pixel maps to velocity through the DICOM rescale: velocity_cm/s = (slope*px + intercept)/4096 *
+venc, i.e. the full rescaled range [-4096, 4096] spans [-venc, +venc]. Voxel centres come from
+ImagePositionPatient / ImageOrientationPatient / PixelSpacing, so velocity samples and geometry share the
+patient frame.
 
-This module reads the real DICOMs, assembles v(x, t) at the voxel centres, and keeps only the voxels inside
-the aorta lumen (the measured fluid velocity the PINN is trained on). No synthetic data anywhere: the velocity
-is the real scan."""
+The aortic lumen is masked by the pulsatile-flow criterion standard in 4D-flow: a voxel belongs to the lumen
+if its peak-over-the-cardiac-cycle speed exceeds a threshold (flowing blood), keeping the largest connected
+component. No synthetic data anywhere; the velocity is the real scan, and the pressure the PINN later recovers
+is never measured."""
 from __future__ import annotations
 
 from pathlib import Path
 
 import numpy as np
 
+CM_S_TO_MM_MS = 0.01   # 1 cm/s = 10 mm/s = 0.01 mm/ms
 
-def _read_series(dcm_dir: Path):
+# Philips SequenceName -> role. The three velocity encodings map to the patient axes:
+#   rl (right->left) = +x_L,  in (anterior->posterior, AP) = +y_P,  fh (foot->head) = +z_H.
+_VEL_DIRS = {"v120rl": 0, "v120in": 1, "v120fh": 2}
+_MAG = "fl3d1r3"
+
+
+def _read_all(dcm_dir: Path):
     import pydicom
-    slices = []
-    for f in sorted(dcm_dir.glob("*")):
+    out = []
+    for f in sorted(Path(dcm_dir).glob("*")):
         try:
             ds = pydicom.dcmread(str(f), force=True)
             if hasattr(ds, "PixelData"):
-                slices.append(ds)
+                out.append(ds)
         except Exception:
             continue
-    return slices
+    return out
 
 
-def _venc_of(ds) -> float | None:
-    # venc lives in a few possible places depending on the vendor export
-    for tag in [(0x0019, 0x10CC), (0x0018, 0x9217), (0x0043, 0x1075)]:
-        if tag in ds:
-            try:
-                return float(ds[tag].value)
-            except Exception:
-                pass
-    # sometimes encoded in SequenceName like "fl3d1_v150" (150 cm/s)
-    name = str(getattr(ds, "SequenceName", "") or getattr(ds, "ProtocolName", ""))
-    import re
-    m = re.search(r"[vV](\d{2,3})", name)
-    if m:
-        return float(m.group(1))
-    return None
+def _role(ds):
+    name = str(getattr(ds, "SequenceName", "") or "")
+    if _MAG in name:
+        return ("mag", None)
+    for key, axis in _VEL_DIRS.items():
+        if key in name:
+            return ("vel", axis)
+    return (None, None)
 
 
-def _grid_positions(ds_list):
-    """Physical (patient-frame) coordinates of each voxel centre for a stack of parallel slices."""
-    ds0 = ds_list[0]
-    ny, nx = int(ds0.Rows), int(ds0.Columns)
-    dr, dc = [float(x) for x in ds0.PixelSpacing]
-    ori = np.array([float(x) for x in ds0.ImageOrientationPatient]).reshape(2, 3)
+def _voxel_xyz(ds, ny, nx):
+    dr, dc = [float(x) for x in ds.PixelSpacing]
+    ori = np.array([float(x) for x in ds.ImageOrientationPatient]).reshape(2, 3)
     row_dir, col_dir = ori[0], ori[1]
-    pts, order = [], np.argsort([float(ds.ImagePositionPatient[2]) for ds in ds_list])
-    for k in order:
-        ds = ds_list[k]
-        origin = np.array([float(x) for x in ds.ImagePositionPatient])
-        jj, ii = np.meshgrid(np.arange(ny), np.arange(nx), indexing="ij")
-        p = (origin[None, None, :]
-             + ii[..., None] * dc * row_dir[None, None, :]
-             + jj[..., None] * dr * col_dir[None, None, :])
-        pts.append(p)
-    return np.stack(pts, axis=0), order   # [nz, ny, nx, 3]
+    origin = np.array([float(x) for x in ds.ImagePositionPatient])
+    jj, ii = np.meshgrid(np.arange(ny), np.arange(nx), indexing="ij")
+    return origin[None, None, :] + ii[..., None] * dc * row_dir + jj[..., None] * dr * col_dir
 
 
-def load_4dflow(root: Path, aorta_mesh, max_frames: int = 8) -> dict:
-    """root points at a 4DFLOWWIP_*F_fullVel model folder. Returns dict with coords [N,3] mm, velocity
-    [T,N,3] mm/ms (SI-ish), t [T] ms, restricted to voxels inside the aorta lumen. Robust to the exact export
-    layout: it groups DICOMs by frame and by the three velocity encodings, scales by venc, and masks by the
-    real geometry."""
-    root = Path(root)
-    ds_list = _read_series(root)
+def load_4dflow(root: Path, venc_cm_s: float = 120.0) -> dict:
+    """Assemble the real 4D-flow field. Returns coords [Nvox,3] mm (patient frame), velocity [T,Nvox,3] mm/ms,
+    times [T] ms, speed_peak [Nvox] mm/ms, and the (nz,ny,nx) grid shape. All voxels (unmasked) are returned;
+    masking to the lumen is done by mask_lumen()."""
+    ds_list = _read_all(root)
     if not ds_list:
         raise FileNotFoundError(f"no DICOMs under {root}")
-    venc = next((_venc_of(ds) for ds in ds_list if _venc_of(ds)), None)
-    # group by temporal position and by velocity-encoding direction (via the RescaleType / private direction)
-    # here we assume the standard 4-image-per-frame packing: [mag, vx, vy, vz]
-    frames: dict[int, list] = {}
+    ny, nx = int(ds_list[0].Rows), int(ds_list[0].Columns)
+
+    # index every image by (role/axis, slice-z, trigger-time)
+    recs = []
     for ds in ds_list:
-        tp = int(getattr(ds, "TemporalPositionIdentifier", 0) or getattr(ds, "InstanceNumber", 0))
-        frames.setdefault(tp, []).append(ds)
-    # this is the real-data adapter; concrete packing is verified against the downloaded headers at build time
-    return {"venc": venc, "n_series_images": len(ds_list), "n_frames": len(frames),
-            "note": "real 4D-flow adapter; concrete velocity assembly finalized against the real DICOM headers"}
+        role, axis = _role(ds)
+        if role is None:
+            continue
+        recs.append((role, axis, round(float(ds.SliceLocation), 3),
+                     round(float(getattr(ds, "TriggerTime", 0.0)), 3), ds))
+    zs = sorted({r[2] for r in recs})
+    ts = sorted({r[3] for r in recs})
+    zi = {z: i for i, z in enumerate(zs)}
+    ti = {t: i for i, t in enumerate(ts)}
+    nz, nt = len(zs), len(ts)
+
+    coords = np.zeros((nz, ny, nx, 3), np.float32)
+    vel = np.zeros((nt, nz, ny, nx, 3), np.float32)
+    have_pos = np.zeros(nz, bool)
+    for role, axis, z, t, ds in recs:
+        k = zi[z]
+        if not have_pos[k]:
+            coords[k] = _voxel_xyz(ds, ny, nx)
+            have_pos[k] = True
+        if role == "vel":
+            px = ds.pixel_array.astype(np.float32)
+            slope = float(getattr(ds, "RescaleSlope", 1.0))
+            icpt = float(getattr(ds, "RescaleIntercept", 0.0))
+            v_cm_s = (slope * px + icpt) / 4096.0 * venc_cm_s
+            vel[ti[t], k, :, :, axis] = v_cm_s * CM_S_TO_MM_MS
+
+    coords = coords.reshape(-1, 3)
+    vel = vel.reshape(nt, -1, 3)
+    speed_peak = np.linalg.norm(vel, axis=2).max(axis=0)
+    return {"coords": coords, "velocity": vel, "times_ms": np.array(ts, np.float32),
+            "speed_peak": speed_peak, "grid": (nz, ny, nx), "venc_cm_s": venc_cm_s}
+
+
+def mask_lumen(field: dict, speed_thresh_cm_s: float = 12.0) -> np.ndarray:
+    """Boolean mask over voxels: the aortic lumen = peak speed above threshold, largest connected component."""
+    from scipy import ndimage
+    nz, ny, nx = field["grid"]
+    thr = speed_thresh_cm_s * CM_S_TO_MM_MS
+    m = (field["speed_peak"] > thr).reshape(nz, ny, nx)
+    lab, n = ndimage.label(m)
+    if n == 0:
+        return m.reshape(-1)
+    sizes = ndimage.sum(np.ones_like(lab), lab, index=np.arange(1, n + 1))
+    keep = int(np.argmax(sizes)) + 1
+    m = (lab == keep)
+    m = ndimage.binary_closing(m, iterations=1)
+    return m.reshape(-1)

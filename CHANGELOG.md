@@ -3,6 +3,30 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.11.000], 2026-07-14
+
+### Added
+- **Multi-dataset real ECGi catalogue.** The reconstruction now runs across a catalogue of independent real
+  EDGAR experiments instead of a single torso tank, answering the "catalogue is too poor" review: a config
+  driven loader (`real/ecgi_catalogue.py`) handles the differing field names and mesh layouts per lab. Two
+  real datasets ship, 4 beats total, all validated against a real gold standard with the identical pipeline
+  (no per-heart retuning): the Utah human explanted heart in a torso tank (192 body -> 256 cage; sinus + PVP
+  + AVP paced) and the Maastricht in-situ dog heart (140 body -> 1321-node epicardium; sinus). Measured
+  quality: human RE 0.54-0.65 / CC 0.72-0.85, dog RE 0.54 / CC 0.78, node-UQ ~0.90 throughout. The App
+  Reconstruction tab, Experiments coverage table, and Benchmark method comparison gained a live dataset/beat
+  selector; the committed artifact is `data/derived/real-ecgi-catalogue/catalogue.json` (2.44 MB). Artifact
+  validator + test rewritten with a completeness floor (>= 2 cases, >= 4 beats) so a partial bake cannot
+  silently shrink the catalogue.
+
+### Investigated (not shipped)
+- **4D-flow aortic pressure (NS-PINN).** The real Philips 4D-flow velocity field was decoded (40 slices x 16
+  frames, magnitude + 3 phase encodings, venc 120 cm/s -> physiological peak ~2 m/s) and the aortic lumen
+  segmented from the pulsatile flow. Pressure recovery is NOT shipped: an analytic-Poiseuille gate showed the
+  NS-PINN recovers only ~1% of the true pressure gradient (pressure is weakly coupled / gauge-free, a known
+  PINN failure mode), and the scan's jet core is phase-wrap aliased. Shipping a fabricated pressure field
+  would violate the honesty bar, so the case is deferred to the validated work-energy / pressure-Poisson
+  route (must pass the analytic gate before inclusion). Findings persisted in the CAOS_MANAGE plan.
+
 ## [0.10.000], 2026-07-14
 
 ### Added

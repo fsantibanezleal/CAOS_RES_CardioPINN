@@ -22,7 +22,7 @@ function ArchSvg({ lang }: { lang: 'en' | 'es' }) {
         <path d="M340 105 H390" stroke="var(--good)" strokeWidth="2" markerEnd="url(#aa)" />
         <text x="365" y="96" textAnchor="middle" fill="var(--good)" fontSize="10">{pick(lang, 'commit', 'commit')}</text>
         <rect x="392" y="70" width="150" height="70" rx="8" fill="color-mix(in srgb, var(--good) 12%, var(--panel))" stroke="var(--good)" />
-        <text x="467" y="98" textAnchor="middle" fill="var(--fg)" fontSize="12">trace.json</text>
+        <text x="467" y="98" textAnchor="middle" fill="var(--fg)" fontSize="12">catalogue.json</text>
         <text x="467" y="115" textAnchor="middle" fill="var(--muted)" fontSize="10">{pick(lang, 'mesh + fields + metrics', 'malla + campos + metricas')}</text>
         <path d="M542 105 H590" stroke="var(--accent-2)" strokeWidth="2" markerEnd="url(#aa)" />
         <rect x="592" y="60" width="118" height="90" rx="8" fill="var(--panel-2)" stroke="var(--border)" />
