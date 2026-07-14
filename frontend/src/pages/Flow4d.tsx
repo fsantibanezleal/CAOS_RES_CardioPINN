@@ -75,7 +75,7 @@ function PpeSvg({ lang }: { lang: 'en' | 'es' }) {
 export function Flow4d() {
   const lang = useLang();
   const [tr, setTr] = useState<Flow4dTrace | null>(null);
-  const [tab, setTab] = useState('problem');
+  const [tab, setTab] = useState('result');
   const [field, setField] = useState<'pressure' | 'speed'>('pressure');
   const [frame, setFrame] = useState(0);
   const raf = useRef<number | null>(null);
@@ -99,12 +99,12 @@ export function Flow4d() {
   useEffect(() => () => { if (raf.current) cancelAnimationFrame(raf.current); }, []);
 
   const tabs = [
+    { id: 'result', label: pick(lang, 'Pressure recovery', 'Recuperacion de presion') },
     { id: 'problem', label: pick(lang, 'The problem', 'El problema') },
     { id: 'target', label: pick(lang, 'The target', 'El objetivo') },
     { id: 'forward', label: pick(lang, 'How the PDE arises', 'Como surge la PDE') },
     { id: 'traditional', label: pick(lang, 'Traditional approach', 'Enfoque tradicional') },
     { id: 'pinn', label: pick(lang, 'Physics-informed proposal', 'Propuesta informada por fisica') },
-    { id: 'result', label: pick(lang, 'Pressure recovery', 'Recuperacion de presion') },
   ];
 
   return (

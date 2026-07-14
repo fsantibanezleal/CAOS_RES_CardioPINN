@@ -108,7 +108,7 @@ function ForwardSvg({ lang }: { lang: 'en' | 'es' }) {
 export function RealEcgi() {
   const lang = useLang();
   const [cat, setCat] = useState<Catalogue | null>(null);
-  const [tab, setTab] = useState('problem');
+  const [tab, setTab] = useState('recon');
   const [caseIdx, setCaseIdx] = useState(0);
   const [beat, setBeat] = useState('sinus');
   const [field, setField] = useState('recovered_mV');
@@ -136,12 +136,12 @@ export function RealEcgi() {
   useEffect(() => () => { if (raf.current) cancelAnimationFrame(raf.current); }, []);
 
   const tabs = [
+    { id: 'recon', label: pick(lang, 'Reconstruction', 'Reconstruccion') },
     { id: 'problem', label: pick(lang, 'The problem', 'El problema') },
     { id: 'target', label: pick(lang, 'The target', 'El objetivo') },
     { id: 'forward', label: pick(lang, 'How the PDE arises', 'Como surge la PDE') },
     { id: 'traditional', label: pick(lang, 'Traditional approach', 'Enfoque tradicional') },
     { id: 'pinn', label: pick(lang, 'Physics-informed proposal', 'Propuesta informada por fisica') },
-    { id: 'recon', label: pick(lang, 'Reconstruction', 'Reconstruccion') },
   ];
 
   return (
