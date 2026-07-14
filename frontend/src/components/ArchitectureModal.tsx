@@ -42,7 +42,7 @@ function SvgApp() {
   return (
     <svg className="arch-svg" viewBox="0 0 880 300" role="img">
       <Defs />
-      <text x="16" y="24" className="lane-lbl">CARDIOPINN — TWO REAL PHYSICS DOMAINS, ONE CATALOGUE</text>
+      <text x="16" y="24" className="lane-lbl">CARDIOPINN: TWO REAL PHYSICS DOMAINS, ONE CATALOGUE</text>
       <rect className="bx bx-hi" x="16" y="38" width="410" height="96" rx="8" />
       <text x="30" y="60" className="ttl">Case A · ECG imaging</text>
       <text x="30" y="76" className="sub">quasi-static volume conduction (Laplace)</text>
@@ -82,7 +82,7 @@ function SvgLanes() {
     <svg className="arch-svg" viewBox="0 0 880 320" role="img">
       <Defs />
       <rect className="lane" x="12" y="30" width="560" height="270" rx="10" />
-      <text x="28" y="52" className="lane-lbl">OFFLINE — the physics (runs on your machine, never in CI or the web)</text>
+      <text x="28" y="52" className="lane-lbl">OFFLINE: the physics (runs on your machine, never in CI or the web)</text>
       <rect className="bx bx-compute" x="30" y="64" width="255" height="104" rx="8" />
       <text x="44" y="86" className="ttl">ECGi reconstruction · CPU</text>
       <text x="44" y="103" className="mono">NumPy / SciPy · no torch</text>
@@ -98,7 +98,7 @@ function SvgLanes() {
       <rect className="bx bx-gate" x="30" y="182" width="525" height="46" rx="8" />
       <text x="44" y="203" className="ttl">Analytic gate</text>
       <text x="150" y="203" className="it">spheres (ECGi corr 1.00) · duct + Poiseuille (4D-flow)</text>
-      <text x="44" y="219" className="mu">test_ecgi_bem · test_flow4d_ppe · test_flow4d_spacetime — must pass before real data</text>
+      <text x="44" y="219" className="mu">test_ecgi_bem · test_flow4d_ppe · test_flow4d_spacetime: must pass before real data</text>
       <rect className="bx" x="30" y="242" width="525" height="44" rx="8" />
       <text x="44" y="263" className="ttl">Bake → committed JSON trace</text>
       <text x="230" y="263" className="mono">data/derived/*/trace.json · catalogue.json</text>
@@ -106,7 +106,7 @@ function SvgLanes() {
       <path className="flow-good" d="M572 160 H610" markerEnd="url(#ahg)" />
       <text x="576" y="152" className="lbl">reads only</text>
       <rect className="lane" x="620" y="30" width="248" height="270" rx="10" />
-      <text x="636" y="52" className="lane-lbl">WEB — static</text>
+      <text x="636" y="52" className="lane-lbl">WEB: static</text>
       <rect className="bx bx-web" x="636" y="64" width="216" height="70" rx="8" />
       <text x="650" y="86" className="ttl">Load the trace</text>
       <text x="650" y="103" className="mono">fetch(BASE + data/*.json)</text>
@@ -161,12 +161,12 @@ function SvgWeb() {
   );
 }
 
-// (4) The science — the two governing chains
+// (4) The science: the two governing chains
 function SvgScience() {
   return (
     <svg className="arch-svg" viewBox="0 0 880 300" role="img">
       <Defs />
-      <text x="16" y="22" className="lane-lbl">A · ECG IMAGING — recover an unmeasurable field by an ill-posed inverse</text>
+      <text x="16" y="22" className="lane-lbl">A · ECG IMAGING: recover an unmeasurable field by an ill-posed inverse</text>
       {[
         ['body surface φ_body', 'measured (192-256 electrodes)'],
         ['forward operator A', '∇·(σ∇φ)=0 · single-layer / BEM'],
@@ -181,7 +181,7 @@ function SvgScience() {
           {i < 4 && <path className="flow" d={`M${172 + i * 172} 64 H${188 + i * 172}`} markerEnd="url(#ah)" />}
         </g>
       ))}
-      <text x="16" y="150" className="lane-lbl">B · 4D-FLOW PRESSURE — force pressure out of a measured velocity via Navier-Stokes</text>
+      <text x="16" y="150" className="lane-lbl">B · 4D-FLOW PRESSURE: force pressure out of a measured velocity via Navier-Stokes</text>
       {[
         ['velocity v(x,t)', 'measured 4D-flow MRI'],
         ['div-free PINN', 'fit v + enforce ∇·v=0'],

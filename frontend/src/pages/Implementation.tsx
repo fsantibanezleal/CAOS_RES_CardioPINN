@@ -12,7 +12,7 @@ function ArchSvg({ lang }: { lang: Lang }) {
     <div className="fig-svg wide">
       <svg viewBox="0 0 760 250" role="img" style={{ width: '100%', height: 'auto' }}>
         <rect x="10" y="26" width="430" height="212" rx="10" fill="none" stroke="var(--border)" strokeDasharray="5 4" />
-        <text x="22" y="46" fill="var(--muted)" fontSize="11.5">{pick(lang, 'OFFLINE — the physics (local machine, never in CI or the web)', 'OFFLINE — la fisica (maquina local, nunca en CI ni la web)')}</text>
+        <text x="22" y="46" fill="var(--muted)" fontSize="11.5">{pick(lang, 'OFFLINE: the physics (local machine, never in CI or the web)', 'OFFLINE: la fisica (maquina local, nunca en CI ni la web)')}</text>
         <rect x="24" y="56" width="200" height="80" rx="8" fill="var(--panel-2)" stroke="var(--accent-2)" strokeWidth="1.3" />
         <text x="36" y="76" fill="var(--fg)" fontSize="11.5" fontWeight="600">{pick(lang, 'ECGi · CPU (NumPy/SciPy)', 'ECGi · CPU (NumPy/SciPy)')}</text>
         <text x="36" y="93" fill="var(--muted)" fontSize="9.5" fontFamily="var(--mono,monospace)">ecgi_edgar · ecgi_catalogue · ecgi_bem</text>
@@ -32,7 +32,7 @@ function ArchSvg({ lang }: { lang: Lang }) {
         <path d="M440 130 H484" stroke="var(--good)" strokeWidth="1.8" markerEnd="url(#ia)" />
         <text x="462" y="122" textAnchor="middle" fill="var(--good)" fontSize="9.5">{pick(lang, 'reads', 'lee')}</text>
         <rect x="488" y="70" width="262" height="120" rx="10" fill="none" stroke="var(--border)" strokeDasharray="5 4" />
-        <text x="500" y="90" fill="var(--muted)" fontSize="11.5">{pick(lang, 'WEB — static, no model', 'WEB — estatica, sin modelo')}</text>
+        <text x="500" y="90" fill="var(--muted)" fontSize="11.5">{pick(lang, 'WEB: static, no model', 'WEB: estatica, sin modelo')}</text>
         <rect x="502" y="100" width="234" height="34" rx="7" fill="var(--panel-2)" stroke="var(--good)" strokeWidth="1.2" />
         <text x="514" y="121" fill="var(--fg)" fontSize="10.5">{pick(lang, 'fetch trace → three.js render', 'fetch trace → render three.js')}</text>
         <rect x="502" y="142" width="234" height="34" rx="7" fill="var(--panel-2)" stroke="var(--good)" strokeWidth="1.2" />
