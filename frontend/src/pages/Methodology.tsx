@@ -103,9 +103,41 @@ function UqSvg({ lang }: { lang: Lang }) {
   );
 }
 
+function NsSvg({ lang }: { lang: Lang }) {
+  return (
+    <Fig lang={lang} caption={['Incompressible Navier-Stokes; taking the divergence and using ∇·v=0 removes the acceleration and pressure gradient couplings into a single Poisson equation for pressure.', 'Navier-Stokes incompresible; tomar la divergencia y usar ∇·v=0 elimina los acoplamientos y deja una sola ecuacion de Poisson para la presion.']}>
+      <rect x="20" y="70" width="180" height="56" rx="8" fill="var(--panel-2)" stroke="var(--accent)" strokeWidth="1.3" />
+      {T(110, 92, 'momentum + ∇·v=0', 'fg', 'middle')}{T(110, 110, 'ρ(∂ₜv+(v·∇)v)=-∇p+μ∇²v', 'muted', 'middle', 9)}
+      <path d="M200 98 H250" stroke="var(--accent-2)" strokeWidth="1.6" markerEnd="url(#mah2)" />{T(225, 90, 'div', 'muted', 'middle', 9)}
+      <rect x="252" y="70" width="150" height="56" rx="8" fill="var(--panel-2)" stroke="var(--border)" />
+      {T(327, 92, 'pressure-Poisson', 'fg', 'middle')}{T(327, 110, '∇²p = S(v)', 'muted', 'middle', 10)}
+      <path d="M402 98 H452" stroke="var(--good)" strokeWidth="1.6" markerEnd="url(#mahg2)" />
+      <rect x="454" y="72" width="86" height="52" rx="8" fill="color-mix(in srgb, var(--good) 12%, var(--panel))" stroke="var(--good)" strokeWidth="1.3" />
+      {T(497, 94, 'p(x)', 'fg', 'middle')}{T(497, 111, 'relative', 'good', 'middle', 9)}
+      <defs><marker id="mah2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="var(--accent-2)" /></marker><marker id="mahg2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="var(--good)" /></marker></defs>
+    </Fig>
+  );
+}
+function DenoiseSvg({ lang }: { lang: Lang }) {
+  return (
+    <Fig lang={lang} caption={['A network fits the measured velocity while enforcing ∇·v=0, projecting out the continuity-violating noise; its analytic derivatives make the pressure-Poisson source clean.', 'Una red ajusta la velocidad medida imponiendo ∇·v=0, proyectando el ruido que viola continuidad; sus derivadas analiticas limpian la fuente de Poisson.']}>
+      <rect x="20" y="72" width="150" height="52" rx="8" fill="var(--panel-2)" stroke="var(--accent)" strokeWidth="1.3" />
+      {T(95, 92, 'noisy v(measured)', 'fg', 'middle', 10)}{T(95, 109, '|div v| large', 'muted', 'middle', 9)}
+      <path d="M170 98 H214" stroke="var(--accent-2)" strokeWidth="1.6" markerEnd="url(#mah2)" />
+      <rect x="216" y="72" width="170" height="52" rx="8" fill="var(--panel-2)" stroke="var(--accent-2)" strokeWidth="1.3" />
+      {T(301, 90, 'div-free PINN v_θ', 'fg', 'middle')}{T(301, 108, 'data fit + λ||∇·v||²', 'muted', 'middle', 9)}
+      <path d="M386 98 H430" stroke="var(--good)" strokeWidth="1.6" markerEnd="url(#mahg2)" />
+      <rect x="432" y="72" width="108" height="52" rx="8" fill="color-mix(in srgb, var(--good) 12%, var(--panel))" stroke="var(--good)" strokeWidth="1.3" />
+      {T(486, 92, 'smooth v', 'fg', 'middle')}{T(486, 109, '|div v| ~0', 'good', 'middle', 9)}
+    </Fig>
+  );
+}
+
 export function Methodology() {
   const lang = useLang();
+  const [dom, setDom] = useState<'ecgi' | 'flow'>('ecgi');
   const [m, setM] = useState('forward');
+  const [fm, setFm] = useState('navier');
   const methods = [
     { id: 'forward', label: pick(lang, 'Forward operator', 'Operador directo') },
     { id: 'tikhonov', label: pick(lang, 'Tikhonov inverse', 'Inverso de Tikhonov') },
@@ -114,20 +146,33 @@ export function Methodology() {
     { id: 'physics', label: pick(lang, 'Physics-constrained', 'Restringido por fisica') },
     { id: 'uq', label: pick(lang, 'Ensemble uncertainty', 'Incertidumbre por ensemble') },
   ];
+  const flowMethods = [
+    { id: 'navier', label: pick(lang, 'Navier-Stokes to Poisson', 'Navier-Stokes a Poisson') },
+    { id: 'denoise', label: pick(lang, 'Divergence-free PINN', 'PINN sin divergencia') },
+    { id: 'spacetime', label: pick(lang, 'Space-time unsteady term', 'Termino no estacionario') },
+    { id: 'ppe', label: pick(lang, 'Pressure-Poisson solve', 'Resolucion de Poisson') },
+    { id: 'gate', label: pick(lang, 'Analytic gates', 'Pruebas analiticas') },
+  ];
 
   return (
     <div className="page-body prose">
       <div className="page-head">
         <h1>{pick(lang, 'Methodology', 'Metodologia')}</h1>
         <p className="lede">{pick(lang,
-          'The method landscape for the inverse ECG problem, from the forward physics to the regularized inverse, the spatial prior, the physics-constrained fit, and the calibrated uncertainty. Each family is a tab with its governing equations, the exact choices this build makes, and its honest limits.',
-          'El panorama de metodos para el problema inverso de ECG, desde la fisica directa hasta el inverso regularizado, el prior espacial, el ajuste restringido por fisica, y la incertidumbre calibrada. Cada familia es una pestana con sus ecuaciones gobernantes, las decisiones exactas de esta implementacion, y sus limites honestos.')}</p>
+          'The method landscape for BOTH cases: the inverse ECG problem (forward operator, regularized inverse, spatial prior, physics-constrained fit, calibrated uncertainty) and the 4D-flow pressure recovery (Navier-Stokes to pressure-Poisson, the divergence-free denoiser, the analytic unsteady term, the elliptic solve, the analytic gates). Switch the domain, then each family is a sub-tab with its governing equations, the exact choices this build makes, and its honest limits.',
+          'El panorama de metodos para AMBOS casos: el problema inverso de ECG (operador directo, inverso regularizado, prior espacial, ajuste restringido por fisica, incertidumbre calibrada) y la recuperacion de presion de flujo 4D (Navier-Stokes a Poisson de presion, el suavizador sin divergencia, el termino no estacionario analitico, la resolucion eliptica, las pruebas analiticas). Cambia el dominio, luego cada familia es una sub-pestana con sus ecuaciones gobernantes, las decisiones exactas de esta implementacion, y sus limites honestos.')}</p>
+      </div>
+
+      <div className="row" style={{ marginBottom: 16 }}>
+        <span className="muted small">{pick(lang, 'Physics domain', 'Dominio fisico')}:</span>
+        <span className={`chip ${dom === 'ecgi' ? 'on' : ''}`} onClick={() => setDom('ecgi')}>{pick(lang, 'ECG imaging (volume conduction)', 'Imagen de ECG (conduccion de volumen)')}</span>
+        <span className={`chip ${dom === 'flow' ? 'on' : ''}`} onClick={() => setDom('flow')}>{pick(lang, '4D-flow pressure (Navier-Stokes)', 'Presion de flujo 4D (Navier-Stokes)')}</span>
       </div>
 
       <div className="method-layout">
-        <SubTabs tabs={methods} active={m} onChange={setM} />
+        <SubTabs tabs={dom === 'ecgi' ? methods : flowMethods} active={dom === 'ecgi' ? m : fm} onChange={dom === 'ecgi' ? setM : setFm} />
         <div>
-          {m === 'forward' && (
+          {dom === 'ecgi' && m === 'forward' && (
             <section>
               <h2>{pick(lang, 'The forward operator: torso volume conduction', 'El operador directo: conduccion de volumen del torso')}</h2>
               <p>{pick(lang,
@@ -148,7 +193,7 @@ export function Methodology() {
             </section>
           )}
 
-          {m === 'tikhonov' && (
+          {dom === 'ecgi' && m === 'tikhonov' && (
             <section>
               <h2>{pick(lang, 'Tikhonov regularization', 'Regularizacion de Tikhonov')} <Cite id="tikhonov1977" /></h2>
               <p>{pick(lang,
@@ -169,7 +214,7 @@ export function Methodology() {
             </section>
           )}
 
-          {m === 'param' && (
+          {dom === 'ecgi' && m === 'param' && (
             <section>
               <h2>{pick(lang, 'Choosing the regularization strength', 'Eleccion de la fuerza de regularizacion')} <Cite id="hansen1992" /></h2>
               <p>{pick(lang,
@@ -188,7 +233,7 @@ export function Methodology() {
             </section>
           )}
 
-          {m === 'prior' && (
+          {dom === 'ecgi' && m === 'prior' && (
             <section>
               <h2>{pick(lang, 'A spatial prior on the real heart surface', 'Un prior espacial sobre la superficie cardiaca real')}</h2>
               <p>{pick(lang,
@@ -207,7 +252,7 @@ export function Methodology() {
             </section>
           )}
 
-          {m === 'physics' && (
+          {dom === 'ecgi' && m === 'physics' && (
             <section>
               <h2>{pick(lang, 'Physics-constrained reconstruction', 'Reconstruccion restringida por fisica')} <Cite id="raissi2019" /></h2>
               <p>{pick(lang,
@@ -226,7 +271,7 @@ export function Methodology() {
             </section>
           )}
 
-          {m === 'uq' && (
+          {dom === 'ecgi' && m === 'uq' && (
             <section>
               <h2>{pick(lang, 'Calibrated per-node uncertainty by deep ensemble', 'Incertidumbre por nodo calibrada por ensemble profundo')} <Cite id="lakshminarayanan2017" /></h2>
               <p>{pick(lang,
@@ -242,6 +287,113 @@ export function Methodology() {
                 'La recalibracion usa el error real solo para fijar un escalar global; no ajusta la reconstruccion. Una calibracion totalmente ciega (validacion cruzada en la superficie corporal) es la version clinica honesta y un siguiente paso.')}</Callout>
               <UqSvg lang={lang} />
               <Refs ids={['lakshminarayanan2017', 'cluitmans2018']} />
+            </section>
+          )}
+
+          {dom === 'flow' && fm === 'navier' && (
+            <section>
+              <h2>{pick(lang, 'From Navier-Stokes to the pressure-Poisson equation', 'De Navier-Stokes a la ecuacion de Poisson de presion')}</h2>
+              <p>{pick(lang,
+                'Blood in a large artery is an incompressible Newtonian fluid, so its motion obeys the incompressible Navier-Stokes equations: conservation of momentum, which ties the pressure gradient to the fluid acceleration and viscous friction, plus the incompressibility (zero-divergence) constraint. The pressure appears only through its gradient, and it is never measured.',
+                'La sangre en una arteria grande es un fluido newtoniano incompresible, asi que su movimiento obedece las ecuaciones de Navier-Stokes incompresibles: conservacion del momento, que liga el gradiente de presion a la aceleracion del fluido y la friccion viscosa, mas la restriccion de incompresibilidad (divergencia cero). La presion aparece solo por su gradiente, y nunca se mide.')}</p>
+              <p>{pick(lang,
+                'Taking the divergence of the momentum equation and using incompressibility eliminates the acceleration term and turns the relation into a single elliptic Poisson equation for pressure, whose right-hand side is built entirely from the measured velocity and its spatial derivatives. This is a well-posed problem, unlike a naive inversion; the whole difficulty moves into computing a clean source from noisy measured velocity.',
+                'Tomar la divergencia de la ecuacion de momento y usar la incompresibilidad elimina el termino de aceleracion y convierte la relacion en una sola ecuacion eliptica de Poisson para la presion, cuyo lado derecho se construye enteramente de la velocidad medida y sus derivadas espaciales. Es un problema bien planteado, a diferencia de una inversion ingenua; toda la dificultad se traslada a calcular una fuente limpia desde una velocidad medida ruidosa.')}</p>
+              <Equation tex={String.raw`\rho\big(\partial_t\mathbf{v}+(\mathbf{v}\cdot\nabla)\mathbf{v}\big)=-\nabla p+\mu\nabla^2\mathbf{v},\qquad \nabla\cdot\mathbf{v}=0`}
+                caption={pick(lang, 'Incompressible Navier-Stokes: momentum balance plus zero divergence. rho = 1060 kg/m3, mu = 0.0035 Pa s.', 'Navier-Stokes incompresible: balance de momento mas divergencia cero. rho = 1060 kg/m3, mu = 0.0035 Pa s.')} />
+              <Equation tex={String.raw`\nabla^2 p = -\rho\sum_{i,j}\frac{\partial v_i}{\partial x_j}\frac{\partial v_j}{\partial x_i}\equiv S(\mathbf{v})`}
+                caption={pick(lang, 'The pressure-Poisson equation: the source S is a quadratic form of the velocity gradients, so noise in v is amplified, hence the divergence-free denoising.', 'La ecuacion de Poisson de presion: la fuente S es una forma cuadratica de los gradientes de velocidad, asi que el ruido en v se amplifica, de ahi el suavizado sin divergencia.')} />
+              <NsSvg lang={lang} />
+              <Callout>{pick(lang, 'There is no invasive pressure gold standard, which is exactly why the method exists; the pressure is forced out of the measured velocity by the physics.', 'No hay patron de oro de presion invasivo, que es justo por lo que existe el metodo; la presion la fuerza la fisica desde la velocidad medida.')}</Callout>
+              <Refs ids={['krittian2012', 'raissi2020']} />
+            </section>
+          )}
+
+          {dom === 'flow' && fm === 'denoise' && (
+            <section>
+              <h2>{pick(lang, 'The divergence-free velocity PINN denoiser', 'El suavizador PINN de velocidad sin divergencia')}</h2>
+              <p>{pick(lang,
+                'Because the pressure-Poisson source is a product of velocity derivatives, raw measurement noise (which violates incompressibility) is amplified into a non-physiological pressure. The fix is a physics-informed velocity step: a network is trained to reproduce the measured velocity while satisfying zero divergence at collocation points, producing a smooth, divergence-free field whose analytic derivatives are clean.',
+                'Como la fuente de la Poisson de presion es un producto de derivadas de velocidad, el ruido de medicion crudo (que viola la incompresibilidad) se amplifica en una presion no fisiologica. La solucion es un paso de velocidad informado por fisica: una red se entrena para reproducir la velocidad medida satisfaciendo divergencia cero en puntos de colocacion, produciendo un campo suave y sin divergencia cuyas derivadas analiticas son limpias.')}</p>
+              <p>{pick(lang,
+                'Unlike pressure, velocity is strongly constrained by the data, so this denoising is well-posed and robust. A plain momentum-residual network that tries to output pressure directly cannot recover it at aortic Reynolds numbers (pressure is gauge-free and weakly coupled); that failed approach is kept as the documented baseline. Separating the well-posed velocity fit from the elliptic pressure solve is what works.',
+                'A diferencia de la presion, la velocidad esta fuertemente restringida por los datos, asi que este suavizado esta bien planteado y es robusto. Una red simple de residuo de momento que intenta emitir presion directamente no puede recuperarla a Reynolds aortico (la presion no tiene calibre y se acopla debil); ese enfoque fallido se conserva como baseline documentado. Separar el ajuste de velocidad bien planteado de la resolucion eliptica es lo que funciona.')}</p>
+              <Equation tex={String.raw`\min_\theta\; \big\lVert \mathbf{v}_\theta-\mathbf{v}^{\text{measured}}\big\rVert^2 \;+\; \lambda\,\big\lVert \nabla\cdot\mathbf{v}_\theta\big\rVert^2`}
+                caption={pick(lang, 'The divergence-free objective: fit the measured velocity while penalizing any divergence at random collocation points. Trained Adam then L-BFGS.', 'El objetivo sin divergencia: ajustar la velocidad medida penalizando cualquier divergencia en puntos de colocacion. Entrenado Adam luego L-BFGS.')} />
+              <Equation tex={String.raw`S=-\rho\sum_{i,j}\frac{\partial v_{\theta,i}}{\partial x_j}\frac{\partial v_{\theta,j}}{\partial x_i},\qquad \mathbf{b}=-\rho(\mathbf{v}_\theta\cdot\nabla)\mathbf{v}_\theta+\mu\nabla^2\mathbf{v}_\theta \;\;(\text{analytic, autograd})`}
+                caption={pick(lang, 'The pressure-Poisson source and Neumann wall flux, computed from the network ANALYTIC derivatives, not finite differences at the lumen edge (which is what removes the boundary artifact).', 'La fuente de Poisson y el flujo Neumann de pared, calculados de las derivadas ANALITICAS de la red, no diferencias finitas en el borde (que es lo que elimina el artefacto de frontera).')} />
+              <DenoiseSvg lang={lang} />
+              <Callout>{pick(lang, 'A velocity-noise ensemble (5% of the venc) moves the recovered pressure under 0.01 mmHg: the denoiser makes the pressure robust to velocity noise, so the dominant uncertainty is the absent gold standard, not the noise.', 'Un ensemble de ruido (5% del venc) mueve la presion recuperada menos de 0.01 mmHg: el suavizador hace la presion robusta al ruido, asi que la incertidumbre dominante es el patron de oro ausente, no el ruido.')}</Callout>
+              <Refs ids={['raissi2020', 'raissi2019']} />
+            </section>
+          )}
+
+          {dom === 'flow' && fm === 'spacetime' && (
+            <section>
+              <h2>{pick(lang, 'The space-time network: an analytic unsteady term', 'La red espacio-temporal: un termino no estacionario analitico')}</h2>
+              <p>{pick(lang,
+                'The unsteady acceleration dominates the pressure at peak systole. A space-time network v(x,y,z,t) is trained divergence-free over the WHOLE cardiac cycle, so the pressure-Poisson source AND the unsteady acceleration dv/dt are both analytic (differentiated exactly in time by autograd), replacing an earlier noisy three-frame finite difference.',
+                'La aceleracion no estacionaria domina la presion en sistole pico. Una red espacio-temporal v(x,y,z,t) se entrena sin divergencia sobre TODO el ciclo cardiaco, asi que la fuente de la Poisson Y la aceleracion no estacionaria dv/dt son ambas analiticas (derivadas exactamente en el tiempo por autograd), reemplazando una diferencia finita ruidosa de tres cuadros.')}</p>
+              <p>{pick(lang,
+                'On the real scan the analytic unsteady term takes the recovered relative-pressure range from an inflated 14.87 mmHg (the noisy finite difference) to a small, physiological 0.79 mmHg, the same order as the clinical Bernoulli estimate (2.51 mmHg) from the same scan. This is a genuine improvement measured on the real data, not a tuning choice.',
+                'En el escaneo real el termino analitico lleva el rango de presion relativa de 14.87 mmHg inflado (la diferencia finita ruidosa) a un pequeno y fisiologico 0.79 mmHg, del mismo orden que la estimacion clinica de Bernoulli (2.51 mmHg) del mismo escaneo. Es una mejora real medida sobre los datos, no una eleccion de ajuste.')}</p>
+              <Equation tex={String.raw`\partial_t\mathbf{v}=\frac{U}{T}\,\partial_{\tilde t}\,\mathbf{v}_\theta(\tilde x,\tilde t)\quad(\text{analytic, autograd in the non-dimensional time})`}
+                caption={pick(lang, 'The analytic temporal derivative via the chain rule through the non-dimensional time; it feeds the full Neumann flux with the exact unsteady contribution.', 'La derivada temporal analitica por la regla de la cadena en el tiempo adimensional; alimenta el flujo Neumann completo con la contribucion no estacionaria exacta.')} />
+              <Equation tex={String.raw`\mathbf{b}=\mathbf{b}_{\text{steady}}-\rho\,\partial_t\mathbf{v}`}
+                caption={pick(lang, 'The full Neumann wall flux = the steady (convective + viscous) part minus the analytic unsteady acceleration.', 'El flujo Neumann completo = la parte estacionaria (convectiva + viscosa) menos la aceleracion no estacionaria analitica.')} />
+              <Fig lang={lang} caption={['A single net over (x,y,z,t) gives the velocity and, by autograd in t, the exact acceleration at every phase; the earlier 3-frame difference is dropped.', 'Una sola red sobre (x,y,z,t) da la velocidad y, por autograd en t, la aceleracion exacta en cada fase; se descarta la diferencia de 3 cuadros.']}>
+                <rect x="40" y="72" width="180" height="52" rx="8" fill="var(--panel-2)" stroke="var(--accent)" strokeWidth="1.3" />{T(130, 92, 'v_θ(x,y,z,t)', 'fg', 'middle')}{T(130, 109, 'div-free over the cycle', 'muted', 'middle', 9)}
+                <path d="M220 98 H264" stroke="var(--accent-2)" strokeWidth="1.6" markerEnd="url(#mah2)" />{T(242, 90, '∂ₜ', 'muted', 'middle', 10)}
+                <rect x="266" y="72" width="150" height="52" rx="8" fill="var(--panel-2)" stroke="var(--good)" strokeWidth="1.3" />{T(341, 92, 'analytic dv/dt', 'fg', 'middle')}{T(341, 109, 'gate corr 0.995', 'good', 'middle', 9)}
+              </Fig>
+              <Callout>{pick(lang, 'Gated on an analytic time-varying Poiseuille flow whose exact dw/dt is known: the network recovers it at correlation 0.995 before real data is trusted.', 'Prueba en un flujo analitico de Poiseuille variable en el tiempo cuyo dw/dt exacto se conoce: la red lo recupera con correlacion 0.995 antes de confiar en datos reales.')}</Callout>
+              <Refs ids={['raissi2020', 'krittian2012']} />
+            </section>
+          )}
+
+          {dom === 'flow' && fm === 'ppe' && (
+            <section>
+              <h2>{pick(lang, 'The elliptic pressure-Poisson solve', 'La resolucion eliptica de Poisson de presion')}</h2>
+              <p>{pick(lang,
+                'With a clean analytic source and Neumann boundary flux from the denoised field, the pressure is the solution of a Poisson equation on the segmented aortic lumen with a Neumann condition on the wall and one Dirichlet pin (pressure is defined up to a constant). It is solved by a sparse DIRECT method on the largest connected component, robust where an iterative solver stalls on the irregular, ill-conditioned real lumen.',
+                'Con una fuente analitica limpia y un flujo Neumann de frontera del campo suavizado, la presion es la solucion de una ecuacion de Poisson sobre el lumen aortico segmentado con condicion Neumann en la pared y un pin de Dirichlet (la presion se define salvo constante). Se resuelve por un metodo DIRECTO disperso en la mayor componente conexa, robusto donde un solver iterativo se estanca en el lumen real irregular y mal condicionado.')}</p>
+              <p>{pick(lang,
+                'Computing the source S and the Neumann flux b from the network analytic derivatives (rather than finite differences at the lumen edge) is the decisive step: the edge, where a grid field meets the zeroed exterior, is where finite differences manufacture the worst artifacts. Doing it analytically is what takes the map from a non-physiological thousands of mmHg to a physiological range.',
+                'Calcular la fuente S y el flujo Neumann b de las derivadas analiticas de la red (en lugar de diferencias finitas en el borde) es el paso decisivo: el borde, donde un campo de rejilla encuentra el exterior en cero, es donde las diferencias finitas fabrican los peores artefactos. Hacerlo analiticamente es lo que lleva el mapa de miles de mmHg no fisiologicos a un rango fisiologico.')}</p>
+              <Equation tex={String.raw`\nabla^2 p = S(\mathbf{v}_\theta) \text{ in } \Omega_{\text{lumen}},\qquad \partial_n p = \mathbf{b}(\mathbf{v}_\theta)\cdot\mathbf{n} \text{ on } \partial\Omega,\qquad p(x_0)=0`}
+                caption={pick(lang, 'The elliptic boundary-value problem for the relative pressure: Poisson interior, Neumann wall, one Dirichlet pin to fix the additive constant.', 'El problema eliptico de valores de contorno para la presion relativa: Poisson interior, Neumann en la pared, un pin de Dirichlet para fijar la constante aditiva.')} />
+              <Equation tex={String.raw`\text{sparse system } L\,\mathbf{p}=\mathbf{f},\qquad L=\text{7-point Laplacian on the lumen voxels}`}
+                caption={pick(lang, 'Discretized as a sparse linear system on the lumen voxels and solved by a direct factorization.', 'Discretizado como un sistema lineal disperso sobre los voxeles del lumen y resuelto por una factorizacion directa.')} />
+              <Fig lang={lang} caption={['The recovered relative pressure on the lumen; the range is small (~0.79 mmHg) and physiological for an unobstructed aorta.', 'La presion relativa recuperada sobre el lumen; el rango es pequeno (~0.79 mmHg) y fisiologico para una aorta sin obstruccion.']}>
+                <rect x="40" y="70" width="150" height="56" rx="8" fill="var(--panel-2)" stroke="var(--accent-2)" strokeWidth="1.3" />{T(115, 92, 'S(v), b(v)', 'fg', 'middle')}{T(115, 110, 'analytic', 'muted', 'middle', 9)}
+                <path d="M190 98 H234" stroke="var(--accent-2)" strokeWidth="1.6" markerEnd="url(#mah2)" />
+                <rect x="236" y="70" width="150" height="56" rx="8" fill="var(--panel-2)" stroke="var(--border)" />{T(311, 92, 'sparse direct solve', 'fg', 'middle', 10)}{T(311, 110, 'L p = f', 'muted', 'middle', 10)}
+                <path d="M386 98 H430" stroke="var(--good)" strokeWidth="1.6" markerEnd="url(#mahg2)" />
+                <rect x="432" y="72" width="108" height="52" rx="8" fill="color-mix(in srgb, var(--good) 12%, var(--panel))" stroke="var(--good)" strokeWidth="1.3" />{T(486, 94, 'p 0.79 mmHg', 'fg', 'middle', 10)}{T(486, 111, 'physiological', 'good', 'middle', 9)}
+              </Fig>
+              <Refs ids={['krittian2012', 'raissi2020']} />
+            </section>
+          )}
+
+          {dom === 'flow' && fm === 'gate' && (
+            <section>
+              <h2>{pick(lang, 'The analytic gates: proof before real data', 'Las pruebas analiticas: prueba antes de datos reales')}</h2>
+              <p>{pick(lang,
+                'Because there is no invasive pressure gold standard, the engine is proven on analytic flows whose exact answer is known BEFORE any real data is trusted. The steady pressure solve is gated on an analytic converging duct whose exact pressure drop is known, recovered to within 1 percent (correlation 1.00, 4.74 vs 4.73 mmHg). The unsteady term is gated on a time-varying Poiseuille flow whose exact dw/dt is known, recovered at correlation 0.995.',
+                'Como no hay patron de oro de presion invasivo, el motor se prueba en flujos analiticos de respuesta exacta conocida ANTES de confiar en datos reales. La resolucion de presion estacionaria se prueba en un ducto convergente analitico cuya caida de presion exacta se conoce, recuperada con menos de 1 por ciento de error (correlacion 1.00, 4.74 vs 4.73 mmHg). El termino no estacionario se prueba en un flujo de Poiseuille variable en el tiempo cuyo dw/dt exacto se conoce, recuperado con correlacion 0.995.')}</p>
+              <p>{pick(lang,
+                'These gates are pytest tests that must pass in continuous integration; only after they pass is the pipeline applied to the real scan. The BEM forward operator in the ECGi case is gated the same way, on the concentric-sphere problem where the harmonic transfer is known in closed form (correlation 1.00, error halving per mesh refinement). This is the discipline that separates a real result from a plausible-looking one.',
+                'Estas pruebas son tests de pytest que deben pasar en integracion continua; solo tras pasar se aplica el pipeline al escaneo real. El operador directo BEM del caso ECGi se prueba igual, en el problema de esferas concentricas donde la transferencia armonica se conoce en forma cerrada (correlacion 1.00, error a la mitad por refinamiento). Esta es la disciplina que separa un resultado real de uno de apariencia plausible.')}</p>
+              <Equation tex={String.raw`\text{converging duct: } \Delta p_{\text{true}}=4.73\text{ mmHg},\;\; \Delta p_{\text{rec}}=4.74\text{ mmHg},\;\; \text{corr }1.00`}
+                caption={pick(lang, 'The steady pressure gate: the known analytic drop is recovered to within 1 percent before real data is used.', 'La prueba de presion estacionaria: la caida analitica conocida se recupera con menos de 1 por ciento de error antes de usar datos reales.')} />
+              <Equation tex={String.raw`\text{time-varying Poiseuille: } \tfrac{dw}{dt}\Big|_{\text{rec}}\;\text{vs}\;\tfrac{dw}{dt}\Big|_{\text{true}},\;\; \text{corr }0.995`}
+                caption={pick(lang, 'The unsteady gate: the analytic acceleration is recovered before the space-time term is trusted on the real scan.', 'La prueba no estacionaria: la aceleracion analitica se recupera antes de confiar en el termino espacio-temporal sobre el escaneo real.')} />
+              <Fig lang={lang} caption={['Every engine passes a known-answer analytic gate (green) before it is applied to the real scan; a failing gate blocks the pipeline in CI.', 'Cada motor pasa una prueba analitica de respuesta conocida (verde) antes de aplicarse al escaneo real; una prueba fallida bloquea el pipeline en CI.']}>
+                <rect x="60" y="72" width="180" height="52" rx="8" fill="var(--panel-2)" stroke="var(--warn)" strokeWidth="1.3" />{T(150, 92, 'analytic gate', 'fg', 'middle')}{T(150, 109, 'known closed-form answer', 'muted', 'middle', 9)}
+                <path d="M240 98 H288" stroke="var(--good)" strokeWidth="1.6" markerEnd="url(#mahg2)" />{T(264, 90, 'pass', 'good', 'middle', 9)}
+                <rect x="290" y="72" width="180" height="52" rx="8" fill="color-mix(in srgb, var(--good) 12%, var(--panel))" stroke="var(--good)" strokeWidth="1.3" />{T(380, 92, 'apply to the real scan', 'fg', 'middle', 10)}{T(380, 109, 'CI-enforced', 'good', 'middle', 9)}
+              </Fig>
+              <Refs ids={['raissi2020', 'vanoosterom1983']} />
             </section>
           )}
         </div>

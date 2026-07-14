@@ -1,92 +1,66 @@
-// CONTRACT 2 mirror (frontend side). MUST stay in lock-step with the Python schemas in
-// data-pipeline/cardiopinnlab/core/{trace.py, manifest.py}. A drift here makes `tsc` fail, so the contract
-// is enforced at BUILD time (the web cannot ship reading a shape the pipeline does not produce).
+// Artifact-contract mirror (frontend side). These interfaces mirror the two REAL committed JSON traces the
+// offline pipeline bakes and the static web reads: the ECGi catalogue (data/derived/real-ecgi-catalogue/
+// catalogue.json, baked by cardiopinnlab.real.ecgi_catalogue) and the 4D-flow pressure trace
+// (data/derived/real-flow4d-pressure/trace.json, baked by cardiopinnlab.real.flow4d_bake). Keep in lock-step
+// with those bakers; any drift makes `tsc` fail where the pages consume these shapes.
 
-export interface TraceMesh {
-  vertices: number[][];   // [n][3] mm (a 2D patch is embedded at z = 0)
+// ---- Case A: ECG imaging catalogue (schema "cardiopinn.ecgi-catalogue/v2") ---------------------------------
+
+export interface EcgiMesh {
+  vertices: number[][];   // [n][3] mm, centred + scaled heart-cage geometry
   triangles: number[][];  // [m][3] vertex indices
   n_vertices: number;
   n_triangles: number;
 }
 
-export interface Trace {
-  schema: string;                       // "cardiopinn.trace/v1"
-  case_id: string;
-  view_kit: string;                     // "CardiacMeshKit" | ...
-  mesh: TraceMesh;
-  fields: Record<string, number[]>;     // name -> per-vertex scalar field (T, CV, residual, ...)
-  field_units: Record<string, string>;
-  sensors: number[][];                  // [k][3] sparse measurement sites (x, y, measured value)
-  isochrones_ms: number[];              // activation-time levels for the wavefront animation
-  summary: Record<string, number>;
+export interface EcgiBeat {
+  mesh: EcgiMesh;
+  times_ms: number[];                          // decimated frame times over the beat
+  fields_over_time: {
+    recovered_mV: number[][];                  // [frame][node] our reconstruction (signed)
+    measured_mV: number[][];                   // [frame][node] the REAL cage gold standard (signed)
+    abs_error_mV: number[][];                  // [frame][node]
+    uncertainty_mV: number[][];                // [frame][node] recalibrated per-node spread
+  };
+  metrics: Record<string, number>;             // relative_error_tikhonov, correlation_tikhonov, *_graph_reg,
+  //                                              *_ensemble, uq_calibration_2sigma, n_torso_electrodes,
+  //                                              n_heart_electrodes, n_time_frames
 }
 
-export interface OnnxBlock {
-  path: string;                         // "<case>.onnx" under public/models
-  bytes: number;
-  opset: number;
-  input_dim: number;
-  output_names: string[];
-  parity_max_abs: number;               // PyTorch vs onnxruntime max-abs (the browser-re-run guarantee)
+export interface EcgiForwardComparison {
+  beat: string;
+  bem_applicable: boolean;
+  reason?: string;                             // present when the BEM does not apply (open surface)
+  single_layer?: { RE: number; CC: number };
+  bem?: { RE: number; CC: number };
 }
 
-export interface GateVerdict {
-  lane: 'live' | 'precompute';
-  web_drivable: boolean;
-  onnx_bytes: number;
-  onnx_bytes_budget: number;
-  trace_bytes: number;
-  trace_bytes_budget: number;
-  parity_max_abs: number | null;
-  parity_budget: number;
-  reasons: string[];
+export interface EcgiCase {
+  id: string;
+  name: string;
+  context_en: string;
+  context_es: string;
+  beats: Record<string, EcgiBeat>;             // beat label -> beat
+  forward_comparison?: EcgiForwardComparison;
 }
 
-export interface LadderRungs {
-  classical: string;
-  sota: string;
-  novel: string;
+export interface EcgiCatalogue {
+  schema: string;                              // "cardiopinn.ecgi-catalogue/v2"
+  cases: EcgiCase[];
 }
 
-export interface Reference {
-  cite: string;
-  doi_or_arxiv: string;
-  note: string;
-}
+// ---- Case B: 4D-flow aortic pressure (schema "cardiopinn.flow4d-pressure/v3") ------------------------------
 
-export interface CaseManifest {
-  schema: string;                       // "cardiopinn.manifest/v1"
-  case_id: string;
-  title: string;
-  category: string;
-  system_type: string;
-  view_kit: string;
-  real_or_synthetic: string;
-  expected_band: string;
-  ladder: LadderRungs;
-  engine: { package: string; version: string; model: string };
-  params: Record<string, number>;
-  seed: number;
-  artifact: { path: string; format: string; trace_schema: string; bytes: number };
-  onnx: OnnxBlock | null;
-  lane: 'live' | 'precompute';
-  gate: GateVerdict;
-  flags: Array<Record<string, string>>;
-  metrics: Record<string, number>;
-  references: Reference[];
-}
-
-export interface CaseIndexEntry {
-  case_id: string;
-  category: string;
-  title: string;
-  manifest_path: string;
-  lane: 'live' | 'precompute';
-}
-
-export interface CaseIndex {
-  schema: string;                       // "cardiopinn.index/v1"
-  engine_version: string;
-  n_cases: number;
-  cases: CaseIndexEntry[];
+export interface Flow4dTrace {
+  schema: string;                              // "cardiopinn.flow4d-pressure/v3"
+  unsteady_term?: string;                      // "space-time PINN (analytic dv/dt over the whole cycle)"
+  points_mm: number[][];                       // [n][3] mm, centred + scaled aortic-lumen point cloud
+  pressure_mmHg: number[];                     // [n] recovered relative pressure at peak systole (signed)
+  speed_ms_peak: number[];                     // [n] measured speed at the peak frame
+  speed_ms_over_time: number[][];              // [frame][n] measured speed over the cardiac cycle
+  times_ms: number[];
+  peak_frame: number;
+  metrics: Record<string, number>;             // n_lumen_voxels, peak_velocity_ms, bernoulli_mmHg,
+  //                                              ppe_pressure_drop_mmHg, noise_sensitivity_mmHg,
+  //                                              ensemble_members, aliasing_corrected_samples, venc_cm_s, n_frames
 }
