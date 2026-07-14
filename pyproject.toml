@@ -8,11 +8,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cardiopinnlab"
 # PEP 440 form of the display version X.XX.XXX (see CHANGELOG.md + cardiopinnlab.__version__).
-version = "0.17.0"
+version = "0.19.1"
 description = "CardioPINN: physics-informed neural networks for cardiac electrophysiology and cardiovascular medicine (offline pipeline)."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Apache-2.0" }
+license = { text = "MIT" }
 authors = [{ name = "Felipe Santibanez-Leal" }]
 dependencies = ["numpy>=2.0,<2.3", "scipy>=1.13"]
 

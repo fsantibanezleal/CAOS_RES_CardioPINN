@@ -10,4 +10,4 @@ traces; the static web app READS those traces (it does not run any model in the 
 gated on analytic problems with known answers before any real data is trusted (see real/ + tests/).
 """
 
-__version__ = "0.17.000"  # ADR-audit remediation: docs wiki, PU colormap, viz a11y, 4D-flow methods, data contracts, coherence
+__version__ = "0.19.001"  # coherence sweep: MIT license standardization, removed dead store + orphaned SVGs, EDGAR terms corrected, version reconciled
