@@ -10,4 +10,4 @@ traces; the static web app READS those traces (it does not run any model in the 
 gated on analytic problems with known answers before any real data is trusted (see real/ + tests/).
 """
 
-__version__ = "0.13.000"  # BL-017: boundary-element (BEM) forward operator, analytic-gated + honest single-layer comparison
+__version__ = "0.13.001"  # UX: land each case on its interactive result tab first
