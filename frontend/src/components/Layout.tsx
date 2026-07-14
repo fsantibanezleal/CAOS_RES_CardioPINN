@@ -40,7 +40,7 @@ export function Layout({ children }: { children: ReactNode }) {
       </header>
       <main className="main">{children}</main>
       <footer className="footer">
-        CardioPINN · {pick(lang, 'a CAOS research lab', 'un laboratorio de investigacion CAOS')} · v0.14.000 ·{' '}
+        CardioPINN · {pick(lang, 'a CAOS research lab', 'un laboratorio de investigacion CAOS')} · v0.15.000 ·{' '}
         {pick(lang, 'Developed by Felipe Santibanez-Leal', 'Desarrollado por Felipe Santibanez-Leal')} ·{' '}
         {pick(lang, 'Data: EDGAR / Consortium for ECG Imaging (attribution; not redistributed)', 'Datos: EDGAR / Consortium for ECG Imaging (atribucion; no redistribuido)')} ·{' '}
         <a href="https://github.com/fsantibanezleal/CAOS_RES_CardioPINN" target="_blank" rel="noreferrer">GitHub</a> ·{' '}
