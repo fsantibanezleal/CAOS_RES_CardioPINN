@@ -151,19 +151,24 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
         {cat && ds && (
           <>
             <div className="cp-side-block">
-              <span className="cp-side-label">{pick(lang, 'Dataset', 'Conjunto de datos')}</span>
-              {cat.cases.map((c, i) => (
-                <button key={c.id} className={`chip block ${caseIdx === i ? 'on' : ''}`}
-                  onClick={() => { setCaseIdx(i); setBeat(Object.keys(c.beats)[0]); setFrame(0); }}>
-                  {pick(lang, DATASET_LABEL[c.id]?.[0] ?? c.name, DATASET_LABEL[c.id]?.[1] ?? c.name)}
-                </button>
-              ))}
-            </div>
-            <div className="cp-side-block">
-              <span className="cp-side-label">{pick(lang, 'Beat', 'Latido')}</span>
-              <div className="chip-wrap">{Object.keys(ds.beats).map((r) => <span key={r} className={`chip ${beat === r ? 'on' : ''}`} onClick={() => { setBeat(r); setFrame(0); }}>{pick(lang, BEAT_LABEL[r]?.[0] ?? r, BEAT_LABEL[r]?.[1] ?? r)}</span>)}</div>
-              <span className="cp-side-label" style={{ marginTop: 12 }}>{pick(lang, 'Field', 'Campo')}</span>
-              <div className="chip-wrap">{FIELDS.map((f) => <span key={f} className={`chip ${field === f ? 'on' : ''}`} onClick={() => setField(f)}>{pick(lang, FIELD_LABEL[f][0], FIELD_LABEL[f][1])}</span>)}</div>
+              <label className="cp-field">
+                <span>{pick(lang, 'Dataset', 'Conjunto de datos')}</span>
+                <select className="cp-select" value={caseIdx} onChange={(e) => { const i = Number(e.target.value); setCaseIdx(i); setBeat(Object.keys(cat.cases[i].beats)[0]); setFrame(0); }}>
+                  {cat.cases.map((c, i) => <option key={c.id} value={i}>{pick(lang, DATASET_LABEL[c.id]?.[0] ?? c.name, DATASET_LABEL[c.id]?.[1] ?? c.name)}</option>)}
+                </select>
+              </label>
+              <label className="cp-field">
+                <span>{pick(lang, 'Beat', 'Latido')}</span>
+                <select className="cp-select" value={beat} onChange={(e) => { setBeat(e.target.value); setFrame(0); }}>
+                  {Object.keys(ds.beats).map((r) => <option key={r} value={r}>{pick(lang, BEAT_LABEL[r]?.[0] ?? r, BEAT_LABEL[r]?.[1] ?? r)}</option>)}
+                </select>
+              </label>
+              <label className="cp-field">
+                <span>{pick(lang, 'Field', 'Campo')}</span>
+                <select className="cp-select" value={field} onChange={(e) => setField(e.target.value)}>
+                  {FIELDS.map((f) => <option key={f} value={f}>{pick(lang, FIELD_LABEL[f][0], FIELD_LABEL[f][1])}</option>)}
+                </select>
+              </label>
             </div>
             {rd && (
               <div className="cp-side-block">

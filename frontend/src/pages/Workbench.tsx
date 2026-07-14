@@ -25,16 +25,19 @@ export function Workbench() {
   const lang = useLang();
   const [caseId, setCaseId] = useState('ecgi');
 
+  const active = CASES.find((c) => c.id === caseId) ?? CASES[0];
   const selector: ReactNode = (
     <div className="cp-side-block">
-      <span className="cp-side-label">{pick(lang, 'Research case', 'Caso de investigacion')}</span>
-      {CASES.map((c) => (
-        <button key={c.id} className={`case-tile ${caseId === c.id ? 'on' : ''}`} onClick={() => setCaseId(c.id)}>
-          <span className="case-tile-title">{pick(lang, c.title[0], c.title[1])}</span>
-          <span className="case-tile-sub">{pick(lang, c.physics[0], c.physics[1])}</span>
-          <span className="case-tile-rec">{pick(lang, 'recover: ', 'recuperar: ')}{pick(lang, c.recover[0], c.recover[1])}</span>
-        </button>
-      ))}
+      <label className="cp-field">
+        <span>{pick(lang, 'Research case', 'Caso de investigacion')}</span>
+        <select className="cp-select" value={caseId} onChange={(e) => setCaseId(e.target.value)}>
+          {CASES.map((c) => <option key={c.id} value={c.id}>{pick(lang, c.title[0], c.title[1])}</option>)}
+        </select>
+      </label>
+      <div className="cp-case-meta">
+        <div>{pick(lang, active.physics[0], active.physics[1])}</div>
+        <div className="muted">{pick(lang, 'recover: ', 'recuperar: ')}{pick(lang, active.recover[0], active.recover[1])}</div>
+      </div>
     </div>
   );
 

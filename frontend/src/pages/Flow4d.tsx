@@ -116,11 +116,13 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
         {tr && (
           <>
             <div className="cp-side-block">
-              <span className="cp-side-label">{pick(lang, 'Field', 'Campo')}</span>
-              <div className="chip-wrap">
-                <span className={`chip ${field === 'pressure' ? 'on' : ''}`} onClick={() => setField('pressure')}>{pick(lang, 'Relative pressure', 'Presion relativa')}</span>
-                <span className={`chip ${field === 'speed' ? 'on' : ''}`} onClick={() => setField('speed')}>{pick(lang, 'Speed', 'Rapidez')}</span>
-              </div>
+              <label className="cp-field">
+                <span>{pick(lang, 'Field', 'Campo')}</span>
+                <select className="cp-select" value={field} onChange={(e) => setField(e.target.value as FlowField)}>
+                  <option value="pressure">{pick(lang, 'Relative pressure (mmHg)', 'Presion relativa (mmHg)')}</option>
+                  <option value="speed">{pick(lang, 'Speed (m/s)', 'Rapidez (m/s)')}</option>
+                </select>
+              </label>
             </div>
             <div className="cp-side-block">
               <span className="cp-side-label">{pick(lang, 'Live readout (real scan)', 'Lectura en vivo (escaneo real)')}</span>
