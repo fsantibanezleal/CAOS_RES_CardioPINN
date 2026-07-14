@@ -13,9 +13,9 @@ const SVG_STYLE = `
   .arch-svg .bx-compute { stroke: var(--accent-2); }
   .arch-svg .bx-gate { stroke: var(--warn); }
   .arch-svg .lane { fill: color-mix(in srgb, var(--panel) 60%, transparent); stroke: var(--border); stroke-dasharray: 4 3; rx: 10; }
-  .arch-svg .ttl { fill: var(--fg); font-size: 12.5px; font-weight: 600; }
-  .arch-svg .sub { fill: var(--muted); font-size: 10px; }
-  .arch-svg .it { fill: var(--fg); font-size: 10.5px; }
+  .arch-svg .ttl { fill: var(--fg); font-size: 13px; font-weight: 600; }
+  .arch-svg .sub { fill: var(--muted); font-size: 10.5px; }
+  .arch-svg .it { fill: var(--fg); font-size: 11px; }
   .arch-svg .mono { fill: var(--accent-2); font-size: 10px; font-family: var(--mono, ui-monospace, monospace); }
   .arch-svg .mu { fill: var(--muted); font-size: 9.5px; }
   .arch-svg .lane-lbl { fill: var(--muted); font-size: 10.5px; font-weight: 600; letter-spacing: 0.05em; }
@@ -156,7 +156,9 @@ function SvgWeb() {
       <text x="468" y="198" className="ttl">Deploy · GitHub Pages (Actions)</text>
       <text x="468" y="216" className="mono">frontend-only build over committed traces · CNAME cardiopinn.fasl-work.com</text>
       <path className="flow" d="M221 156 V176" markerEnd="url(#ah)" />
+      <text x="228" y="170" className="lbl">copy-data → public/data</text>
       <path className="flow" d="M659 156 V176" markerEnd="url(#ah)" />
+      <text x="666" y="170" className="lbl">Actions → Pages</text>
     </svg>
   );
 }
@@ -229,13 +231,15 @@ function SvgContracts() {
       <path className="flow-good" d="M570 105 H604" markerEnd="url(#ahg)" />
       <text x="574" y="97" className="lbl">reads</text>
       <rect className="bx bx-web" x="608" y="30" width="256" height="150" rx="8" />
-      <text x="622" y="52" className="ttl">Web reads + guards</text>
-      <text x="622" y="72" className="mono">check_artifacts.py</text>
-      <text x="622" y="90" className="it">completeness floor (≥2 cases, ≥4 beats)</text>
-      <text x="622" y="108" className="it">physiological floor (pressure &lt; 60 mmHg)</text>
-      <text x="622" y="126" className="mono">pytest · tests/test_*_trace.py</text>
-      <text x="622" y="148" className="mu">a partial/garbage bake fails CI,</text>
-      <text x="622" y="164" className="mu">never silently ships</text>
+      <text x="622" y="50" className="ttl">Web reads + guards</text>
+      <text x="622" y="66" className="mono">check_artifacts.py · pytest</text>
+      <rect className="bx bx-gate" x="620" y="76" width="230" height="40" rx="6" />
+      <text x="630" y="92" className="it">completeness floor</text>
+      <text x="630" y="107" className="mu">≥2 cases, ≥4 beats · all fields present</text>
+      <rect className="bx bx-gate" x="620" y="122" width="230" height="40" rx="6" />
+      <text x="630" y="138" className="it">physiological floor</text>
+      <text x="630" y="153" className="mu">pressure &lt; 60 mmHg · velocity &lt; 6 m/s</text>
+      <text x="622" y="176" className="mu">a partial/garbage bake fails CI</text>
       <text x="16" y="206" className="mu">The artifact contract: the bake is the boundary. A test/CI run never writes a canonical artifact; the committed trace is re-verified before it is served.</text>
     </svg>
   );
