@@ -85,4 +85,9 @@ export const CITATIONS: Record<string, Citation> = {
     citation: 'Krittian SBS, Lamata P, Michler C, Nordsletten DA, Bock J, Bradley CP, Pitcher A, Kilner PJ, Markl M, Smith NP (2012). A finite-element approach to the direct computation of relative cardiovascular pressure from time-resolved MR velocity data. Medical Image Analysis 16(5):1029-1037.',
     doi: '10.1016/j.media.2012.04.003',
   },
+  vanoosterom1983: {
+    id: 'vanoosterom1983', label: 'Van Oosterom 1983',
+    citation: 'Van Oosterom A, Strackee J (1983). The solid angle of a plane triangle. IEEE Transactions on Biomedical Engineering BME-30(2):125-126.',
+    doi: '10.1109/TBME.1983.325207',
+  },
 };

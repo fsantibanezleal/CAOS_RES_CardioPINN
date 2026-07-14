@@ -43,9 +43,15 @@ standard deviations of the true error, which a single regularized point estimate
 
 - The target the network fits is REAL measured body-surface data; the validation is REAL measured
   heart-surface data. Nothing here is synthetic.
-- The forward operator is a single-layer (point-source) Green's-function approximation on the real geometry.
-  A full boundary-element operator (with the closed torso mesh and tissue conductivities) would improve the
-  absolute accuracy; the honest, self-contained forward model used here caps the numbers, and that is stated.
+- Two forward operators are implemented: the single-layer (point-source) Green's-function approximation, and
+  a full boundary-element operator (BEM) with exact triangle solid angles (Van Oosterom-Strackee) for the
+  double layer. The BEM is analytic-gated on the concentric-sphere problem (correlation 1.00, error halving
+  per mesh refinement). Honest finding: on the real electrode geometry the BEM does NOT beat the calibrated
+  single-layer. It needs closed 2-manifold surfaces (the human torso-tank surface is open, so the BEM applies
+  only to the dog case), and where it applies the coarse 140-node torso makes the reconstruction
+  regularization-dominated (dog: single-layer RE 0.54 vs BEM RE 0.63), so forward-operator fidelity is not the
+  bottleneck. The single-layer stays the default; the BEM matters as electrode density and mesh closure
+  improve. This null result is reported, not hidden.
 - Not clinically deployed; this is a validated methodological result on an experimental torso tank.
 
 ## Data source and governance

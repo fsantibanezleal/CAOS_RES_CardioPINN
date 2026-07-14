@@ -3,6 +3,25 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.13.000], 2026-07-14
+
+### Added (BL-017: boundary-element forward operator)
+- **A physically-correct boundary-element (BEM) forward operator for ECGi** (`real/ecgi_bem.py`), replacing
+  the single-layer point-source approximation with the discretized boundary-integral equation: exact triangle
+  solid angles (Van Oosterom-Strackee 1983) for the double layer, triangle 1/r integrals for the single layer,
+  the c(p) jump folded into a deflated diagonal, and the heart-surface normal current eliminated to give the
+  transfer matrix Z (phi_body = Z phi_heart).
+- **Analytic gate (in CI):** on two concentric spheres, where the heart-to-body transfer of each spherical
+  harmonic is known in closed form, the BEM recovers it with correlation 1.00 and an error that halves with
+  each mesh refinement (first-order convergence). `tests/test_ecgi_bem.py`.
+- **Honest comparison baked into the catalogue** (schema v2, `forward_comparison` per case): where both
+  surfaces are closed 2-manifolds the BEM is applied and compared to the calibrated single-layer. Finding: on
+  the real electrode geometry the BEM does NOT beat the single-layer. The human torso-tank surface is open (32
+  boundary edges) so the BEM applies only to the dog case; and there the coarse 140-node torso makes the
+  reconstruction regularization-dominated (dog: single-layer RE 0.54 vs BEM RE 0.63), so forward-operator
+  fidelity is not the bottleneck. The single-layer stays the default; the BEM matters as electrode density and
+  mesh closure improve. This null result is reported, not hidden (App "How the PDE arises" tab + docs).
+
 ## [0.12.001], 2026-07-14
 
 ### Fixed (documentation + dependency coherence)

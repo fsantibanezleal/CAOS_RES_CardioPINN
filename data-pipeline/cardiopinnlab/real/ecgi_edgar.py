@@ -74,10 +74,11 @@ def _re_cc(rec, truth):
     return re, cc
 
 
-def reconstruct(data: dict, seed: int = 42, k_ensemble: int = 6) -> dict:
+def reconstruct(data: dict, seed: int = 42, k_ensemble: int = 6, A: np.ndarray | None = None) -> dict:
     rng = np.random.default_rng(seed)
     torso_p, cage_p = data["torso_p"], data["cage_p"]
-    A = forward_operator(data["torso_n"], data["cage_n"])
+    if A is None:
+        A = forward_operator(data["torso_n"], data["cage_n"])
     # calibrate the scalar gain on the first half of frames (leakage-safe), then it is fixed
     nt = torso_p.shape[1]
     pred = A @ cage_p
