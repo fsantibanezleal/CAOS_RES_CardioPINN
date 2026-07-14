@@ -75,4 +75,14 @@ export const CITATIONS: Record<string, Citation> = {
     citation: 'Lakshminarayanan B, Pritzel A, Blundell C (2017). Simple and scalable predictive uncertainty estimation using deep ensembles. NeurIPS 30.',
     url: 'https://arxiv.org/abs/1612.01474',
   },
+  raissi2020: {
+    id: 'raissi2020', label: 'Raissi 2020 (HFM)',
+    citation: 'Raissi M, Yazdani A, Karniadakis GE (2020). Hidden fluid mechanics: Learning velocity and pressure fields from flow visualizations. Science 367(6481):1026-1030.',
+    doi: '10.1126/science.aaw4741',
+  },
+  krittian2012: {
+    id: 'krittian2012', label: 'Krittian 2012',
+    citation: 'Krittian SBS, Lamata P, Michler C, Nordsletten DA, Bock J, Bradley CP, Pitcher A, Kilner PJ, Markl M, Smith NP (2012). A finite-element approach to the direct computation of relative cardiovascular pressure from time-resolved MR velocity data. Medical Image Analysis 16(5):1029-1037.',
+    doi: '10.1016/j.media.2012.04.003',
+  },
 };

@@ -64,9 +64,17 @@ def momentum_rhs(vel, h, rho=RHO, mu=MU, dvel_dt=None):
 
 
 def solve_ppe(vel, mask, h, rho=RHO, mu=MU, dvel_dt=None):
+    """Solve laplacian(p)=S with source + Neumann flux computed by FINITE DIFFERENCES from a velocity grid.
+    Robust for smooth analytic fields (the gate); for noisy real data prefer solve_ppe_precomputed with an
+    analytic (PINN-denoised) source/flux, which avoids the lumen-edge FD artifact."""
+    S = ppe_source(vel, h, rho)
+    b = momentum_rhs(vel, h, rho, mu, dvel_dt)
+    return solve_ppe_precomputed(S, b, mask, h)
+
+
+def solve_ppe_precomputed(S, b, mask, h):
     """Solve laplacian(p)=S on the masked domain with Neumann BC dp/dn=b.n and one Dirichlet pin, by a sparse
-    direct solve (robust on the large, irregular, ill-conditioned real lumen where CG stalls).
-    vel [nz,ny,nx,3] m/s, mask [nz,ny,nx] bool, h spacing m. Returns p [nz,ny,nx] Pa (NaN outside mask)."""
+    direct solve. S [nz,ny,nx] (Pa/m^2), b [nz,ny,nx,3] (Pa/m), mask bool. Returns p [nz,ny,nx] Pa (NaN out)."""
     from scipy import ndimage
     nz, ny, nx = mask.shape
     # Restrict to the single largest connected component so the Neumann domain is connected (a disconnected
@@ -75,8 +83,6 @@ def solve_ppe(vel, mask, h, rho=RHO, mu=MU, dvel_dt=None):
     if ncc > 1:
         sizes = ndimage.sum(np.ones_like(lab), lab, index=np.arange(1, ncc + 1))
         mask = lab == (int(np.argmax(sizes)) + 1)
-    S = ppe_source(vel, h, rho)
-    b = momentum_rhs(vel, h, rho, mu, dvel_dt)
     idx = -np.ones(mask.shape, int)
     coords = np.argwhere(mask)
     for n, (k, jj, ii) in enumerate(coords):

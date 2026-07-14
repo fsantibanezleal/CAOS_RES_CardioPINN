@@ -8,4 +8,4 @@ traces. The two data contracts, the staged pipeline, the measured lane gate and 
 frozen ADR-0057 base; the engine (core/ + cases/) is the cardiac specialization.
 """
 
-__version__ = "0.11.000"  # multi-dataset real ECGi catalogue (human tank + in-situ dog)
+__version__ = "0.12.000"  # 4D-flow aortic pressure case (Navier-Stokes PPE) added to the catalogue
