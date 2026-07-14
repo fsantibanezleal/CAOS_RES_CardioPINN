@@ -18,7 +18,6 @@ import numpy as np
 import torch
 
 from ..core.pinn import MLP, seed_everything, select_device, train_loop
-from .ns_pinn import navier_stokes_residual
 
 RHO = 1060.0      # blood density kg/m^3
 MU = 0.0035       # blood dynamic viscosity Pa*s

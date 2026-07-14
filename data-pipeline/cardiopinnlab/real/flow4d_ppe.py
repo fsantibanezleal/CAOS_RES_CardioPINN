@@ -1,7 +1,8 @@
 """Recover relative pressure from a measured velocity field by the Pressure-Poisson Equation (PPE).
 
-This is the physically-correct route the momentum-residual PINN failed at (see _gate_pressure.py): pressure is
-gauge-free and weakly coupled, so forcing it through a soft PDE residual leaves it near zero. Instead, take the
+This is the physically-correct route the momentum-residual PINN failed at (it recovered ~1% of the analytic
+Poiseuille pressure gradient): pressure is gauge-free and weakly coupled, so forcing it through a soft PDE
+residual leaves it near its zero initialization. Instead, take the
 divergence of incompressible Navier-Stokes to get a well-posed Poisson problem for pressure whose source is
 built entirely from the (measured, smoothed) velocity's spatial derivatives:
 
