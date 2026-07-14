@@ -3,6 +3,26 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.19.001], 2026-07-14
+
+### Fixed (coherence sweep, remove inconsistencies)
+- **License standardized on MIT.** The repo declared Apache-2.0 (LICENSE, pyproject, README, STRUCTURE) while the
+  shared shell footer renders "MIT licensed". Reviewed the whole CAOS product line (16 shell consumers): the
+  license was split and internally inconsistent (some products even had an Apache LICENSE file but a MIT
+  pyproject). Standardized the entire line on MIT (the dominant signal: shell footer + 13/15 pyprojects + half the
+  LICENSE files were already MIT). CardioPINN's LICENSE, pyproject, README and STRUCTURE now all say MIT, matching
+  the footer.
+- **Removed dead code + orphaned assets.** Deleted the unused zustand store (all per-view state is local component
+  state; only `useLang`/`pick` remain, `useLang` delegating to the shell) and dropped the `zustand` dependency;
+  deleted 5 orphaned `public/svg/tech/*.svg` files (the previous architecture-modal assets, replaced by the inline
+  `architecture.ts`; two still showed the purged onnxruntime-web / replay lane).
+- **Version reconciled.** `cardiopinnlab.__version__` and `pyproject` were stale at 0.17; bumped to track the
+  product version. Fixed a stale docs claim that an `onnxruntime-web` dependency "remains listed in package.json"
+  (it was removed).
+- **EDGAR data terms corrected.** The footer described EDGAR as "CC-attribution"; verified against the EDGAR site,
+  it is open-access with an acknowledgement request, not a formal Creative Commons license, so the footer now reads
+  "open-access, attribution requested".
+
 ## [0.19.000], 2026-07-14
 
 ### Added (deep, primary-source-verified problem statements)

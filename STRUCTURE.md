@@ -5,7 +5,7 @@ data and committed; a static web app shows it. No synthetic ground truth.
 
 ```
 CAOS_RES_CardioPINN/
-+- README.md - CHANGELOG.md - LICENSE (Apache-2.0) - CODE_OF_CONDUCT - CONTRIBUTING - SECURITY
++- README.md - CHANGELOG.md - LICENSE (MIT) - CODE_OF_CONDUCT - CONTRIBUTING - SECURITY
 +- data-pipeline/cardiopinnlab/
 |  +- real/ecgi_edgar.py     # REAL ECGi case: load EDGAR (real torso + cage geometry + measured potentials)
 |  |                         #   -> forward operator on real geometry -> Tikhonov / graph-regularized /

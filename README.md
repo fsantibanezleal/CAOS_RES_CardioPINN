@@ -99,4 +99,4 @@ Both used under their data-use agreements with attribution; raw data not redistr
 
 ## License
 
-Apache-2.0. Owner: Felipe Santibanez-Leal.
+MIT. Owner: Felipe Santibanez-Leal.

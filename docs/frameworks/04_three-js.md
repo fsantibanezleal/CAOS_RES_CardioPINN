@@ -7,8 +7,8 @@ three.js scene be written as React components, with `@react-three/drei` for came
 CardioPINN ships `three@^0.171`, `@react-three/fiber@^9`, and `@react-three/drei@^10` in the frontend bundle.
 Their entire job is to draw the committed geometry of the two cases and color it by the recovered fields. They
 run purely client-side on data the static app fetched as JSON; no model runs in the browser, and there is no
-onnxruntime / Pyodide compute lane. (An `onnxruntime-web` dependency remains listed in `package.json` from an
-earlier design and is not used; the architecture is bake-and-read.)
+onnxruntime / Pyodide compute lane. (An earlier design listed an `onnxruntime-web` dependency; it was removed
+because nothing imports it, and the architecture is bake-and-read.)
 
 ## How CardioPINN uses it
 
