@@ -3,6 +3,30 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.19.000], 2026-07-14
+
+### Added (deep, primary-source-verified problem statements)
+The "The problem" statements were generic textbook framing. A 4-topic deep-research pass (persisted as a dated
+dossier under `research/content-depth-2026-07-14/`, 40 primary-source-verified facts, a completeness/honesty
+critic) rewrote both problem statements and the 4D-flow message tabs to real clinical + methodological depth,
+every number tied to a guideline or DOI.
+- **4D-flow "The problem"**: aortic-stenosis severity thresholds (peak jet >= 4.0 m/s, mean gradient >= 40 mmHg,
+  AVA <= 1.0 cm2; Otto 2020 ACC/AHA, Vahanian 2021 ESC/EACTS) and coarctation intervention threshold
+  (peak-to-peak >= 20 mmHg Class I; Stout 2018 AHA/ACC), prevalence (Osnabrugge 2013), the simplified-Bernoulli
+  failure modes and the pressure-recovery Doppler overestimation (up to 66 mmHg / 80%; Baumgartner 1999), and the
+  honest 4D-flow accuracy vs an FSI reference (~0.4 mmHg bias; Saitta 2019). The "traditional" and "physics-informed"
+  tabs now carry the pressure-recovery / expanded-Bernoulli critique and the PPE / WERP-vWERP / PINN SOTA family
+  (Ebbers 2001, Krittian 2012, Donati 2015, Marlevi 2019, Hardy 2025, Ong 2015, Kissas 2020, Fathi 2020).
+- **ECGi "The problem"**: AF/VT stakes with the Framingham independent near-fivefold stroke risk (Wolf 1991), why
+  the 12-lead cannot localize (8 independent leads), what ECGi does (Ramanathan 2004, ~10 mm), and the HONEST
+  in-patient validation reality (mean activation-time error ~20 ms, near-zero overall correlation, breakthrough
+  sites mislocated by tens of mm, worst over scar; Duchateau 2019), motivating the EDGAR torso-tank ground truth.
+- **Citations**: added 18 verified DOIs to the registry. Applied the critic's honesty fixes: dropped the
+  unsourced "double by 2050" and the "~23% misclassification" claims, softened the un-primary-sourced US SCD
+  figure, and corrected a memory-recalled Bissell entry to the dossier's verified citation.
+- Verified: content-standards guard green (no em-dash/emoji), tsc clean, build green, screenshot-verified both
+  enriched problem tabs in the App.
+
 ## [0.18.000], 2026-07-14
 
 ### Changed (adopt the shared CAOS app shell, ADR-0016)

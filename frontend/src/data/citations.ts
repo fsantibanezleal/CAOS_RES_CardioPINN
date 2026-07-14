@@ -90,4 +90,100 @@ export const CITATIONS: Record<string, Citation> = {
     citation: 'Van Oosterom A, Strackee J (1983). The solid angle of a plane triangle. IEEE Transactions on Biomedical Engineering BME-30(2):125-126.',
     doi: '10.1109/TBME.1983.325207',
   },
+
+  // --- Aortic stenosis / coarctation clinical grading (4D-flow problem statement) ---
+  otto2020vhd: {
+    id: 'otto2020vhd', label: 'Otto 2020 (ACC/AHA VHD)',
+    citation: 'Otto CM, Nishimura RA, Bonow RO, et al. (2021). 2020 ACC/AHA Guideline for the Management of Patients With Valvular Heart Disease. Circulation 143(5):e72-e227.',
+    doi: '10.1161/CIR.0000000000000923',
+  },
+  vahanian2021esc: {
+    id: 'vahanian2021esc', label: 'Vahanian 2021 (ESC/EACTS VHD)',
+    citation: 'Vahanian A, Beyersdorf F, Praz F, et al. (2022). 2021 ESC/EACTS Guidelines for the management of valvular heart disease. European Heart Journal 43(7):561-632.',
+    doi: '10.1093/eurheartj/ehab395',
+  },
+  baumgartner1999: {
+    id: 'baumgartner1999', label: 'Baumgartner 1999',
+    citation: 'Baumgartner H, Stefenelli T, Niederberger J, Schima H, Maurer G (1999). Overestimation of catheter gradients by Doppler ultrasound in patients with aortic stenosis: a predictable manifestation of pressure recovery. Journal of the American College of Cardiology 33(6):1655-1661.',
+    doi: '10.1016/S0735-1097(99)00066-2',
+  },
+  osnabrugge2013: {
+    id: 'osnabrugge2013', label: 'Osnabrugge 2013',
+    citation: 'Osnabrugge RLJ, Mylotte D, Head SJ, et al. (2013). Aortic stenosis in the elderly: disease prevalence and number of candidates for transcatheter aortic valve replacement. Journal of the American College of Cardiology 62(11):1002-1012.',
+    doi: '10.1016/j.jacc.2013.05.015',
+  },
+  stout2018achd: {
+    id: 'stout2018achd', label: 'Stout 2018 (AHA/ACC ACHD)',
+    citation: 'Stout KK, Daniels CJ, Aboulhosn JA, et al. (2019). 2018 AHA/ACC Guideline for the Management of Adults With Congenital Heart Disease. Circulation 139(14):e698-e800.',
+    doi: '10.1161/CIR.0000000000000603',
+  },
+  rengier2014: {
+    id: 'rengier2014', label: 'Rengier 2014',
+    citation: 'Rengier F, Delles M, Eichhorn J, et al. (2014). Noninvasive pressure difference mapping derived from 4D flow MRI in patients with unrepaired and repaired aortic coarctation. Cardiovascular Diagnosis and Therapy 4(2):97-103.',
+    doi: '10.3978/j.issn.2223-3652.2014.03.03',
+  },
+  saitta2019: {
+    id: 'saitta2019', label: 'Saitta 2019',
+    citation: 'Saitta S, Pirola S, Piatti F, et al. (2019). Evaluation of 4D flow MRI-based non-invasive pressure assessment in aortic coarctations. Journal of Biomechanics 94:13-21.',
+    doi: '10.1016/j.jbiomech.2019.07.004',
+  },
+  bissell2023: {
+    id: 'bissell2023', label: 'Bissell 2023',
+    citation: 'Bissell MM, et al. (2023). A clinician\'s guide to understanding aortic 4D flow MRI. Insights into Imaging 14:122.',
+    doi: '10.1186/s13244-023-01458-x',
+  },
+
+  // --- 4D-flow relative-pressure method family (SOTA for the 4D-flow case) ---
+  ebbers2001: {
+    id: 'ebbers2001', label: 'Ebbers 2001',
+    citation: 'Ebbers T, Wigstrom L, Bolger AF, Engvall J, Karlsson M (2001). Estimation of relative cardiovascular pressures using time-resolved three-dimensional phase contrast MRI. Magnetic Resonance in Medicine 45(5):872-879.',
+    doi: '10.1002/mrm.1116',
+  },
+  donati2015: {
+    id: 'donati2015', label: 'Donati 2015 (WERP)',
+    citation: 'Donati F, Figueroa CA, Smith NP, Lamata P, Nordsletten DA (2015). Non-invasive pressure difference estimation from PC-MRI using the work-energy equation. Medical Image Analysis 26(1):159-172.',
+    doi: '10.1016/j.media.2015.08.012',
+  },
+  marlevi2019: {
+    id: 'marlevi2019', label: 'Marlevi 2019 (vWERP)',
+    citation: 'Marlevi D, Ruijsink B, Balmus M, et al. (2019). Estimation of cardiovascular relative pressure using virtual work-energy. Scientific Reports 9:1375.',
+    doi: '10.1038/s41598-018-37714-0',
+  },
+  ong2015: {
+    id: 'ong2015', label: 'Ong 2015',
+    citation: 'Ong F, Uecker M, Tariq U, et al. (2015). Robust 4D flow denoising using divergence-free wavelet transform. Magnetic Resonance in Medicine 73(2):828-842.',
+    doi: '10.1002/mrm.25176',
+  },
+  kissas2020: {
+    id: 'kissas2020', label: 'Kissas 2020',
+    citation: 'Kissas G, Yang Y, Hwuang E, Witschey WR, Detre JA, Perdikaris P (2020). Machine learning in cardiovascular flows modeling: predicting arterial blood pressure from non-invasive 4D flow MRI data using physics-informed neural networks. Computer Methods in Applied Mechanics and Engineering 358:112623.',
+    doi: '10.1016/j.cma.2019.112623',
+  },
+  fathi2020: {
+    id: 'fathi2020', label: 'Fathi 2020',
+    citation: 'Fathi MF, Perez-Raya I, Baghaie A, et al. (2020). Super-resolution and denoising of 4D-flow MRI using physics-informed deep neural nets. Computer Methods and Programs in Biomedicine 197:105729.',
+    doi: '10.1016/j.cmpb.2020.105729',
+  },
+  hardy2025: {
+    id: 'hardy2025', label: 'Hardy 2025',
+    citation: 'Hardy J, Zimmermann J, Lechner S, et al. (2025). Comprehensive Analysis of Relative Pressure Estimation Methods Utilizing 4D-Flow MRI. arXiv:2503.02847.',
+    doi: '10.48550/arXiv.2503.02847',
+  },
+
+  // --- ECGi clinical problem depth ---
+  wolf1991: {
+    id: 'wolf1991', label: 'Wolf 1991 (Framingham)',
+    citation: 'Wolf PA, Abbott RD, Kannel WB (1991). Atrial fibrillation as an independent risk factor for stroke: the Framingham Study. Stroke 22(8):983-988.',
+    doi: '10.1161/01.STR.22.8.983',
+  },
+  duchateau2019: {
+    id: 'duchateau2019', label: 'Duchateau 2019',
+    citation: 'Duchateau J, Sacher F, Pambrun T, et al. (2019). Performance and limitations of noninvasive cardiac activation mapping. Heart Rhythm 16(3):435-442.',
+    doi: '10.1016/j.hrthm.2018.10.010',
+  },
+  gharib2024digitaltwin: {
+    id: 'gharib2024digitaltwin', label: 'Digital-twin ECGi survey 2024',
+    citation: 'Solving the Inverse Problem of Electrocardiography for Cardiac Digital Twins: A Survey (2024). arXiv:2406.11445.',
+    url: 'https://arxiv.org/abs/2406.11445',
+  },
 };
