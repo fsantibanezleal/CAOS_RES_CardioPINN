@@ -3,8 +3,9 @@
 The cardiac-PINN literature (Sahli Costabal et al., EikonalNet / FiberNet / Delta-PINNs) ships small custom
 PyTorch loops rather than a turnkey framework, because the novelty lives in the input space (Fourier / mesh
 Laplace-Beltrami eigenfunctions) and the physics loss, not in the optimizer. This module is that generic
-core: the MODEL and the LOSS are supplied per vertical; the OPTIMIZATION is shared here. A plain MLP is also
-the most robust torch.onnx export target for onnxruntime-web (see core/onnx_export.py).
+core: the MODEL and the LOSS are supplied per case; the OPTIMIZATION is shared here. A plain tanh MLP is used
+by the 4D-flow divergence-free velocity denoiser (real/flow4d_denoise.py) and the Navier-Stokes pressure
+engine (real/flow4d_pinn.py); training runs offline and the derived fields are baked to committed traces.
 """
 from __future__ import annotations
 
