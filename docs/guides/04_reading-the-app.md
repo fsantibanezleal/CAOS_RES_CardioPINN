@@ -12,8 +12,8 @@ LEFT control column, and a wide result area. Everything is bilingual (EN/ES) and
 CardioPINN is a catalogue across TWO different physics domains, and the top block of the left column is the
 case selector (`Workbench.tsx`):
 
-- **ECG imaging** — recover heart-surface potentials by quasi-static volume conduction (a Laplace problem).
-- **4D-flow pressure** — recover the aortic pressure field by incompressible Navier-Stokes (a pressure-Poisson
+- **ECG imaging**: recover heart-surface potentials by quasi-static volume conduction (a Laplace problem).
+- **4D-flow pressure**: recover the aortic pressure field by incompressible Navier-Stokes (a pressure-Poisson
   problem).
 
 Under the dropdown, a small meta line names the physics and the field being recovered. Switching the case
@@ -24,11 +24,11 @@ controls, live readout, and result-first tabs.
 
 ### Controls (left column)
 
-- **Dataset** — which real EDGAR experiment: the human heart in a torso tank (192 body electrodes recovering a
+- **Dataset**: which real EDGAR experiment: the human heart in a torso tank (192 body electrodes recovering a
   256-electrode cage) or the in-situ dog heart (140 body electrodes recovering a 1321-node epicardial map).
   The same physics-informed pipeline runs on both with no retuning, which is the point of a catalogue.
-- **Beat** — the rhythm: sinus, paced PVP, or paced AVP (the human tank has all three; the dog has sinus).
-- **Field** — what the 3D map colours: the Recovered potential (our result), the Measured potential (the real
+- **Beat**: the rhythm: sinus, paced PVP, or paced AVP (the human tank has all three; the dog has sinus).
+- **Field**: what the 3D map colours: the Recovered potential (our result), the Measured potential (the real
   gold standard the cage recorded), their Absolute error, or the per-node Uncertainty.
 
 ### Live diagnosis readout (against the real gold standard)
@@ -53,7 +53,7 @@ recovered map against the measured gold standard and see where the error concent
 
 ### Controls (left column)
 
-- **Field** — Relative pressure (mmHg, at peak systole) or Speed (m/s, over the cardiac cycle).
+- **Field**: Relative pressure (mmHg, at peak systole) or Speed (m/s, over the cardiac cycle).
 
 ### Live readout (real scan)
 
