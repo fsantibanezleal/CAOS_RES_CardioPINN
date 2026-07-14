@@ -84,6 +84,9 @@ code, pre { font-family: var(--mono); }
 .cp-readout .ro { border: 1px solid var(--border); border-radius: 9px; padding: 9px 10px; background: var(--panel-2); }
 .cp-readout .ro .v { display: block; font-family: var(--mono, monospace); font-size: 1.02rem; font-weight: 650; color: var(--fg); }
 .cp-readout .ro .k { display: block; font-size: 0.68rem; color: var(--muted); margin-top: 2px; line-height: 1.25; }
+.sym-list { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 5px; }
+.sym-list li { font-size: 0.9rem; color: var(--muted); }
+.sym-list li code { color: var(--accent); background: var(--panel-2); padding: 1px 6px; border-radius: 5px; margin-right: 6px; font-family: var(--mono, monospace); }
 .chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip.block { display: block; width: 100%; text-align: left; margin-bottom: 6px; }
 .chip.block:last-child { margin-bottom: 0; }
