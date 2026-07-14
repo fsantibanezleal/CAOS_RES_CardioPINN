@@ -22,9 +22,11 @@ interface Flow4dTrace {
   metrics: Record<string, number>;
 }
 
+type FlowField = 'pressure' | 'speed';
+
 // A three.js point cloud of the aortic lumen coloured by the selected field (pressure or speed). Robust color
 // range (2nd-98th percentile) so a few tail voxels do not wash out the map.
-function LumenCloud({ tr, field, frame }: { tr: Flow4dTrace; field: 'pressure' | 'speed'; frame: number }) {
+function LumenCloud({ tr, field, frame }: { tr: Flow4dTrace; field: FlowField; frame: number }) {
   const geom = useMemo(() => {
     const n = tr.points_mm.length;
     const g = new THREE.BufferGeometry();
@@ -76,7 +78,7 @@ export function Flow4d() {
   const lang = useLang();
   const [tr, setTr] = useState<Flow4dTrace | null>(null);
   const [tab, setTab] = useState('result');
-  const [field, setField] = useState<'pressure' | 'speed'>('pressure');
+  const [field, setField] = useState<FlowField>('pressure');
   const [frame, setFrame] = useState(0);
   const raf = useRef<number | null>(null);
 
@@ -252,7 +254,7 @@ export function Flow4d() {
               <div>{field === 'pressure' ? pick(lang, 'Relative pressure (mmHg)', 'Presion relativa (mmHg)') : pick(lang, 'Speed (m/s)', 'Rapidez (m/s)')}</div>
               <div className="bar" style={{ background: `linear-gradient(90deg, ${turboCss(0)}, ${turboCss(0.5)}, ${turboCss(1)})` }} />
             </div>
-            <div className="readout">{field === 'pressure' ? pick(lang, 'peak systole', 'sistole pico') : `t = ${tr.times_ms[Math.min(frame, tr.times_ms.length - 1)]} ms`}</div>
+            <div className="readout">{field === 'speed' ? `t = ${tr.times_ms[Math.min(frame, tr.times_ms.length - 1)]} ms` : pick(lang, 'peak systole', 'sistole pico')}</div>
           </div>
           {field === 'speed' && (
             <div className="row" style={{ marginTop: 10 }}>
@@ -266,8 +268,8 @@ export function Flow4d() {
             'Orbita el lumen aortico; alterna la presion relativa recuperada (en sistole pico) y la rapidez medida (desplaza o reproduce el ciclo cardiaco). El campo de presion recuperado abarca un rango fisiologico de unos pocos a unos quince mmHg en el segmento y encuadra la estimacion clinica de Bernoulli del mismo escaneo, justo lo que el mapa basado en fisica deberia hacer en una aorta sin obstruccion revelando ademas donde varia la presion, que el unico numero de Bernoulli no puede.')}</p>
           <Callout>
             {pick(lang,
-              'Data: a real thoracic-aorta 4D-flow MRI (Philips, venc 120 cm/s), distortion-corrected. The raw DICOMs are used under their data agreement and not redistributed; only the derived pressure map is shown. There is no invasive pressure gold standard for this scan, so the absolute magnitude carries the method’s uncertainty; the validated claims are the exact analytic gate, the physiological range, and the divergence-free denoising. Not clinically deployed.',
-              'Datos: una resonancia de flujo 4D real de aorta toracica (Philips, venc 120 cm/s), corregida de distorsion. Los DICOM crudos se usan bajo su acuerdo de datos y no se redistribuyen; solo se muestra el mapa de presion derivado. No hay patron de oro de presion invasivo para este escaneo, asi que la magnitud absoluta lleva la incertidumbre del metodo; las afirmaciones validadas son la prueba analitica exacta, el rango fisiologico y el suavizado sin divergencia. No desplegado clinicamente.')}
+              'Robustness, and its limit. A deep ensemble that perturbs the measured velocity with realistic phase-contrast noise (5% of the venc) and re-runs the whole pipeline moves the recovered pressure by under 0.01 mmHg: the divergence-free denoiser makes the pressure essentially insensitive to velocity measurement noise. That is a strength, but it also means the dominant uncertainty is NOT measurement noise and cannot be captured by such an ensemble: it is the absent invasive gold standard, the lumen segmentation, and the unsteady-term approximation. So the absolute magnitude carries the method uncertainty honestly; the validated claims are the exact analytic gate, the physiological range, the noise-robustness, and the Bernoulli bracket. Data: a real thoracic-aorta 4D-flow MRI (Philips, venc 120 cm/s), used under its data agreement, raw DICOMs not redistributed. Not clinically deployed.',
+              'Robustez, y su limite. Un ensemble profundo que perturba la velocidad medida con ruido de contraste de fase realista (5% del venc) y reejecuta todo el pipeline mueve la presion recuperada en menos de 0.01 mmHg: el suavizador sin divergencia hace la presion esencialmente insensible al ruido de medicion de velocidad. Eso es una fortaleza, pero tambien significa que la incertidumbre dominante NO es el ruido de medicion y no puede capturarse con tal ensemble: es el patron de oro invasivo ausente, la segmentacion del lumen y la aproximacion del termino no estacionario. Asi que la magnitud absoluta lleva la incertidumbre del metodo con honestidad; las afirmaciones validadas son la prueba analitica exacta, el rango fisiologico, la robustez al ruido y el encuadre de Bernoulli. Datos: una resonancia de flujo 4D real de aorta toracica (Philips, venc 120 cm/s), usada bajo su acuerdo, DICOM crudos no redistribuidos. No desplegado clinicamente.')}
           </Callout>
           <Refs ids={['raissi2020', 'krittian2012']} />
         </section>

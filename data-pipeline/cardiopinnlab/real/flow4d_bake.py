@@ -29,7 +29,7 @@ def _root() -> Path:
                                r"D:\_Datos\cardiopinn\aorta4d\dicoms\m_c1\4DFLOWWIP_16F_fullvel\undistort_v"))
 
 
-def bake_flow4d(seed: int = 42, max_points: int = 9000, venc_cm_s: float = 120.0) -> dict:
+def bake_flow4d(seed: int = 42, max_points: int = 9000, venc_cm_s: float = 120.0, k_ensemble: int = 4) -> dict:
     f = load_4dflow(_root(), venc_cm_s=venc_cm_s)
     nz, ny, nx = f["grid"]
     nt = f["velocity"].shape[0]
@@ -48,26 +48,48 @@ def bake_flow4d(seed: int = 42, max_points: int = 9000, venc_cm_s: float = 120.0
     ke = np.array([np.sum(np.linalg.norm(vel[t][mask], axis=1) ** 2) for t in range(nt)])
     tp = int(np.argmax(ke))
 
-    # PINN-denoise the peak frame and its two temporal neighbours (for the unsteady term)
-    fields, grids = {}, {}
-    for t in [(tp - 1) % nt, tp, (tp + 1) % nt]:
-        df = denoise_frame(coords[mask], vel[t][mask], seed=seed, n_adam=3000, n_lbfgs=300, w_div=2.0)
-        fields[t] = df
-        g = np.zeros((nz, ny, nx, 3), np.float32); g[mask] = df.velocity(coords[mask]); grids[t] = g
-
-    # analytic PPE source + Neumann flux from the smooth denoised field, plus the unsteady term
+    # Unsteady term: denoise the two temporal neighbours once (shared across the pressure ensemble).
     pts = coords[mask]
-    Sv, bv = fields[tp].source_and_flux(pts, RHO, MU)
-    S = np.zeros((nz, ny, nx)); b = np.zeros((nz, ny, nx, 3))
-    S[mask] = Sv; b[mask] = bv
     trig_dt = (f["times_ms"][1] - f["times_ms"][0]) * 1e-3
+    grids = {}
+    for t in [(tp - 1) % nt, (tp + 1) % nt]:
+        df = denoise_frame(coords[mask], vel[t][mask], seed=seed, n_adam=3000, n_lbfgs=300, w_div=2.0)
+        g = np.zeros((nz, ny, nx, 3), np.float32); g[mask] = df.velocity(coords[mask]); grids[t] = g
     dvdt = (grids[(tp + 1) % nt] - grids[(tp - 1) % nt]) / (2 * trig_dt)
-    b[mask] += -RHO * dvdt[mask]
 
-    p = solve_ppe_precomputed(S, b, mask, h)            # Pa
-    # solve_ppe_precomputed may shrink the mask to its largest CC; use where p is defined
-    valid = mask & ~np.isnan(p)
-    p_mmhg = (p - np.nanmedian(p[valid])) / PA_PER_MMHG
+    def solve_from_velocity(v_lumen):
+        dfk = denoise_frame(coords[mask], v_lumen, seed=seed, n_adam=3000, n_lbfgs=300, w_div=2.0)
+        Sv, bv = dfk.source_and_flux(pts, RHO, MU)
+        S = np.zeros((nz, ny, nx)); b = np.zeros((nz, ny, nx, 3))
+        S[mask] = Sv; b[mask] = bv
+        b[mask] += -RHO * dvdt[mask]
+        g = np.zeros((nz, ny, nx, 3), np.float32); g[mask] = dfk.velocity(coords[mask])
+        return solve_ppe_precomputed(S, b, mask, h), g       # (Pa, denoised grid velocity)
+
+    # Reported pressure + peak velocity come from the CLEAN denoise.
+    v_meas = vel[tp][mask]
+    p, peak_grid = solve_from_velocity(v_meas)
+    grids[tp] = peak_grid
+
+    # Uncertainty ENSEMBLE (the 4D-flow analogue of the ECGi deep-ensemble node UQ): the dominant uncertainty is
+    # VELOCITY MEASUREMENT NOISE, not the denoiser seed (the div-free fit is strongly data-constrained and nearly
+    # seed-independent), so each member perturbs the measured velocity with realistic phase-contrast noise
+    # (sigma ~ 5% of the venc), re-denoises and re-solves the PPE; the per-voxel spread is the pressure UQ.
+    rng_uq = np.random.default_rng(seed)
+    sigma_v = 0.05 * (venc_cm_s / 100.0)   # m/s (phase-contrast velocity noise scale)
+    p_stack = [p]
+    for k in range(k_ensemble):
+        v_noisy = v_meas + rng_uq.normal(0.0, sigma_v, v_meas.shape).astype(np.float32)
+        pk, _ = solve_from_velocity(v_noisy)
+        p_stack.append(pk)
+    p_all = np.stack(p_stack)
+    valid = mask & ~np.any(np.isnan(p_all), axis=0)
+    for k in range(len(p_stack)):                            # common gauge (median-zero) before combining
+        p_all[k][valid] -= np.median(p_all[k][valid])
+    # Honest finding: the div-free denoiser makes the pressure ROBUST to velocity noise, so the ensemble spread
+    # is a robustness metric (a scalar), NOT a per-voxel uncertainty field (that would be a misleading ~0 map).
+    noise_sensitivity = float(np.median(np.nanstd(p_all, axis=0)[valid]) / PA_PER_MMHG)
+    p_mmhg = (p - np.median(p[valid])) / PA_PER_MMHG
 
     # divergence reduction (physics quality): mean |div v| raw (smoothed) vs denoised
     def _div(V):
@@ -106,7 +128,7 @@ def bake_flow4d(seed: int = 42, max_points: int = 9000, venc_cm_s: float = 120.0
     p_drop = float(np.percentile(pres, 97.5) - np.percentile(pres, 2.5))
 
     return {
-        "schema": "cardiopinn.flow4d-pressure/v1",
+        "schema": "cardiopinn.flow4d-pressure/v2",
         "points_mm": np.round(P, 2).tolist(),
         "pressure_mmHg": np.round(pres, 3).tolist(),
         "speed_ms_peak": np.round(speed_peak, 3).tolist(),
@@ -118,6 +140,8 @@ def bake_flow4d(seed: int = 42, max_points: int = 9000, venc_cm_s: float = 120.0
             "peak_velocity_ms": round(vmax, 3),
             "bernoulli_mmHg": round(bernoulli, 2),
             "ppe_pressure_drop_mmHg": round(p_drop, 2),
+            "noise_sensitivity_mmHg": round(noise_sensitivity, 3),   # robustness: pressure spread under 5%-venc velocity noise
+            "ensemble_members": int(k_ensemble),
             "div_raw_per_s": round(div_raw, 2),
             "div_denoised_per_s": round(div_dn, 2),
             "div_reduction_x": round(div_raw / (div_dn + 1e-9), 1),
