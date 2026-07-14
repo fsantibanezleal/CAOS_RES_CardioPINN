@@ -7,7 +7,18 @@ import { Cite } from '../components/Cite';
 import { Equation, InlineMath } from '../components/Equation';
 import { Refs } from '../components/Refs';
 import { Tabs } from '../components/Tabs';
-import { turbo, turboCss } from '../kits/colormap';
+import { seq, div, seqCss, divCss } from '../kits/colormap';
+
+// range for the current field/frame; signed potential fields are centred at 0 and use the diverging map
+function fieldStats(vals: number[], signed: boolean): { lo: number; hi: number } {
+  let lo = Infinity, hi = -Infinity;
+  for (const v of vals) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  if (!isFinite(lo)) { lo = 0; hi = 1; }
+  if (signed) { const m = Math.max(Math.abs(lo), Math.abs(hi)) || 1; lo = -m; hi = m; }
+  if (hi === lo) hi = lo + 1;
+  return { lo, hi };
+}
+const isSigned = (field: string) => field === 'recovered_mV' || field === 'measured_mV';
 import { useLang, pick } from '../store';
 
 const BASE = import.meta.env.BASE_URL;
@@ -65,13 +76,11 @@ function CageMesh({ rd, field, frame }: { rd: RhythmData; field: string; frame: 
 
   useEffect(() => {
     const vals = rd.fields_over_time[field][frame];
-    const signed = field === 'recovered_mV' || field === 'measured_mV';
-    let lo = Infinity, hi = -Infinity;
-    for (const v of vals) { if (v < lo) lo = v; if (v > hi) hi = v; }
-    if (signed) { const m = Math.max(Math.abs(lo), Math.abs(hi)) || 1; lo = -m; hi = m; }
-    if (hi === lo) hi = lo + 1;
+    const signed = isSigned(field);
+    const { lo, hi } = fieldStats(vals, signed);
+    const cmap = signed ? div : seq;
     const color = geom.getAttribute('color') as THREE.BufferAttribute;
-    for (let i = 0; i < vals.length; i++) { const [r, g2, b] = turbo((vals[i] - lo) / (hi - lo)); color.setXYZ(i, r, g2, b); }
+    for (let i = 0; i < vals.length; i++) { const [r, g2, b] = cmap((vals[i] - lo) / (hi - lo)); color.setXYZ(i, r, g2, b); }
     color.needsUpdate = true;
   }, [geom, rd, field, frame]);
 
@@ -151,19 +160,24 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
         {cat && ds && (
           <>
             <div className="cp-side-block">
-              <span className="cp-side-label">{pick(lang, 'Dataset', 'Conjunto de datos')}</span>
-              {cat.cases.map((c, i) => (
-                <button key={c.id} className={`chip block ${caseIdx === i ? 'on' : ''}`}
-                  onClick={() => { setCaseIdx(i); setBeat(Object.keys(c.beats)[0]); setFrame(0); }}>
-                  {pick(lang, DATASET_LABEL[c.id]?.[0] ?? c.name, DATASET_LABEL[c.id]?.[1] ?? c.name)}
-                </button>
-              ))}
-            </div>
-            <div className="cp-side-block">
-              <span className="cp-side-label">{pick(lang, 'Beat', 'Latido')}</span>
-              <div className="chip-wrap">{Object.keys(ds.beats).map((r) => <span key={r} className={`chip ${beat === r ? 'on' : ''}`} onClick={() => { setBeat(r); setFrame(0); }}>{pick(lang, BEAT_LABEL[r]?.[0] ?? r, BEAT_LABEL[r]?.[1] ?? r)}</span>)}</div>
-              <span className="cp-side-label" style={{ marginTop: 12 }}>{pick(lang, 'Field', 'Campo')}</span>
-              <div className="chip-wrap">{FIELDS.map((f) => <span key={f} className={`chip ${field === f ? 'on' : ''}`} onClick={() => setField(f)}>{pick(lang, FIELD_LABEL[f][0], FIELD_LABEL[f][1])}</span>)}</div>
+              <label className="cp-field">
+                <span>{pick(lang, 'Dataset', 'Conjunto de datos')}</span>
+                <select className="cp-select" value={caseIdx} onChange={(e) => { const i = Number(e.target.value); setCaseIdx(i); setBeat(Object.keys(cat.cases[i].beats)[0]); setFrame(0); }}>
+                  {cat.cases.map((c, i) => <option key={c.id} value={i}>{pick(lang, DATASET_LABEL[c.id]?.[0] ?? c.name, DATASET_LABEL[c.id]?.[1] ?? c.name)}</option>)}
+                </select>
+              </label>
+              <label className="cp-field">
+                <span>{pick(lang, 'Beat', 'Latido')}</span>
+                <select className="cp-select" value={beat} onChange={(e) => { setBeat(e.target.value); setFrame(0); }}>
+                  {Object.keys(ds.beats).map((r) => <option key={r} value={r}>{pick(lang, BEAT_LABEL[r]?.[0] ?? r, BEAT_LABEL[r]?.[1] ?? r)}</option>)}
+                </select>
+              </label>
+              <label className="cp-field">
+                <span>{pick(lang, 'Field', 'Campo')}</span>
+                <select className="cp-select" value={field} onChange={(e) => setField(e.target.value)}>
+                  {FIELDS.map((f) => <option key={f} value={f}>{pick(lang, FIELD_LABEL[f][0], FIELD_LABEL[f][1])}</option>)}
+                </select>
+              </label>
             </div>
             {rd && (
               <div className="cp-side-block">
@@ -333,20 +347,38 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
           <p>{pick(lang,
             'The same physics-informed reconstruction is applied across a catalogue of independent real experiments, so the method is not tuned to one heart. Use the LEFT COLUMN to pick the dataset (an explanted human heart in a torso tank, 192 body electrodes recovering a 256-electrode cage; or an in-situ dog heart, 140 body electrodes recovering a 1321-node epicardial map), the beat, and the field, and to read the live reconstruction quality against the real gold standard. Each dataset recorded the true heart-surface potentials simultaneously.',
             'La misma reconstruccion informada por fisica se aplica a un catalogo de experimentos reales independientes, asi que el metodo no esta ajustado a un solo corazon. Usa la COLUMNA IZQUIERDA para elegir el conjunto de datos (un corazon humano explantado en un tanque de torso, 192 electrodos corporales recuperando una jaula de 256; o un corazon de perro in situ, 140 electrodos recuperando un mapa epicardico de 1321 nodos), el latido y el campo, y para leer la calidad de reconstruccion en vivo contra el patron de oro real. Cada conjunto registro los potenciales verdaderos de superficie cardiaca simultaneamente.')}</p>
-          <div className="canvas-wrap">
-            <Canvas camera={{ position: [90, -70, 60], fov: 40, up: [0, 0, 1] }}>
-              <ambientLight intensity={0.55} />
-              <directionalLight position={[80, -60, 90]} intensity={0.9} />
-              <directionalLight position={[-70, 50, -40]} intensity={0.4} />
-              <CageMesh key={ds.id + beat} rd={rd} field={field} frame={Math.min(frame, rd.times_ms.length - 1)} />
-              <OrbitControls target={[0, 0, 0]} />
-            </Canvas>
-            <div className="legend">
-              <div>{pick(lang, FIELD_LABEL[field][0], FIELD_LABEL[field][1])} (mV)</div>
-              <div className="bar" style={{ background: `linear-gradient(90deg, ${turboCss(0)}, ${turboCss(0.5)}, ${turboCss(1)})` }} />
-            </div>
-            <div className="readout">t = {rd.times_ms[Math.min(frame, rd.times_ms.length - 1)]} ms</div>
-          </div>
+          {(() => {
+            const rf = Math.min(frame, rd.times_ms.length - 1);
+            const vals = rd.fields_over_time[field][rf];
+            const signed = isSigned(field);
+            const { lo, hi } = fieldStats(vals, signed);
+            const gradCss = signed ? divCss : seqCss;
+            // detected feature: the node of maximum absolute error at this frame (marked below + summarized)
+            const err = rd.fields_over_time.abs_error_mV?.[rf] ?? vals.map(() => 0);
+            let mi = 0; for (let i = 1; i < err.length; i++) if (err[i] > err[mi]) mi = i;
+            return (
+              <>
+                <div className="canvas-wrap">
+                  <Canvas camera={{ position: [90, -70, 60], fov: 40, up: [0, 0, 1] }} aria-hidden="true">
+                    <ambientLight intensity={0.55} />
+                    <directionalLight position={[80, -60, 90]} intensity={0.9} />
+                    <directionalLight position={[-70, 50, -40]} intensity={0.4} />
+                    <CageMesh key={ds.id + beat} rd={rd} field={field} frame={rf} />
+                    <OrbitControls target={[0, 0, 0]} />
+                  </Canvas>
+                  <div className="legend">
+                    <div>{pick(lang, FIELD_LABEL[field][0], FIELD_LABEL[field][1])} (mV)</div>
+                    <div className="bar" style={{ background: `linear-gradient(90deg, ${gradCss(0)}, ${gradCss(0.5)}, ${gradCss(1)})` }} />
+                    <div className="legend-ticks"><span>{lo.toFixed(2)}</span><span>{((lo + hi) / 2).toFixed(2)}</span><span>{hi.toFixed(2)}</span></div>
+                  </div>
+                  <div className="readout">t = {rd.times_ms[rf]} ms · {pick(lang, 'max |error| at node', 'max |error| en nodo')} {mi} = {err[mi].toFixed(2)} mV</div>
+                </div>
+                <p className="sr-summary">{pick(lang,
+                  `3D view: ${pick(lang, FIELD_LABEL[field][0], FIELD_LABEL[field][0])} on the ${rd.mesh.n_vertices}-node heart geometry at t = ${rd.times_ms[rf]} ms; value range ${lo.toFixed(2)} to ${hi.toFixed(2)} mV; reconstruction relative error ${rd.metrics.relative_error_tikhonov}, correlation ${rd.metrics.correlation_tikhonov}; largest absolute error ${err[mi].toFixed(2)} mV at node ${mi}.`,
+                  `Vista 3D: ${FIELD_LABEL[field][1]} sobre la geometria cardiaca de ${rd.mesh.n_vertices} nodos en t = ${rd.times_ms[rf]} ms; rango ${lo.toFixed(2)} a ${hi.toFixed(2)} mV; error relativo ${rd.metrics.relative_error_tikhonov}, correlacion ${rd.metrics.correlation_tikhonov}; mayor error absoluto ${err[mi].toFixed(2)} mV en el nodo ${mi}.`)}</p>
+              </>
+            );
+          })()}
           <div className="row" style={{ marginTop: 10 }}>
             <span className="muted small">{pick(lang, 'Beat time', 'Tiempo del latido')}:</span>
             <input type="range" min={0} max={rd.times_ms.length - 1} value={Math.min(frame, rd.times_ms.length - 1)} onChange={(e) => setFrame(Number(e.target.value))} />

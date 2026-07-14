@@ -4,27 +4,38 @@ import { Refs } from '../components/Refs';
 import { useLang, pick } from '../store';
 
 function PipelineSvg({ lang }: { lang: 'en' | 'es' }) {
-  const steps: [string, string][] = [
+  const ecgi: [string, string][] = [
     ['body-surface', pick(lang, 'measured', 'medido')],
     ['forward A', pick(lang, 'real geometry', 'geometria real')],
     ['regularize + prior', pick(lang, 'Tikhonov + mesh', 'Tikhonov + malla')],
     ['ensemble', pick(lang, 'per-node UQ', 'UQ por nodo')],
     ['validate', pick(lang, 'vs real cage', 'vs jaula real')],
   ];
+  const flow: [string, string][] = [
+    ['velocity v(x,t)', pick(lang, 'measured 4D-flow', '4D-flow medido')],
+    ['div-free PINN', pick(lang, 'denoise ∇·v=0', 'suavizar ∇·v=0')],
+    ['space-time net', pick(lang, 'analytic dv/dt', 'dv/dt analitico')],
+    ['pressure-Poisson', pick(lang, '∇²p = S(v)', '∇²p = S(v)')],
+    ['pressure map', pick(lang, 'vs Bernoulli', 'vs Bernoulli')],
+  ];
+  const row = (steps: [string, string][], y: number) => steps.map((s, i) => (
+    <g key={i}>
+      <rect x={10 + i * 145} y={y} width="126" height="42" rx="8" fill="var(--panel-2)" stroke={i === steps.length - 1 ? 'var(--good)' : i === 0 ? 'var(--accent)' : 'var(--border)'} />
+      <text x={73 + i * 145} y={y + 20} textAnchor="middle" fill="var(--fg)" fontSize="12">{s[0]}</text>
+      <text x={73 + i * 145} y={y + 34} textAnchor="middle" fill="var(--muted)" fontSize="10">{s[1]}</text>
+      {i < steps.length - 1 && <path d={`M${136 + i * 145} ${y + 21} H${155 + i * 145}`} stroke="var(--accent-2)" strokeWidth="2" markerEnd="url(#pa)" />}
+    </g>
+  ));
   return (
     <div className="fig-svg wide">
-      <svg viewBox="0 0 720 90" role="img">
-        {steps.map((s, i) => (
-          <g key={i}>
-            <rect x={10 + i * 145} y="24" width="126" height="42" rx="8" fill="var(--panel-2)" stroke={i === steps.length - 1 ? 'var(--good)' : 'var(--border)'} />
-            <text x={73 + i * 145} y="44" textAnchor="middle" fill="var(--fg)" fontSize="12">{s[0]}</text>
-            <text x={73 + i * 145} y="58" textAnchor="middle" fill="var(--muted)" fontSize="10">{s[1]}</text>
-            {i < steps.length - 1 && <path d={`M${136 + i * 145} 45 H${155 + i * 145}`} stroke="var(--accent-2)" strokeWidth="2" markerEnd="url(#pa)" />}
-          </g>
-        ))}
+      <svg viewBox="0 0 720 150" role="img" style={{ width: '100%', height: 'auto' }}>
+        <text x="10" y="16" fill="var(--muted)" fontSize="10.5" fontWeight="600">A · ECG IMAGING (volume conduction)</text>
+        {row(ecgi, 24)}
+        <text x="10" y="92" fill="var(--muted)" fontSize="10.5" fontWeight="600">B · 4D-FLOW PRESSURE (Navier-Stokes)</text>
+        {row(flow, 100)}
         <defs><marker id="pa" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="var(--accent-2)" /></marker></defs>
       </svg>
-      <div className="fig-cap">{pick(lang, 'End-to-end: real body-surface data -> forward operator on real geometry -> regularized inverse with a surface prior -> ensemble uncertainty -> validation against the real measured heart cage.', 'De extremo a extremo: datos reales de superficie corporal -> operador directo sobre geometria real -> inverso regularizado con prior de superficie -> incertidumbre por ensemble -> validacion contra la jaula cardiaca real medida.')}</div>
+      <div className="fig-cap">{pick(lang, 'Two real cases, two physics: (A) real body-surface data -> forward operator on real geometry -> regularized inverse with a surface prior -> ensemble uncertainty -> validation against the real measured heart cage; (B) real 4D-flow velocity -> divergence-free PINN denoiser -> analytic space-time unsteady term -> pressure-Poisson solve -> physiological pressure bracketing the clinical Bernoulli estimate.', 'Dos casos reales, dos fisicas: (A) datos reales de superficie corporal -> operador directo sobre geometria real -> inverso regularizado con prior de superficie -> incertidumbre por ensemble -> validacion contra la jaula cardiaca real; (B) velocidad real de flujo 4D -> PINN sin divergencia -> termino no estacionario analitico espacio-temporal -> resolucion de Poisson de presion -> presion fisiologica que encuadra la estimacion clinica de Bernoulli.')}</div>
     </div>
   );
 }

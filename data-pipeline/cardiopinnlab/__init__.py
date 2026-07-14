@@ -10,4 +10,4 @@ traces; the static web app READS those traces (it does not run any model in the 
 gated on analytic problems with known answers before any real data is trusted (see real/ + tests/).
 """
 
-__version__ = "0.16.000"  # frontend ADR-compliance overhaul: header/footer/app-layout/architecture-modal + all doc pages to the ADR-0016/0017/0058 bar
+__version__ = "0.17.000"  # ADR-audit remediation: docs wiki, PU colormap, viz a11y, 4D-flow methods, data contracts, coherence

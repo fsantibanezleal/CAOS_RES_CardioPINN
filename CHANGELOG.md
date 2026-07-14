@@ -3,6 +3,43 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.17.000], 2026-07-14
+
+### Fixed / Added (multi-agent ADR-audit remediation)
+A 9-standard adversarial audit (ADR-0016/0017/0056/0057/0058, visual-standards,
+product-quality-bar, product-depth-rubric, interactive-visualization-rubric) surfaced 34 confirmed gaps;
+this release closes them.
+- **Perceptually-uniform colormaps** (interactive-visualization-rubric law 4): replaced the non-uniform Turbo
+  map with magma (sequential, for magnitude fields) and coolwarm (diverging, for the SIGNED potential/pressure
+  fields); added numeric min/mid/max legend ticks and a detected-feature readout (max |error| node / argmax voxel).
+- **3D-view accessibility**: canvases marked aria-hidden with a text summary caption carrying the headline
+  metrics (screen-reader fallback); Architecture modal gets Esc-to-close + focus management + aria-label;
+  Tabs/SubTabs get roving tabindex + arrow-key navigation.
+- **docs/ wiki (ADR-0056)**: authored 19 deep markdowns across architecture/, frameworks/, guides/ and a new
+  data-contract/ theme (the bring-your-own-data ingestion + artifact contracts), all transcribed from the real
+  engine code; rewrote the stale landings that still described a Pyodide/ONNX/live-recompute architecture.
+- **Methodology 4D-flow family**: added a physics-domain switch and five deep 4D-flow method sub-tabs
+  (Navier-Stokes to Poisson / divergence-free PINN / space-time unsteady term / pressure-Poisson solve /
+  analytic gates), each with equations + a themed SVG + callout + Refs; the Introduction overview SVG is now two-lane.
+- **Data contracts (ADR-0057)**: rewrote frontend contract.types.ts to mirror the two REAL committed schemas
+  (deleting the phantom ONNX Trace/manifest types + the dead api/artifacts.ts); added the Python ingestion
+  contract data-pipeline/cardiopinnlab/io/contract.py with validators.
+- **Honesty/coherence**: fixed a WRONG citation DOI (bear2018 was a Sensors-journal DOI, now the verified Bear
+  2015 Circ Arrhythm Electrophysiol 10.1161/CIRCEP.114.001573); reconciled README + docs 4D-flow numbers to the
+  current space-time artifact (0.791 m/s, 0.79 mmHg, Bernoulli 2.51); removed stale ONNX/manifests references
+  from copy-data.mjs + deploy comment; removed the unused onnxruntime-web dependency; added the missing --bad
+  palette token.
+
+## [0.16.000], 2026-07-14
+
+### Added
+- **Frontend ADR-compliance overhaul.** Header/footer to ADR-0016 §1/§2 (lucide brand, the three external
+  icon-links, provenance for both domains); the App to a full-width workbench with a left case-selection column
+  (ADR-0017 §1.2); the Architecture modal to ADR-0058 (tab strip + five hand-authored themed SVGs); and all five
+  doc pages to the ADR-0017 §2 content-depth floors (Introduction equations + glossary; a themed SVG per
+  Methodology tab; Implementation 9 tabs + architecture SVG; Experiments 6 tabs + protocol SVG + datasets table;
+  Benchmark artifact-driven comparisons + robustness curve). Result-first tabs; compact dropdown sidebar.
+
 ## [0.15.000], 2026-07-14
 
 ### Added (BL-018 deepening: space-time PINN + jet anti-aliasing)

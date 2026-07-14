@@ -61,9 +61,9 @@ export const CITATIONS: Record<string, Citation> = {
     doi: '10.3389/fphy.2020.00042',
   },
   bear2018: {
-    id: 'bear2018', label: 'Bear 2018',
-    citation: 'Bear LR, Cheng LK, LeGrice IJ, et al. (2018). Forward problem of electrocardiography: is it solved? Circ. Arrhythm. Electrophysiol. and related torso-tank validation studies.',
-    doi: '10.3390/s23041841',
+    id: 'bear2018', label: 'Bear 2015',
+    citation: 'Bear LR, Cheng LK, LeGrice IJ, Sands GB, Lever NA, Paterson DJ, Smaill BH (2015). Forward problem of electrocardiography: is it solved? Circulation: Arrhythmia and Electrophysiology 8(3):677-684.',
+    doi: '10.1161/CIRCEP.114.001573',
   },
   diffusion2026: {
     id: 'diffusion2026', label: 'Diffusion inverse-ECG 2026',

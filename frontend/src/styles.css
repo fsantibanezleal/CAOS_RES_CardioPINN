@@ -9,6 +9,7 @@
   --accent-2: #5aa0ff;
   --good: #4ec9a0;
   --warn: #e0b34a;
+  --bad: #f85149;
   --radius: 10px;
   --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -24,6 +25,7 @@
   --accent-2: #2f6fe0;
   --good: #1f9e78;
   --warn: #b5850f;
+  --bad: #d63a30;
 }
 
 * { box-sizing: border-box; }
@@ -73,9 +75,18 @@ code, pre { font-family: var(--mono); }
   max-width: 1520px; margin-inline: auto; display: grid; grid-template-columns: 300px minmax(0, 1fr);
   gap: 22px; padding: 22px 26px 48px;
 }
-.cp-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 74px; align-self: start; }
+.cp-side { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 74px; align-self: start; max-height: calc(100vh - 90px); overflow: auto; }
 .cp-main { min-width: 0; }
-@media (max-width: 900px) { .cardiopinn-layout { grid-template-columns: 1fr; } .cp-side { position: static; } }
+.cp-main .lede { max-width: none; }   /* the App header fills the main column (not the 70ch doc-page opener) */
+@media (max-width: 900px) { .cardiopinn-layout { grid-template-columns: 1fr; } .cp-side { position: static; max-height: none; } }
+.cp-field { display: block; margin-bottom: 10px; }
+.cp-field:last-child { margin-bottom: 0; }
+.cp-field > span { display: block; font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.cp-select { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel-2); color: var(--fg); font-family: var(--sans); font-size: 0.9rem; cursor: pointer; }
+.cp-select:hover { border-color: var(--accent-2); }
+.cp-select:focus { outline: none; border-color: var(--accent); }
+.cp-case-meta { margin-top: 9px; font-size: 0.82rem; line-height: 1.4; }
+.cp-case-meta .muted { color: var(--muted); }
 .cp-side-block { border: 1px solid var(--border); border-radius: 12px; background: var(--panel); padding: 14px; }
 .cp-side-label { display: block; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 9px; }
 .cp-side-block .case-tile { min-width: 0; width: 100%; margin-bottom: 8px; }
@@ -87,6 +98,8 @@ code, pre { font-family: var(--mono); }
 .sym-list { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 5px; }
 .sym-list li { font-size: 0.9rem; color: var(--muted); }
 .sym-list li code { color: var(--accent); background: var(--panel-2); padding: 1px 6px; border-radius: 5px; margin-right: 6px; font-family: var(--mono, monospace); }
+.legend-ticks { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); font-family: var(--mono, monospace); }
+.sr-summary { font-size: 0.86rem; color: var(--muted); margin-top: 8px; line-height: 1.5; }
 .chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip.block { display: block; width: 100%; text-align: left; margin-bottom: 6px; }
 .chip.block:last-child { margin-bottom: 0; }
