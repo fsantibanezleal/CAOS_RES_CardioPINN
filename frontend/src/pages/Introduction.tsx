@@ -65,22 +65,29 @@ export function Introduction() {
       </section>
 
       <section>
-        <h2>{pick(lang, '3. The governing mathematics', '3. La matematica gobernante')}</h2>
-        <Equation tex={String.raw`\nabla\cdot(\sigma\nabla\phi)=0 \text{ in } \Omega,\quad \phi=\phi_{\text{heart}} \text{ on } \Gamma_H,\quad \sigma\partial_n\phi=0 \text{ on } \Gamma_B \;\;\Rightarrow\;\; \phi_{\text{body}}=A\,\phi_{\text{heart}}`}
-          caption={pick(lang, 'Quasi-static volume conduction reduces to a linear forward operator A between the two surfaces.', 'La conduccion de volumen cuasi-estatica se reduce a un operador directo lineal A entre las dos superficies.')} />
+        <h2>{pick(lang, '3. The two governing equations', '3. Las dos ecuaciones gobernantes')}</h2>
+        <p>{pick(lang,
+          'The two cases live in two different physics. Case A (ECG imaging) is quasi-static volume conduction: the extracellular potential is harmonic in the torso, so the heart-to-body map is a single linear operator A, severely ill-conditioned. Case B (4D-flow pressure) is incompressible Navier-Stokes: taking the divergence of the momentum equation and using incompressibility turns it into a Poisson equation for pressure whose source is built from the measured velocity’s spatial derivatives.',
+          'Los dos casos viven en dos fisicas distintas. El caso A (imagen de ECG) es conduccion de volumen cuasi-estatica: el potencial extracelular es armonico en el torso, asi que el mapa corazon-cuerpo es un solo operador lineal A, severamente mal condicionado. El caso B (presion de flujo 4D) es Navier-Stokes incompresible: tomar la divergencia de la ecuacion de momento y usar la incompresibilidad la convierte en una ecuacion de Poisson para la presion cuya fuente se construye de las derivadas espaciales de la velocidad medida.')}</p>
+        <Equation tex={String.raw`\text{A: }\;\nabla\cdot(\sigma\nabla\phi)=0 \text{ in } \Omega,\;\; \phi=\phi_{\text{heart}} \text{ on } \Gamma_H,\;\; \sigma\partial_n\phi=0 \text{ on } \Gamma_B \;\Rightarrow\; \phi_{\text{body}}=A\,\phi_{\text{heart}}`}
+          caption={pick(lang, 'Case A: quasi-static volume conduction reduces to a linear forward operator A between the two surfaces.', 'Caso A: la conduccion de volumen cuasi-estatica se reduce a un operador directo lineal A entre las dos superficies.')} />
+        <Equation tex={String.raw`\text{B: }\;\rho(\partial_t\mathbf{v}+(\mathbf{v}\cdot\nabla)\mathbf{v})=-\nabla p+\mu\nabla^2\mathbf{v},\;\; \nabla\cdot\mathbf{v}=0`}
+          caption={pick(lang, 'Case B: incompressible Navier-Stokes relates the pressure gradient to the fluid acceleration and viscous friction.', 'Caso B: Navier-Stokes incompresible relaciona el gradiente de presion con la aceleracion del fluido y la friccion viscosa.')} />
+        <Equation tex={String.raw`\text{B} \Rightarrow \;\nabla^2 p=-\rho\,\nabla\cdot[(\mathbf{v}\cdot\nabla)\mathbf{v}]\equiv S(\mathbf{v})`}
+          caption={pick(lang, 'Its divergence gives the pressure-Poisson equation: a well-posed elliptic problem whose source is a quadratic form of the measured velocity gradients.', 'Su divergencia da la ecuacion de Poisson de presion: un problema eliptico bien planteado cuya fuente es una forma cuadratica de los gradientes de velocidad medidos.')} />
         <dl className="def-grid">
-          <dt>{'φ'}</dt><dd>{pick(lang, 'extracellular potential', 'potencial extracelular')}</dd>
-          <dt>{'σ'}</dt><dd>{pick(lang, 'tissue conductivity', 'conductividad del tejido')}</dd>
-          <dt>{'Ω'}</dt><dd>{pick(lang, 'torso volume', 'volumen del torso')}</dd>
-          <dt>{'Γ_H'}</dt><dd>{pick(lang, 'heart surface (256 cage electrodes)', 'superficie cardiaca (256 electrodos de jaula)')}</dd>
-          <dt>{'Γ_B'}</dt><dd>{pick(lang, 'body surface (192 tank electrodes)', 'superficie corporal (192 electrodos del tanque)')}</dd>
+          <dt>{'φ, σ'}</dt><dd>{pick(lang, 'extracellular potential; tissue conductivity', 'potencial extracelular; conductividad del tejido')}</dd>
+          <dt>{'Ω, Γ_H, Γ_B'}</dt><dd>{pick(lang, 'torso volume; heart surface; body surface', 'volumen del torso; superficie cardiaca; superficie corporal')}</dd>
           <dt>{'∂_n'}</dt><dd>{pick(lang, 'outward normal derivative', 'derivada normal saliente')}</dd>
-          <dt>A</dt><dd>{pick(lang, 'forward transfer matrix (192 x 256)', 'matriz de transferencia directa (192 x 256)')}</dd>
-          <dt>{'φ_body'}</dt><dd>{pick(lang, 'measured body-surface potentials', 'potenciales medidos de superficie corporal')}</dd>
-          <dt>{'φ_heart'}</dt><dd>{pick(lang, 'heart-surface potentials to recover', 'potenciales de superficie cardiaca a recuperar')}</dd>
-          <dt>{'λ, L, σ_k'}</dt><dd>{pick(lang, 'regularization strength, penalty operator, singular values of A', 'fuerza de regularizacion, operador de penalizacion, valores singulares de A')}</dd>
+          <dt>A</dt><dd>{pick(lang, 'forward transfer matrix (single-layer or BEM)', 'matriz de transferencia directa (capa simple o BEM)')}</dd>
+          <dt>{'φ_body, φ_heart'}</dt><dd>{pick(lang, 'measured body-surface / heart-surface potentials', 'potenciales medidos de superficie corporal / cardiaca')}</dd>
+          <dt>{'λ, L, σ_k'}</dt><dd>{pick(lang, 'regularization strength; penalty operator; singular values of A', 'fuerza de regularizacion; operador de penalizacion; valores singulares de A')}</dd>
+          <dt>{'v, p'}</dt><dd>{pick(lang, 'measured blood velocity; relative pressure to recover', 'velocidad sanguinea medida; presion relativa a recuperar')}</dd>
+          <dt>{'ρ, μ'}</dt><dd>{pick(lang, 'blood density 1060 kg/m³; dynamic viscosity 0.0035 Pa·s', 'densidad de la sangre 1060 kg/m³; viscosidad dinamica 0.0035 Pa·s')}</dd>
+          <dt>{'S(v)'}</dt><dd>{pick(lang, 'the pressure-Poisson source (velocity-gradient product)', 'la fuente de Poisson de presion (producto de gradientes de velocidad)')}</dd>
+          <dt>{'∇²'}</dt><dd>{pick(lang, 'the Laplacian operator', 'el operador Laplaciano')}</dd>
         </dl>
-        <Refs ids={['barr1977', 'rudy1988']} />
+        <Refs ids={['barr1977', 'rudy1988', 'raissi2020', 'krittian2012']} />
       </section>
 
       <section>
@@ -98,10 +105,10 @@ export function Introduction() {
         <h2>{pick(lang, '5. Honesty and scope', '5. Honestidad y alcance')}</h2>
         <Callout>
           {pick(lang,
-            'This is a real torso-tank experiment (a real explanted heart in a tank), the one setting where a real heart-surface gold standard exists; clinical ECGi has none. Every number is the measured reconstruction quality against that real truth, never against a synthetic field. The forward operator is a single-layer approximation on the real geometry (a full boundary-element model is the next improvement). Raw EDGAR data is used under its data-use agreement with attribution and not redistributed. Not clinically deployed.',
-            'Este es un experimento real de tanque de torso (un corazon explantado real en un tanque), el unico entorno donde existe un patron de oro real de superficie cardiaca; el ECGi clinico no tiene ninguno. Cada numero es la calidad de reconstruccion medida contra esa verdad real, nunca contra un campo sintetico. El operador directo es una aproximacion de capa simple sobre la geometria real. Los datos crudos EDGAR se usan bajo su acuerdo de uso con atribucion y no se redistribuyen. No desplegado clinicamente.')}
+            'Case A (ECG imaging) runs on real torso-tank experiments, the one setting where a real heart-surface gold standard exists (clinical ECGi has none), so every number is the measured reconstruction quality against that real truth, never a synthetic field. Case B (4D-flow) has NO invasive pressure gold standard, which is exactly why the method exists; there the validated claims are the exact analytic gate (a known-answer flow), the physiological range, and the bracket of the clinical Bernoulli estimate, and the absolute magnitude carries the method uncertainty. Every engine is gated on an analytic problem before real data; raw datasets are used under their data-use agreements and not redistributed. Not clinically deployed.',
+            'El caso A (imagen de ECG) corre sobre experimentos reales de tanque de torso, el unico entorno donde existe un patron de oro real de superficie cardiaca (el ECGi clinico no tiene ninguno), asi que cada numero es la calidad de reconstruccion medida contra esa verdad real, nunca un campo sintetico. El caso B (flujo 4D) NO tiene patron de oro de presion invasivo, que es justo por lo que existe el metodo; alli las afirmaciones validadas son la prueba analitica exacta (un flujo de respuesta conocida), el rango fisiologico, y el encuadre de la estimacion clinica de Bernoulli, y la magnitud absoluta lleva la incertidumbre del metodo. Cada motor pasa una prueba analitica antes de datos reales; los datos crudos se usan bajo sus acuerdos y no se redistribuyen. No desplegado clinicamente.')}
         </Callout>
-        <Refs ids={['aras2015', 'cluitmans2018']} />
+        <Refs ids={['aras2015', 'cluitmans2018', 'raissi2020']} />
       </section>
     </div>
   );
