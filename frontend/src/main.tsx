@@ -30,7 +30,7 @@ const config: ShellConfig = {
     { path: '/benchmark', en: 'Benchmark', es: 'Benchmark' },
   ],
   links: { github: EXTERNAL_LINKS.github, personal: EXTERNAL_LINKS.personal, portfolio: EXTERNAL_LINKS.portfolio },
-  version: '0.18.000',
+  version: '0.19.000',
   architecture,
   footer: {
     provenance: {
