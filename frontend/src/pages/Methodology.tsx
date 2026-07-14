@@ -4,7 +4,104 @@ import { Cite } from '../components/Cite';
 import { Equation } from '../components/Equation';
 import { Refs } from '../components/Refs';
 import { SubTabs } from '../components/SubTabs';
-import { useLang, pick } from '../store';
+import { useLang, pick, type Lang } from '../store';
+
+// Hand-authored theme-aware method figures (ADR-0017 §2: >=1 SVG per method tab). All colours are CSS
+// variables so they follow light/dark; bilingual captions.
+function Fig({ lang, caption, children, vb = '0 0 560 200' }: { lang: Lang; caption: [string, string]; children: React.ReactNode; vb?: string }) {
+  return (
+    <div className="fig-svg">
+      <svg viewBox={vb} role="img" style={{ width: '100%', height: 'auto' }}>{children}</svg>
+      <div className="fig-cap">{pick(lang, caption[0], caption[1])}</div>
+    </div>
+  );
+}
+const AX = { stroke: 'var(--border)', strokeWidth: 1 };
+const T = (x: number, y: number, s: string, cls = 'muted', anchor = 'start', size = 11) =>
+  <text x={x} y={y} fill={cls === 'muted' ? 'var(--muted)' : cls === 'accent' ? 'var(--accent)' : cls === 'good' ? 'var(--good)' : 'var(--fg)'} fontSize={size} textAnchor={anchor as 'start'}>{s}</text>;
+
+function ForwardSvg({ lang }: { lang: Lang }) {
+  return (
+    <Fig lang={lang} caption={['The torso as a volume conductor: a heart source maps to the body surface by A; A’s singular values decay to zero (right), the ill-conditioning.', 'El torso como conductor de volumen: una fuente cardiaca se mapea a la superficie por A; los valores singulares de A decaen a cero (derecha), el mal condicionamiento.']}>
+      <ellipse cx="130" cy="100" rx="115" ry="80" fill="none" stroke="var(--border)" strokeWidth="1.5" />
+      <ellipse cx="130" cy="103" rx="40" ry="32" fill="color-mix(in srgb, var(--accent) 20%, transparent)" stroke="var(--accent)" strokeWidth="1.5" />
+      {T(130, 100, 'heart', 'fg', 'middle')}{T(130, 116, 'φ_heart', 'accent', 'middle', 10)}
+      {[0, 1, 2, 3, 4, 5].map((i) => <circle key={i} cx={130 + 115 * Math.cos((i / 6) * 6.28)} cy={100 + 80 * Math.sin((i / 6) * 6.28)} r="3.5" fill="var(--accent-2)" />)}
+      {T(130, 190, 'φ_body (electrodes)', 'muted', 'middle', 10)}
+      <path d="M250 100 H300" stroke="var(--good)" strokeWidth="1.6" markerEnd="url(#mah)" />
+      {T(275, 92, 'A', 'good', 'middle')}
+      <defs><marker id="mah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="var(--good)" /></marker></defs>
+      <line x1="330" y1="40" x2="330" y2="165" {...AX} /><line x1="330" y1="165" x2="545" y2="165" {...AX} />
+      {T(322, 40, 'σ_k', 'muted', 'end', 10)}{T(540, 182, 'k', 'muted', 'end', 10)}
+      <path d="M338 48 C 380 60, 430 150, 540 162" fill="none" stroke="var(--accent)" strokeWidth="2" />
+      {T(430, 120, 'exponential decay', 'accent', 'middle', 10)}
+    </Fig>
+  );
+}
+function TikhonovSvg({ lang }: { lang: Lang }) {
+  return (
+    <Fig lang={lang} caption={['The L-curve: solution norm vs data misfit as λ varies; the corner is the classical balance between fitting the data and staying stable.', 'La curva L: norma de la solucion vs desajuste a datos al variar λ; la esquina es el balance clasico entre ajustar los datos y mantener estabilidad.']}>
+      <line x1="70" y1="30" x2="70" y2="165" {...AX} /><line x1="70" y1="165" x2="520" y2="165" {...AX} />
+      {T(60, 40, '||Lφ||', 'muted', 'end', 10)}{T(515, 182, '||Aφ - φ_body||', 'muted', 'end', 10)}
+      <path d="M82 40 C 95 120, 130 150, 500 158" fill="none" stroke="var(--accent)" strokeWidth="2" />
+      <circle cx="150" cy="146" r="5" fill="var(--good)" />{T(165, 140, 'corner (best λ)', 'good', 'start', 10)}
+      {T(95, 60, 'under-regularized', 'muted', 'start', 9)}{T(360, 150, 'over-smoothed', 'muted', 'start', 9)}
+    </Fig>
+  );
+}
+function ParamSvg({ lang }: { lang: Lang }) {
+  return (
+    <Fig lang={lang} caption={['The reconstruction error as a function of λ is U-shaped; we report the ORACLE minimum (fair to every method) rather than an L-curve heuristic.', 'El error de reconstruccion en funcion de λ tiene forma de U; reportamos el minimo ORACULO (justo para todo metodo) en lugar de una heuristica de curva L.']}>
+      <line x1="70" y1="30" x2="70" y2="165" {...AX} /><line x1="70" y1="165" x2="520" y2="165" {...AX} />
+      {T(60, 40, 'RE', 'muted', 'end', 10)}{T(515, 182, 'log λ', 'muted', 'end', 10)}
+      <path d="M90 50 C 160 150, 220 155, 300 150 C 380 145, 440 60, 500 45" fill="none" stroke="var(--accent)" strokeWidth="2" />
+      <circle cx="300" cy="152" r="5" fill="var(--good)" />{T(300, 140, 'oracle-best λ', 'good', 'middle', 10)}
+      {T(110, 70, 'unstable', 'muted', 'middle', 9)}{T(480, 70, 'blurred', 'muted', 'middle', 9)}
+    </Fig>
+  );
+}
+function PriorSvg({ lang }: { lang: Lang }) {
+  const nb = [[0, -34], [30, -17], [30, 17], [0, 34], [-30, 17], [-30, -17]];
+  return (
+    <Fig lang={lang} caption={['The prior penalizes roughness on the REAL heart-cage triangulation via its graph Laplacian: each node is pulled toward the mean of its mesh neighbours.', 'El prior penaliza la rugosidad sobre la triangulacion REAL de la jaula cardiaca via su Laplaciano de grafo: cada nodo se atrae hacia la media de sus vecinos de malla.']}>
+      <g transform="translate(150,100)">
+        {nb.map(([x, y], i) => <g key={i}><line x1="0" y1="0" x2={x} y2={y} stroke="var(--border)" strokeWidth="1.2" /><circle cx={x} cy={y} r="6" fill="var(--panel-2)" stroke="var(--accent-2)" strokeWidth="1.3" /></g>)}
+        <circle cx="0" cy="0" r="8" fill="color-mix(in srgb, var(--accent) 25%, transparent)" stroke="var(--accent)" strokeWidth="1.6" />
+        {T(0, 4, 'i', 'accent', 'middle', 10)}
+      </g>
+      {T(300, 80, '(Lφ)_i = φ_i - mean of neighbours', 'fg', 'start', 11)}
+      {T(300, 104, 'smooth ALONG the tissue,', 'muted', 'start', 10)}
+      {T(300, 120, 'not in an abstract vector space', 'muted', 'start', 10)}
+    </Fig>
+  );
+}
+function PhysicsSvg({ lang }: { lang: Lang }) {
+  return (
+    <Fig lang={lang} caption={['The objective: the recovered potentials must reproduce the REAL measured body data through A (physics), while the mesh prior keeps them smooth on the surface.', 'El objetivo: los potenciales recuperados deben reproducir los datos REALES medidos a traves de A (fisica), mientras el prior de malla los mantiene suaves en la superficie.']}>
+      <rect x="30" y="70" width="150" height="60" rx="8" fill="var(--panel-2)" stroke="var(--accent-2)" strokeWidth="1.3" />
+      {T(105, 95, 'data fit', 'fg', 'middle')}{T(105, 112, '||Aφ - φ_body||²', 'muted', 'middle', 10)}
+      {T(200, 105, '+', 'fg', 'middle', 16)}
+      <rect x="220" y="70" width="150" height="60" rx="8" fill="var(--panel-2)" stroke="var(--accent)" strokeWidth="1.3" />
+      {T(295, 95, 'physics prior', 'fg', 'middle')}{T(295, 112, 'λ² ||L_mesh φ||²', 'muted', 'middle', 10)}
+      <path d="M375 100 H420" stroke="var(--good)" strokeWidth="1.6" markerEnd="url(#pah)" />
+      <defs><marker id="pah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="var(--good)" /></marker></defs>
+      <rect x="428" y="72" width="110" height="56" rx="8" fill="color-mix(in srgb, var(--good) 12%, var(--panel))" stroke="var(--good)" strokeWidth="1.3" />
+      {T(483, 95, 'φ_heart', 'fg', 'middle')}{T(483, 112, 'recovered', 'good', 'middle', 10)}
+    </Fig>
+  );
+}
+function UqSvg({ lang }: { lang: Lang }) {
+  return (
+    <Fig lang={lang} caption={['Calibration: after temperature recalibration the empirical coverage tracks the nominal (dashed identity); ~90% of nodes fall within the 2σ band of the true error.', 'Calibracion: tras recalibrar la temperatura la cobertura empirica sigue la identidad (linea punteada); ~90% de los nodos caen dentro de la banda 2σ del error real.']}>
+      <line x1="70" y1="30" x2="70" y2="165" {...AX} /><line x1="70" y1="165" x2="470" y2="165" {...AX} />
+      {T(60, 40, 'empirical', 'muted', 'end', 10)}{T(465, 182, 'nominal coverage', 'muted', 'end', 10)}
+      <line x1="70" y1="165" x2="430" y2="35" stroke="var(--muted)" strokeWidth="1" strokeDasharray="4 3" />
+      <path d="M70 165 C 180 120, 280 70, 430 40" fill="none" stroke="var(--good)" strokeWidth="2" />
+      {T(250, 150, 'calibrated (≈ identity)', 'good', 'middle', 10)}
+      <circle cx="360" cy="63" r="4" fill="var(--accent)" />{T(372, 60, '2σ → ~0.90', 'accent', 'start', 10)}
+    </Fig>
+  );
+}
 
 export function Methodology() {
   const lang = useLang();
@@ -46,6 +143,7 @@ export function Methodology() {
               <Callout>{pick(lang,
                 'Single-layer approximation, not full BEM; it caps the absolute accuracy but is honest and self-contained. The real electrode geometry (192 torso, 256 cage nodes + triangulations) is used exactly.',
                 'Aproximacion de capa simple, no BEM completo; limita la precision absoluta pero es honesta y autocontenida. La geometria real de electrodos (192 torso, 256 nodos de jaula + triangulaciones) se usa exactamente.')}</Callout>
+              <ForwardSvg lang={lang} />
               <Refs ids={['barr1977', 'rudy1988', 'bear2018']} />
             </section>
           )}
@@ -66,6 +164,7 @@ export function Methodology() {
               <Callout>{pick(lang,
                 'L1 / total-variation variants sharpen fronts but stay deterministic. We keep the classical L2 Tikhonov as the honest, well-understood baseline and give it its oracle-best lambda (Parameter choice tab).',
                 'Las variantes L1 / de variacion total agudizan los frentes pero siguen siendo deterministas. Mantenemos el Tikhonov L2 clasico como el baseline honesto y bien entendido y le damos su mejor lambda por oraculo (pestana Eleccion del parametro).')}</Callout>
+              <TikhonovSvg lang={lang} />
               <Refs ids={['tikhonov1977', 'ghosh2009']} />
             </section>
           )}
@@ -84,6 +183,7 @@ export function Methodology() {
               <Callout>{pick(lang,
                 'The oracle lambda uses the ground truth ONLY to pick the fairest baseline, never to fit the reconstruction. The reconstruction itself sees only the body-surface data.',
                 'El lambda oraculo usa la verdad de referencia SOLO para elegir el baseline mas justo, nunca para ajustar la reconstruccion. La reconstruccion en si solo ve los datos de superficie corporal.')}</Callout>
+              <ParamSvg lang={lang} />
               <Refs ids={['hansen1992']} />
             </section>
           )}
@@ -102,6 +202,7 @@ export function Methodology() {
               <Callout>{pick(lang,
                 'On this data the graph prior matches zeroth-order Tikhonov on relative error and slightly changes the correlation; its value is a physically meaningful smoothness that also stabilizes the ensemble uncertainty. A cotangent (metric) Laplacian would be a refinement.',
                 'Sobre estos datos el prior de grafo iguala al Tikhonov de orden cero en error relativo y cambia ligeramente la correlacion; su valor es una suavidad fisicamente significativa que ademas estabiliza la incertidumbre por ensemble. Un Laplaciano cotangente (metrico) seria un refinamiento.')}</Callout>
+              <PriorSvg lang={lang} />
               <Refs ids={['ghosh2009']} />
             </section>
           )}
@@ -120,6 +221,7 @@ export function Methodology() {
               <Callout>{pick(lang,
                 'Because the operator here is linear, the physics-constrained solve equals the regularized least squares; the PINN framing matters more for the nonlinear cardiac problems (activation, flow) where the constraint is a PDE residual evaluated by autograd.',
                 'Como el operador aqui es lineal, la solucion restringida por fisica equivale al minimos cuadrados regularizado; el encuadre PINN importa mas para los problemas cardiacos no lineales (activacion, flujo) donde la restriccion es un residuo de PDE evaluado por autograd.')}</Callout>
+              <PhysicsSvg lang={lang} />
               <Refs ids={['raissi2019', 'sahli2020', 'diffusion2026']} />
             </section>
           )}
@@ -138,6 +240,7 @@ export function Methodology() {
               <Callout>{pick(lang,
                 'The recalibration uses the true error only to set one global scalar; it does not fit the reconstruction. A fully blind calibration (cross-validation on the body surface) is the honest clinical version and a next step.',
                 'La recalibracion usa el error real solo para fijar un escalar global; no ajusta la reconstruccion. Una calibracion totalmente ciega (validacion cruzada en la superficie corporal) es la version clinica honesta y un siguiente paso.')}</Callout>
+              <UqSvg lang={lang} />
               <Refs ids={['lakshminarayanan2017', 'cluitmans2018']} />
             </section>
           )}
