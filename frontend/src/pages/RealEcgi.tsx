@@ -1,6 +1,6 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { Callout } from '../components/Callout';
 import { Cite } from '../components/Cite';
@@ -105,7 +105,7 @@ function ForwardSvg({ lang }: { lang: 'en' | 'es' }) {
   );
 }
 
-export function RealEcgi() {
+export function RealEcgi({ selector }: { selector?: ReactNode }) {
   const lang = useLang();
   const [cat, setCat] = useState<Catalogue | null>(null);
   const [tab, setTab] = useState('recon');
@@ -145,7 +145,41 @@ export function RealEcgi() {
   ];
 
   return (
-    <div className="page-body prose">
+    <div className="cardiopinn-layout prose">
+      <aside className="cp-side">
+        {selector}
+        {cat && ds && (
+          <>
+            <div className="cp-side-block">
+              <span className="cp-side-label">{pick(lang, 'Dataset', 'Conjunto de datos')}</span>
+              {cat.cases.map((c, i) => (
+                <button key={c.id} className={`chip block ${caseIdx === i ? 'on' : ''}`}
+                  onClick={() => { setCaseIdx(i); setBeat(Object.keys(c.beats)[0]); setFrame(0); }}>
+                  {pick(lang, DATASET_LABEL[c.id]?.[0] ?? c.name, DATASET_LABEL[c.id]?.[1] ?? c.name)}
+                </button>
+              ))}
+            </div>
+            <div className="cp-side-block">
+              <span className="cp-side-label">{pick(lang, 'Beat', 'Latido')}</span>
+              <div className="chip-wrap">{Object.keys(ds.beats).map((r) => <span key={r} className={`chip ${beat === r ? 'on' : ''}`} onClick={() => { setBeat(r); setFrame(0); }}>{pick(lang, BEAT_LABEL[r]?.[0] ?? r, BEAT_LABEL[r]?.[1] ?? r)}</span>)}</div>
+              <span className="cp-side-label" style={{ marginTop: 12 }}>{pick(lang, 'Field', 'Campo')}</span>
+              <div className="chip-wrap">{FIELDS.map((f) => <span key={f} className={`chip ${field === f ? 'on' : ''}`} onClick={() => setField(f)}>{pick(lang, FIELD_LABEL[f][0], FIELD_LABEL[f][1])}</span>)}</div>
+            </div>
+            {rd && (
+              <div className="cp-side-block">
+                <span className="cp-side-label">{pick(lang, 'Live diagnosis vs real gold standard', 'Diagnostico en vivo vs patron de oro real')}</span>
+                <div className="cp-readout">
+                  <div className="ro"><span className="v">{rd.metrics.relative_error_tikhonov}</span><span className="k">{pick(lang, 'relative error', 'error relativo')}</span></div>
+                  <div className="ro"><span className="v">{rd.metrics.correlation_tikhonov}</span><span className="k">{pick(lang, 'correlation', 'correlacion')}</span></div>
+                  <div className="ro"><span className="v">{rd.metrics.uq_calibration_2sigma}</span><span className="k">{pick(lang, 'node-UQ (2σ)', 'UQ nodo (2σ)')}</span></div>
+                  <div className="ro"><span className="v">{rd.metrics.n_heart_electrodes}</span><span className="k">{pick(lang, 'heart nodes', 'nodos cardiacos')}</span></div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </aside>
+      <div className="cp-main">
       <div className="page-head">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <h1>{pick(lang, 'Real ECG imaging: recovering heart-surface potentials', 'Imagen de ECG real: recuperar potenciales de superficie cardiaca')}</h1>
@@ -297,29 +331,8 @@ export function RealEcgi() {
         <section>
           <h2>{pick(lang, 'The reconstruction, on the real heart geometry', 'La reconstruccion, sobre la geometria cardiaca real')}</h2>
           <p>{pick(lang,
-            'The same physics-informed reconstruction is applied across a catalogue of independent real experiments, so the method is not tuned to one heart. Pick a dataset: an explanted human heart in a torso tank (192 body electrodes recovering a 256-electrode cage) or an in-situ dog heart (140 body electrodes recovering a 1321-node epicardial map). Each recorded the true heart-surface potentials simultaneously, giving a real gold standard.',
-            'La misma reconstruccion informada por fisica se aplica a un catalogo de experimentos reales independientes, asi que el metodo no esta ajustado a un solo corazon. Elige un conjunto de datos: un corazon humano explantado en un tanque de torso (192 electrodos corporales recuperando una jaula de 256) o un corazon de perro in situ (140 electrodos corporales recuperando un mapa epicardico de 1321 nodos). Cada uno registro los potenciales verdaderos de superficie cardiaca simultaneamente, dando un patron de oro real.')}</p>
-          <div className="row" style={{ marginBottom: 10 }}>
-            <span className="muted small">{pick(lang, 'Dataset', 'Conjunto de datos')}:</span>
-            {cat.cases.map((c, i) => (
-              <span key={c.id} className={`chip ${caseIdx === i ? 'on' : ''}`}
-                onClick={() => { setCaseIdx(i); setBeat(Object.keys(c.beats)[0]); setFrame(0); }}>
-                {pick(lang, DATASET_LABEL[c.id]?.[0] ?? c.name, DATASET_LABEL[c.id]?.[1] ?? c.name)}
-              </span>
-            ))}
-          </div>
-          <div className="cardgrid" style={{ marginBottom: 14 }}>
-            <div className="panel metric"><span className="v">{rd.metrics.relative_error_tikhonov}</span><span className="k">{pick(lang, 'relative error vs REAL heart potentials', 'error relativo vs potenciales cardiacos REALES')}</span></div>
-            <div className="panel metric"><span className="v">{rd.metrics.correlation_tikhonov}</span><span className="k">{pick(lang, 'correlation vs REAL heart potentials', 'correlacion vs potenciales cardiacos REALES')}</span></div>
-            <div className="panel metric"><span className="v">{rd.metrics.uq_calibration_2sigma}</span><span className="k">{pick(lang, 'node-UQ reliability (2 sigma)', 'confiabilidad UQ por nodo (2 sigma)')}</span></div>
-            <div className="panel metric"><span className="v">{rd.metrics.n_heart_electrodes}</span><span className="k">{pick(lang, 'heart nodes recovered', 'nodos cardiacos recuperados')}</span></div>
-          </div>
-          <div className="row" style={{ marginBottom: 10 }}>
-            <span className="muted small">{pick(lang, 'Beat', 'Latido')}:</span>
-            {Object.keys(ds.beats).map((r) => <span key={r} className={`chip ${beat === r ? 'on' : ''}`} onClick={() => { setBeat(r); setFrame(0); }}>{pick(lang, BEAT_LABEL[r]?.[0] ?? r, BEAT_LABEL[r]?.[1] ?? r)}</span>)}
-            <span className="muted small" style={{ marginLeft: 12 }}>{pick(lang, 'Field', 'Campo')}:</span>
-            {FIELDS.map((f) => <span key={f} className={`chip ${field === f ? 'on' : ''}`} onClick={() => setField(f)}>{pick(lang, FIELD_LABEL[f][0], FIELD_LABEL[f][1])}</span>)}
-          </div>
+            'The same physics-informed reconstruction is applied across a catalogue of independent real experiments, so the method is not tuned to one heart. Use the LEFT COLUMN to pick the dataset (an explanted human heart in a torso tank, 192 body electrodes recovering a 256-electrode cage; or an in-situ dog heart, 140 body electrodes recovering a 1321-node epicardial map), the beat, and the field, and to read the live reconstruction quality against the real gold standard. Each dataset recorded the true heart-surface potentials simultaneously.',
+            'La misma reconstruccion informada por fisica se aplica a un catalogo de experimentos reales independientes, asi que el metodo no esta ajustado a un solo corazon. Usa la COLUMNA IZQUIERDA para elegir el conjunto de datos (un corazon humano explantado en un tanque de torso, 192 electrodos corporales recuperando una jaula de 256; o un corazon de perro in situ, 140 electrodos recuperando un mapa epicardico de 1321 nodos), el latido y el campo, y para leer la calidad de reconstruccion en vivo contra el patron de oro real. Cada conjunto registro los potenciales verdaderos de superficie cardiaca simultaneamente.')}</p>
           <div className="canvas-wrap">
             <Canvas camera={{ position: [90, -70, 60], fov: 40, up: [0, 0, 1] }}>
               <ambientLight intensity={0.55} />
@@ -350,6 +363,7 @@ export function RealEcgi() {
           <Refs ids={['aras2015', 'cluitmans2018']} />
         </section>
       )}
+      </div>
     </div>
   );
 }

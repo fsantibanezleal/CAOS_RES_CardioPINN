@@ -1,6 +1,6 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { Callout } from '../components/Callout';
 import { Cite } from '../components/Cite';
@@ -74,7 +74,7 @@ function PpeSvg({ lang }: { lang: 'en' | 'es' }) {
   );
 }
 
-export function Flow4d() {
+export function Flow4d({ selector }: { selector?: ReactNode }) {
   const lang = useLang();
   const [tr, setTr] = useState<Flow4dTrace | null>(null);
   const [tab, setTab] = useState('result');
@@ -110,7 +110,31 @@ export function Flow4d() {
   ];
 
   return (
-    <div className="page-body prose">
+    <div className="cardiopinn-layout prose">
+      <aside className="cp-side">
+        {selector}
+        {tr && (
+          <>
+            <div className="cp-side-block">
+              <span className="cp-side-label">{pick(lang, 'Field', 'Campo')}</span>
+              <div className="chip-wrap">
+                <span className={`chip ${field === 'pressure' ? 'on' : ''}`} onClick={() => setField('pressure')}>{pick(lang, 'Relative pressure', 'Presion relativa')}</span>
+                <span className={`chip ${field === 'speed' ? 'on' : ''}`} onClick={() => setField('speed')}>{pick(lang, 'Speed', 'Rapidez')}</span>
+              </div>
+            </div>
+            <div className="cp-side-block">
+              <span className="cp-side-label">{pick(lang, 'Live readout (real scan)', 'Lectura en vivo (escaneo real)')}</span>
+              <div className="cp-readout">
+                <div className="ro"><span className="v">{tr.metrics.peak_velocity_ms}</span><span className="k">{pick(lang, 'peak velocity (m/s)', 'velocidad pico (m/s)')}</span></div>
+                <div className="ro"><span className="v">{tr.metrics.ppe_pressure_drop_mmHg}</span><span className="k">{pick(lang, 'pressure range (mmHg)', 'rango presion (mmHg)')}</span></div>
+                <div className="ro"><span className="v">{tr.metrics.bernoulli_mmHg}</span><span className="k">{pick(lang, 'Bernoulli 4Vmax² (mmHg)', 'Bernoulli 4Vmax² (mmHg)')}</span></div>
+                <div className="ro"><span className="v">{tr.metrics.n_lumen_voxels}</span><span className="k">{pick(lang, 'lumen voxels', 'voxeles lumen')}</span></div>
+              </div>
+            </div>
+          </>
+        )}
+      </aside>
+      <div className="cp-main">
       <div className="page-head">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <h1>{pick(lang, 'Real 4D-flow: recovering the aortic pressure field', 'Flujo 4D real: recuperar el campo de presion aortica')}</h1>
@@ -233,17 +257,7 @@ export function Flow4d() {
       {tab === 'result' && tr && (
         <section>
           <h2>{pick(lang, 'The recovered pressure field, on the real aorta', 'El campo de presion recuperado, sobre la aorta real')}</h2>
-          <div className="cardgrid" style={{ marginBottom: 14 }}>
-            <div className="panel metric"><span className="v">{tr.metrics.peak_velocity_ms}</span><span className="k">{pick(lang, 'peak velocity (m/s), real scan', 'velocidad pico (m/s), escaneo real')}</span></div>
-            <div className="panel metric"><span className="v">{tr.metrics.ppe_pressure_drop_mmHg}</span><span className="k">{pick(lang, 'PPE pressure range (mmHg)', 'rango de presion PPE (mmHg)')}</span></div>
-            <div className="panel metric"><span className="v">{tr.metrics.bernoulli_mmHg}</span><span className="k">{pick(lang, 'clinical Bernoulli 4Vmax^2 (mmHg)', 'Bernoulli clinico 4Vmax^2 (mmHg)')}</span></div>
-            <div className="panel metric"><span className="v">{tr.metrics.n_lumen_voxels}</span><span className="k">{pick(lang, 'lumen voxels resolved', 'voxeles de lumen resueltos')}</span></div>
-          </div>
-          <div className="row" style={{ marginBottom: 10 }}>
-            <span className="muted small">{pick(lang, 'Field', 'Campo')}:</span>
-            <span className={`chip ${field === 'pressure' ? 'on' : ''}`} onClick={() => setField('pressure')}>{pick(lang, 'Relative pressure (mmHg)', 'Presion relativa (mmHg)')}</span>
-            <span className={`chip ${field === 'speed' ? 'on' : ''}`} onClick={() => setField('speed')}>{pick(lang, 'Speed (m/s)', 'Rapidez (m/s)')}</span>
-          </div>
+          <p>{pick(lang, 'Use the LEFT COLUMN to switch the field (recovered relative pressure at peak systole, or the measured speed over the cardiac cycle) and to read the live hemodynamics of the real scan. Orbit the aortic lumen below.', 'Usa la COLUMNA IZQUIERDA para cambiar el campo (presion relativa recuperada en sistole pico, o la rapidez medida durante el ciclo cardiaco) y para leer la hemodinamica en vivo del escaneo real. Orbita el lumen aortico abajo.')}</p>
           <div className="canvas-wrap">
             <Canvas camera={{ position: [90, -70, 70], fov: 40, up: [0, 0, 1] }}>
               <ambientLight intensity={0.7} />
@@ -274,6 +288,7 @@ export function Flow4d() {
           <Refs ids={['raissi2020', 'krittian2012']} />
         </section>
       )}
+      </div>
     </div>
   );
 }
