@@ -7,34 +7,51 @@ const BASE = import.meta.env.BASE_URL;
 
 export function Benchmark() {
   const lang = useLang();
-  const [art, setArt] = useState<any>(null);
-  useEffect(() => { fetch(`${BASE}data/real-ecgi-edgar/trace.json`).then((r) => r.json()).then(setArt).catch(() => setArt(null)); }, []);
+  const [cat, setCat] = useState<any>(null);
+  const [sel, setSel] = useState<{ ci: number; beat: string }>({ ci: 0, beat: 'paced-avp' });
+  useEffect(() => { fetch(`${BASE}data/real-ecgi-catalogue/catalogue.json`).then((r) => r.json()).then(setCat).catch(() => setCat(null)); }, []);
+
+  const DS_LABEL: Record<string, [string, string]> = {
+    'human-tank': ['Human, torso tank', 'Humano, tanque'],
+    'dog-insitu': ['Dog, in situ', 'Perro, in situ'],
+  };
 
   return (
     <div className="page-body prose">
       <div className="page-head">
         <h1>Benchmark</h1>
         <p className="lede">{pick(lang,
-          'Classical Tikhonov against the graph-regularized reconstruction and the deep ensemble, all judged against the same REAL measured heart-surface potentials, on the AV-paced beat. The comparison is fair: Tikhonov is given its oracle-best regularization.',
-          'Tikhonov clasico contra la reconstruccion regularizada por grafo y el ensemble profundo, todos juzgados contra los mismos potenciales REALES medidos de superficie cardiaca, en el latido con marcapaso AV. La comparacion es justa: a Tikhonov se le da su mejor regularizacion por oraculo.')}</p>
+          'Classical Tikhonov against the graph-regularized reconstruction and the deep ensemble, all judged against the same REAL measured heart-surface potentials, on any dataset and beat in the catalogue. The comparison is fair: Tikhonov is given its oracle-best regularization.',
+          'Tikhonov clasico contra la reconstruccion regularizada por grafo y el ensemble profundo, todos juzgados contra los mismos potenciales REALES medidos de superficie cardiaca, en cualquier conjunto de datos y latido del catalogo. La comparacion es justa: a Tikhonov se le da su mejor regularizacion por oraculo.')}</p>
       </div>
 
       <section>
         <h2>{pick(lang, 'Method comparison (real ground truth)', 'Comparacion de metodos (verdad de referencia real)')}</h2>
-        {!art ? <div className="panel">Loading...</div> : (() => {
-          const m = art.rhythms['avp'].metrics;
+        {!cat ? <div className="panel">Loading...</div> : (() => {
+          const ci = Math.min(sel.ci, cat.cases.length - 1);
+          const c = cat.cases[ci];
+          const beat = c.beats[sel.beat] ? sel.beat : Object.keys(c.beats)[0];
+          const m = c.beats[beat].metrics;
           const rows: [string, number, number, string][] = [
             [pick(lang, 'Tikhonov (classical, oracle lambda)', 'Tikhonov (clasico, lambda oraculo)'), m.relative_error_tikhonov, m.correlation_tikhonov, pick(lang, 'none', 'ninguna')],
             [pick(lang, 'Graph-regularized (surface prior)', 'Regularizado por grafo (prior de superficie)'), m.relative_error_graph_reg, m.correlation_graph_reg, pick(lang, 'none', 'ninguna')],
             [pick(lang, 'Ensemble (graph + node UQ)', 'Ensemble (grafo + UQ por nodo)'), m.relative_error_ensemble, m.correlation_ensemble, `${m.uq_calibration_2sigma}`],
           ];
           return (
-            <div className="overflow-x">
-              <table>
-                <thead><tr><th>{pick(lang, 'Method', 'Metodo')}</th><th>{pick(lang, 'Relative error', 'Error relativo')}</th><th>{pick(lang, 'Correlation', 'Correlacion')}</th><th>{pick(lang, 'Node-UQ (2 sigma)', 'UQ por nodo (2 sigma)')}</th></tr></thead>
-                <tbody>{rows.map((r, i) => <tr key={i}><td>{r[0]}</td><td className="mono">{r[1]}</td><td className="mono">{r[2]}</td><td className="mono">{r[3]}</td></tr>)}</tbody>
-              </table>
-            </div>
+            <>
+              <div className="row" style={{ marginBottom: 10 }}>
+                <span className="muted small">{pick(lang, 'Dataset', 'Conjunto')}:</span>
+                {cat.cases.map((cc: any, i: number) => <span key={cc.id} className={`chip ${ci === i ? 'on' : ''}`} onClick={() => setSel({ ci: i, beat: Object.keys(cc.beats)[0] })}>{pick(lang, DS_LABEL[cc.id]?.[0] ?? cc.name, DS_LABEL[cc.id]?.[1] ?? cc.name)}</span>)}
+                <span className="muted small" style={{ marginLeft: 12 }}>{pick(lang, 'Beat', 'Latido')}:</span>
+                {Object.keys(c.beats).map((b: string) => <span key={b} className={`chip ${beat === b ? 'on' : ''}`} onClick={() => setSel({ ci, beat: b })}>{b}</span>)}
+              </div>
+              <div className="overflow-x">
+                <table>
+                  <thead><tr><th>{pick(lang, 'Method', 'Metodo')}</th><th>{pick(lang, 'Relative error', 'Error relativo')}</th><th>{pick(lang, 'Correlation', 'Correlacion')}</th><th>{pick(lang, 'Node-UQ (2 sigma)', 'UQ por nodo (2 sigma)')}</th></tr></thead>
+                  <tbody>{rows.map((r, i) => <tr key={i}><td>{r[0]}</td><td className="mono">{r[1]}</td><td className="mono">{r[2]}</td><td className="mono">{r[3]}</td></tr>)}</tbody>
+                </table>
+              </div>
+            </>
           );
         })()}
       </section>

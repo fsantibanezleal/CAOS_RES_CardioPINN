@@ -18,7 +18,25 @@ interface RhythmData {
   fields_over_time: Record<string, number[][]>;
   metrics: Record<string, number>;
 }
-interface Artifact { rhythms: Record<string, RhythmData>; }
+interface DatasetCase {
+  id: string;
+  name: string;
+  context_en: string;
+  context_es: string;
+  beats: Record<string, RhythmData>;
+}
+interface Catalogue { schema: string; cases: DatasetCase[]; }
+
+// Human-readable dataset labels (which real EDGAR experiment each case comes from).
+const DATASET_LABEL: Record<string, [string, string]> = {
+  'human-tank': ['Human heart, torso tank', 'Corazon humano, tanque de torso'],
+  'dog-insitu': ['Dog heart, in situ', 'Corazon de perro, in situ'],
+};
+const BEAT_LABEL: Record<string, [string, string]> = {
+  sinus: ['sinus rhythm', 'ritmo sinusal'],
+  'paced-pvp': ['paced (PVP)', 'marcapaso (PVP)'],
+  'paced-avp': ['paced (AVP)', 'marcapaso (AVP)'],
+};
 
 const FIELDS = ['recovered_mV', 'measured_mV', 'abs_error_mV', 'uncertainty_mV'];
 const FIELD_LABEL: Record<string, [string, string]> = {
@@ -89,18 +107,22 @@ function ForwardSvg({ lang }: { lang: 'en' | 'es' }) {
 
 export function RealEcgi() {
   const lang = useLang();
-  const [art, setArt] = useState<Artifact | null>(null);
+  const [cat, setCat] = useState<Catalogue | null>(null);
   const [tab, setTab] = useState('problem');
-  const [rhythm, setRhythm] = useState('avp');
+  const [caseIdx, setCaseIdx] = useState(0);
+  const [beat, setBeat] = useState('sinus');
   const [field, setField] = useState('recovered_mV');
   const [frame, setFrame] = useState(0);
   const raf = useRef<number | null>(null);
 
-  useEffect(() => { fetch(`${BASE}data/real-ecgi-edgar/trace.json`).then((r) => r.json()).then(setArt); }, []);
+  useEffect(() => { fetch(`${BASE}data/real-ecgi-catalogue/catalogue.json`).then((r) => r.json()).then(setCat); }, []);
+
+  const ds = cat ? cat.cases[caseIdx] : null;
+  const rd = ds && ds.beats[beat] ? ds.beats[beat] : ds ? ds.beats[Object.keys(ds.beats)[0]] : null;
 
   const playOnce = () => {
-    if (raf.current || !art) return;
-    const n = art.rhythms[rhythm].times_ms.length;
+    if (raf.current || !rd) return;
+    const n = rd.times_ms.length;
     let start = 0;
     const step = (ts: number) => {
       if (!start) start = ts;
@@ -127,7 +149,7 @@ export function RealEcgi() {
       <div className="page-head">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <h1>{pick(lang, 'Real ECG imaging: recovering heart-surface potentials', 'Imagen de ECG real: recuperar potenciales de superficie cardiaca')}</h1>
-          <span className="badge live">REAL DATA</span>
+          <span className="badge live">REAL DATA · {cat ? cat.cases.reduce((s, c) => s + Object.keys(c.beats).length, 0) : 0} {pick(lang, 'beats', 'latidos')}</span>
         </div>
         <p className="lede">
           {pick(lang,
@@ -267,18 +289,30 @@ export function RealEcgi() {
         </section>
       )}
 
-      {tab === 'recon' && art && (
+      {tab === 'recon' && cat && ds && rd && (
         <section>
           <h2>{pick(lang, 'The reconstruction, on the real heart geometry', 'La reconstruccion, sobre la geometria cardiaca real')}</h2>
+          <p>{pick(lang,
+            'The same physics-informed reconstruction is applied across a catalogue of independent real experiments, so the method is not tuned to one heart. Pick a dataset: an explanted human heart in a torso tank (192 body electrodes recovering a 256-electrode cage) or an in-situ dog heart (140 body electrodes recovering a 1321-node epicardial map). Each recorded the true heart-surface potentials simultaneously, giving a real gold standard.',
+            'La misma reconstruccion informada por fisica se aplica a un catalogo de experimentos reales independientes, asi que el metodo no esta ajustado a un solo corazon. Elige un conjunto de datos: un corazon humano explantado en un tanque de torso (192 electrodos corporales recuperando una jaula de 256) o un corazon de perro in situ (140 electrodos corporales recuperando un mapa epicardico de 1321 nodos). Cada uno registro los potenciales verdaderos de superficie cardiaca simultaneamente, dando un patron de oro real.')}</p>
+          <div className="row" style={{ marginBottom: 10 }}>
+            <span className="muted small">{pick(lang, 'Dataset', 'Conjunto de datos')}:</span>
+            {cat.cases.map((c, i) => (
+              <span key={c.id} className={`chip ${caseIdx === i ? 'on' : ''}`}
+                onClick={() => { setCaseIdx(i); setBeat(Object.keys(c.beats)[0]); setFrame(0); }}>
+                {pick(lang, DATASET_LABEL[c.id]?.[0] ?? c.name, DATASET_LABEL[c.id]?.[1] ?? c.name)}
+              </span>
+            ))}
+          </div>
           <div className="cardgrid" style={{ marginBottom: 14 }}>
-            <div className="panel metric"><span className="v">{art.rhythms[rhythm].metrics.relative_error_tikhonov}</span><span className="k">{pick(lang, 'relative error vs REAL heart potentials', 'error relativo vs potenciales cardiacos REALES')}</span></div>
-            <div className="panel metric"><span className="v">{art.rhythms[rhythm].metrics.correlation_tikhonov}</span><span className="k">{pick(lang, 'correlation vs REAL heart potentials', 'correlacion vs potenciales cardiacos REALES')}</span></div>
-            <div className="panel metric"><span className="v">{art.rhythms[rhythm].metrics.uq_calibration_2sigma}</span><span className="k">{pick(lang, 'node-UQ reliability (2 sigma)', 'confiabilidad UQ por nodo (2 sigma)')}</span></div>
-            <div className="panel metric"><span className="v">{art.rhythms[rhythm].metrics.n_heart_electrodes}</span><span className="k">{pick(lang, 'heart electrodes recovered', 'electrodos cardiacos recuperados')}</span></div>
+            <div className="panel metric"><span className="v">{rd.metrics.relative_error_tikhonov}</span><span className="k">{pick(lang, 'relative error vs REAL heart potentials', 'error relativo vs potenciales cardiacos REALES')}</span></div>
+            <div className="panel metric"><span className="v">{rd.metrics.correlation_tikhonov}</span><span className="k">{pick(lang, 'correlation vs REAL heart potentials', 'correlacion vs potenciales cardiacos REALES')}</span></div>
+            <div className="panel metric"><span className="v">{rd.metrics.uq_calibration_2sigma}</span><span className="k">{pick(lang, 'node-UQ reliability (2 sigma)', 'confiabilidad UQ por nodo (2 sigma)')}</span></div>
+            <div className="panel metric"><span className="v">{rd.metrics.n_heart_electrodes}</span><span className="k">{pick(lang, 'heart nodes recovered', 'nodos cardiacos recuperados')}</span></div>
           </div>
           <div className="row" style={{ marginBottom: 10 }}>
-            <span className="muted small">{pick(lang, 'Rhythm', 'Ritmo')}:</span>
-            {Object.keys(art.rhythms).map((r) => <span key={r} className={`chip ${rhythm === r ? 'on' : ''}`} onClick={() => { setRhythm(r); setFrame(0); }}>{r}</span>)}
+            <span className="muted small">{pick(lang, 'Beat', 'Latido')}:</span>
+            {Object.keys(ds.beats).map((r) => <span key={r} className={`chip ${beat === r ? 'on' : ''}`} onClick={() => { setBeat(r); setFrame(0); }}>{pick(lang, BEAT_LABEL[r]?.[0] ?? r, BEAT_LABEL[r]?.[1] ?? r)}</span>)}
             <span className="muted small" style={{ marginLeft: 12 }}>{pick(lang, 'Field', 'Campo')}:</span>
             {FIELDS.map((f) => <span key={f} className={`chip ${field === f ? 'on' : ''}`} onClick={() => setField(f)}>{pick(lang, FIELD_LABEL[f][0], FIELD_LABEL[f][1])}</span>)}
           </div>
@@ -287,27 +321,27 @@ export function RealEcgi() {
               <ambientLight intensity={0.55} />
               <directionalLight position={[80, -60, 90]} intensity={0.9} />
               <directionalLight position={[-70, 50, -40]} intensity={0.4} />
-              <CageMesh rd={art.rhythms[rhythm]} field={field} frame={frame} />
+              <CageMesh key={ds.id + beat} rd={rd} field={field} frame={Math.min(frame, rd.times_ms.length - 1)} />
               <OrbitControls target={[0, 0, 0]} />
             </Canvas>
             <div className="legend">
               <div>{pick(lang, FIELD_LABEL[field][0], FIELD_LABEL[field][1])} (mV)</div>
               <div className="bar" style={{ background: `linear-gradient(90deg, ${turboCss(0)}, ${turboCss(0.5)}, ${turboCss(1)})` }} />
             </div>
-            <div className="readout">t = {art.rhythms[rhythm].times_ms[frame]} ms</div>
+            <div className="readout">t = {rd.times_ms[Math.min(frame, rd.times_ms.length - 1)]} ms</div>
           </div>
           <div className="row" style={{ marginTop: 10 }}>
             <span className="muted small">{pick(lang, 'Beat time', 'Tiempo del latido')}:</span>
-            <input type="range" min={0} max={art.rhythms[rhythm].times_ms.length - 1} value={frame} onChange={(e) => setFrame(Number(e.target.value))} />
+            <input type="range" min={0} max={rd.times_ms.length - 1} value={Math.min(frame, rd.times_ms.length - 1)} onChange={(e) => setFrame(Number(e.target.value))} />
             <button className="iconbtn" onClick={playOnce}>{pick(lang, 'Play beat', 'Reproducir latido')}</button>
           </div>
           <p style={{ marginTop: 12 }}>{pick(lang,
-            'Orbit the heart cage; scrub or play the beat; toggle the recovered potential, the real measured potential, their absolute error, and the per-node uncertainty. Paced rhythms (PVP, AVP) reconstruct with higher correlation than sinus, which is physically expected: a focal paced activation is easier to localize than the diffuse sinus wavefront.',
-            'Orbita la jaula cardiaca; desplaza o reproduce el latido; alterna el potencial recuperado, el potencial real medido, su error absoluto, y la incertidumbre por nodo. Los ritmos con marcapaso (PVP, AVP) reconstruyen con mayor correlacion que el sinusal, lo cual es fisicamente esperado.')}</p>
+            'Orbit the heart; scrub or play the beat; toggle the recovered potential, the real measured potential, their absolute error, and the per-node uncertainty. On the human tank the paced rhythms (PVP, AVP) reconstruct with higher correlation than sinus, which is physically expected: a focal paced activation is easier to localize than the diffuse sinus wavefront. The method transfers to the dog heart (a different species, geometry, and electrode count) with no retuning.',
+            'Orbita el corazon; desplaza o reproduce el latido; alterna el potencial recuperado, el real medido, su error absoluto, y la incertidumbre por nodo. En el tanque humano los ritmos con marcapaso (PVP, AVP) reconstruyen con mayor correlacion que el sinusal, lo cual es fisicamente esperado. El metodo se transfiere al corazon de perro (otra especie, geometria y numero de electrodos) sin reajuste.')}</p>
           <Callout>
             {pick(lang,
-              'Data: EDGAR (Consortium for ECG Imaging), Utah torso-tank 2018-08-09, used under the EDGAR data-use agreement with attribution; the raw dataset is not redistributed. The measured field is shown as a research visualization.',
-              'Datos: EDGAR (Consortium for ECG Imaging), tanque de torso Utah 2018-08-09, usado bajo el acuerdo de uso de EDGAR con atribucion; el conjunto de datos crudo no se redistribuye.')}
+              'Data: EDGAR (Consortium for ECG Imaging). Human torso tank (Utah, 2018) and in-situ dog (Maastricht), used under the EDGAR data-use agreement with attribution; the raw datasets are not redistributed. The measured field is shown as a research visualization. Not clinically deployed.',
+              'Datos: EDGAR (Consortium for ECG Imaging). Tanque de torso humano (Utah, 2018) y perro in situ (Maastricht), usados bajo el acuerdo de uso de EDGAR con atribucion; los conjuntos de datos crudos no se redistribuyen. El campo medido se muestra como visualizacion de investigacion. No desplegado clinicamente.')}
           </Callout>
           <Refs ids={['aras2015', 'cluitmans2018']} />
         </section>
