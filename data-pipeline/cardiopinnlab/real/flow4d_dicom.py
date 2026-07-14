@@ -103,6 +103,35 @@ def load_4dflow(root: Path, venc_cm_s: float = 120.0) -> dict:
             "speed_peak": speed_peak, "grid": (nz, ny, nx), "venc_cm_s": venc_cm_s}
 
 
+def unwrap_aliasing(field: dict) -> dict:
+    """Correct phase-wrap aliasing in the velocity: a phase-contrast component wraps when the true velocity
+    exceeds the venc, appearing as a jump of 2*venc to the opposite sign. A voxel/component is flagged as
+    aliased when it differs from a robust (median-filtered) local estimate by more than the venc, and is
+    unwrapped by adding/subtracting 2*venc toward that local value. Returns a field with the corrected velocity
+    and the count of corrected samples (0 if the scan has no aliasing in the lumen, as this one nearly does)."""
+    from scipy import ndimage
+    nz, ny, nx = field["grid"]
+    nt = field["velocity"].shape[0]
+    venc = field["venc_cm_s"] * CM_S_TO_MM_MS   # mm/ms (same units as velocity)
+    vel = field["velocity"].reshape(nt, nz, ny, nx, 3).copy()
+    corrected = 0
+    for t in range(nt):
+        for c in range(3):
+            comp = vel[t, ..., c]
+            ref = ndimage.median_filter(comp, size=3)
+            for sign in (+1, -1):
+                wrapped = (sign * (comp - ref)) > venc     # component sits ~2*venc away from its neighbours
+                if wrapped.any():
+                    comp[wrapped] -= sign * 2.0 * venc
+                    corrected += int(wrapped.sum())
+            vel[t, ..., c] = comp
+    out = dict(field)
+    out["velocity"] = vel.reshape(nt, -1, 3)
+    out["speed_peak"] = np.linalg.norm(out["velocity"], axis=2).max(axis=0)
+    out["aliasing_corrected_samples"] = corrected
+    return out
+
+
 def mask_lumen(field: dict, speed_thresh_cm_s: float = 12.0) -> np.ndarray:
     """Boolean mask over voxels: the aortic lumen = peak speed above threshold, largest connected component."""
     from scipy import ndimage

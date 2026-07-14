@@ -20,8 +20,9 @@ import numpy as np
 from scipy import ndimage
 
 from .flow4d_denoise import denoise_frame
-from .flow4d_dicom import load_4dflow, mask_lumen
+from .flow4d_dicom import load_4dflow, mask_lumen, unwrap_aliasing
 from .flow4d_ppe import PA_PER_MMHG, RHO, MU, solve_ppe_precomputed
+from .flow4d_spacetime import train_spacetime
 
 
 def _root() -> Path:
@@ -31,6 +32,8 @@ def _root() -> Path:
 
 def bake_flow4d(seed: int = 42, max_points: int = 9000, venc_cm_s: float = 120.0, k_ensemble: int = 4) -> dict:
     f = load_4dflow(_root(), venc_cm_s=venc_cm_s)
+    f = unwrap_aliasing(f)                               # correct phase-wrap before anything downstream
+    aliasing_corrected = int(f.get("aliasing_corrected_samples", 0))
     nz, ny, nx = f["grid"]
     nt = f["velocity"].shape[0]
     vel = f["velocity"].reshape(nt, nz, ny, nx, 3)      # m/s
@@ -48,28 +51,33 @@ def bake_flow4d(seed: int = 42, max_points: int = 9000, venc_cm_s: float = 120.0
     ke = np.array([np.sum(np.linalg.norm(vel[t][mask], axis=1) ** 2) for t in range(nt)])
     tp = int(np.argmax(ke))
 
-    # Unsteady term: denoise the two temporal neighbours once (shared across the pressure ensemble).
     pts = coords[mask]
-    trig_dt = (f["times_ms"][1] - f["times_ms"][0]) * 1e-3
+    times_s = f["times_ms"].astype(np.float32) / 1000.0
     grids = {}
-    for t in [(tp - 1) % nt, (tp + 1) % nt]:
-        df = denoise_frame(coords[mask], vel[t][mask], seed=seed, n_adam=3000, n_lbfgs=300, w_div=2.0)
-        g = np.zeros((nz, ny, nx, 3), np.float32); g[mask] = df.velocity(coords[mask]); grids[t] = g
-    dvdt = (grids[(tp + 1) % nt] - grids[(tp - 1) % nt]) / (2 * trig_dt)
+
+    # SPACE-TIME PINN over the whole cycle -> analytic spatial source/flux AND analytic unsteady term dv/dt
+    # (replacing the three-frame finite difference). Gated on an analytic time-varying flow in the test suite.
+    vel_lumen_frames = np.stack([vel[t][mask] for t in range(nt)])   # [T, Nlumen, 3]
+    st = train_spacetime(pts, vel_lumen_frames, times_s, seed=seed,
+                         n_adam=6000, n_lbfgs=500, width=128, depth=7, w_div=2.0)
+    pts_peak = np.concatenate([pts, np.full((len(pts), 1), times_s[tp], np.float32)], axis=1)
+    Sv, bv, acc = st.source_flux_unsteady(pts_peak, RHO, MU)
+    S = np.zeros((nz, ny, nx)); b = np.zeros((nz, ny, nx, 3))
+    S[mask] = Sv; b[mask] = bv - RHO * acc              # full Neumann flux incl. the analytic unsteady term
+    p = solve_ppe_precomputed(S, b, mask, h)            # Pa (reported pressure)
+    peak_grid = np.zeros((nz, ny, nx, 3), np.float32); peak_grid[mask] = st.velocity(pts_peak); grids[tp] = peak_grid
+
+    # dv/dt on the lumen grid (analytic) is reused by the robustness ensemble so it does not retrain space-time.
+    dvdt = np.zeros((nz, ny, nx, 3), np.float32); dvdt[mask] = acc
 
     def solve_from_velocity(v_lumen):
         dfk = denoise_frame(coords[mask], v_lumen, seed=seed, n_adam=3000, n_lbfgs=300, w_div=2.0)
-        Sv, bv = dfk.source_and_flux(pts, RHO, MU)
-        S = np.zeros((nz, ny, nx)); b = np.zeros((nz, ny, nx, 3))
-        S[mask] = Sv; b[mask] = bv
-        b[mask] += -RHO * dvdt[mask]
-        g = np.zeros((nz, ny, nx, 3), np.float32); g[mask] = dfk.velocity(coords[mask])
-        return solve_ppe_precomputed(S, b, mask, h), g       # (Pa, denoised grid velocity)
+        Sk, bk = dfk.source_and_flux(pts, RHO, MU)
+        Sg = np.zeros((nz, ny, nx)); bg = np.zeros((nz, ny, nx, 3))
+        Sg[mask] = Sk; bg[mask] = bk - RHO * dvdt[mask]
+        return solve_ppe_precomputed(Sg, bg, mask, h)
 
-    # Reported pressure + peak velocity come from the CLEAN denoise.
     v_meas = vel[tp][mask]
-    p, peak_grid = solve_from_velocity(v_meas)
-    grids[tp] = peak_grid
 
     # Uncertainty ENSEMBLE (the 4D-flow analogue of the ECGi deep-ensemble node UQ): the dominant uncertainty is
     # VELOCITY MEASUREMENT NOISE, not the denoiser seed (the div-free fit is strongly data-constrained and nearly
@@ -80,8 +88,7 @@ def bake_flow4d(seed: int = 42, max_points: int = 9000, venc_cm_s: float = 120.0
     p_stack = [p]
     for k in range(k_ensemble):
         v_noisy = v_meas + rng_uq.normal(0.0, sigma_v, v_meas.shape).astype(np.float32)
-        pk, _ = solve_from_velocity(v_noisy)
-        p_stack.append(pk)
+        p_stack.append(solve_from_velocity(v_noisy))
     p_all = np.stack(p_stack)
     valid = mask & ~np.any(np.isnan(p_all), axis=0)
     for k in range(len(p_stack)):                            # common gauge (median-zero) before combining
@@ -128,7 +135,8 @@ def bake_flow4d(seed: int = 42, max_points: int = 9000, venc_cm_s: float = 120.0
     p_drop = float(np.percentile(pres, 97.5) - np.percentile(pres, 2.5))
 
     return {
-        "schema": "cardiopinn.flow4d-pressure/v2",
+        "schema": "cardiopinn.flow4d-pressure/v3",
+        "unsteady_term": "space-time PINN (analytic dv/dt over the whole cycle)",
         "points_mm": np.round(P, 2).tolist(),
         "pressure_mmHg": np.round(pres, 3).tolist(),
         "speed_ms_peak": np.round(speed_peak, 3).tolist(),
@@ -142,6 +150,7 @@ def bake_flow4d(seed: int = 42, max_points: int = 9000, venc_cm_s: float = 120.0
             "ppe_pressure_drop_mmHg": round(p_drop, 2),
             "noise_sensitivity_mmHg": round(noise_sensitivity, 3),   # robustness: pressure spread under 5%-venc velocity noise
             "ensemble_members": int(k_ensemble),
+            "aliasing_corrected_samples": aliasing_corrected,
             "div_raw_per_s": round(div_raw, 2),
             "div_denoised_per_s": round(div_dn, 2),
             "div_reduction_x": round(div_raw / (div_dn + 1e-9), 1),

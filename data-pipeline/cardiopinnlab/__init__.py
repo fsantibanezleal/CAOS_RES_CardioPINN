@@ -10,4 +10,4 @@ traces; the static web app READS those traces (it does not run any model in the 
 gated on analytic problems with known answers before any real data is trusted (see real/ + tests/).
 """
 
-__version__ = "0.14.000"  # BL-018: 4D-flow velocity-noise robustness ensemble (honest: no per-voxel UQ, dominant uncertainty is un-quantifiable)
+__version__ = "0.15.000"  # BL-018 deepening: space-time PINN analytic unsteady term (gated) + jet anti-aliasing; pressure 0.79 mmHg vs Bernoulli 2.51

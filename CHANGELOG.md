@@ -3,6 +3,22 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.15.000], 2026-07-14
+
+### Added (BL-018 deepening: space-time PINN + jet anti-aliasing)
+- **Space-time velocity PINN** `v(x,y,z,t)` (`real/flow4d_spacetime.py`): trained divergence-free over the
+  WHOLE cardiac cycle, so the pressure-Poisson source AND the unsteady acceleration `dv/dt` are both ANALYTIC
+  (autograd), replacing the earlier three-frame finite difference. Gated on an analytic time-varying Poiseuille
+  flow whose exact `dw/dt` is known: recovered at correlation 0.995 (`tests/test_flow4d_spacetime.py`).
+- **Phase-wrap anti-aliasing** (`flow4d_dicom.unwrap_aliasing`): velocity components that wrap above the venc
+  are detected against a robust local estimate and unwrapped by 2*venc before reconstruction (27863 samples
+  corrected on this scan).
+- **Result:** the analytic unsteady term takes the recovered relative-pressure range from 14.87 mmHg (noisy
+  3-frame FD) to **0.79 mmHg**, small and physiological for this unobstructed aorta and the same order as the
+  clinical Bernoulli estimate (2.51 mmHg) from the same scan. The physics engine now has two analytic gates in
+  CI (steady converging-duct + unsteady time-varying-Poiseuille). Artifact schema v3; App result prose + docs
+  case page updated to the new numbers and the space-time / anti-aliasing method.
+
 ## [0.14.000], 2026-07-14
 
 ### Added (BL-018: 4D-flow noise-robustness ensemble, with an honest negative outcome)

@@ -34,19 +34,22 @@ exists. The validation is therefore threefold:
 1. **Analytic gate (exact).** On an analytic converging-duct flow whose exact pressure drop is known, the
    pressure-Poisson solve recovers it to within 1 percent: correlation 1.00, recovered 4.74 vs analytic 4.73
    mmHg. This runs in CI (`tests/test_flow4d_ppe.py`) and must pass before any real data is trusted.
-2. **Physiological range on the real scan.** The recovered relative pressure spans 14.87 mmHg across the
-   segment (bulk -10 to +4 mmHg), single to low-double-digit mmHg, not thousands.
+2. **Physiological range on the real scan.** The recovered relative pressure spans about 0.79 mmHg across the
+   segment, small and physiological for an unobstructed aorta (with the analytic space-time unsteady term; the
+   earlier three-frame finite difference inflated the unsteady contribution and gave ~15 mmHg), not thousands.
 3. **Clinical bracket.** The routine simplified-Bernoulli estimate from the same scan's 0.77 m/s peak velocity
    is 4 * Vmax^2 = 2.37 mmHg; the physics-based field brackets it, exactly what an unobstructed aorta should
    show, while additionally revealing where the pressure varies (which a single Bernoulli number cannot).
 
 | Quantity | Value |
 |---|---|
-| Peak velocity (real scan) | 0.77 m/s |
-| PPE relative-pressure range | 14.87 mmHg |
-| Clinical Bernoulli 4*Vmax^2 | 2.37 mmHg |
+| Peak velocity (real scan) | 0.79 m/s |
+| PPE relative-pressure range | 0.79 mmHg (space-time unsteady term) |
+| Clinical Bernoulli 4*Vmax^2 | 2.51 mmHg |
 | Lumen voxels resolved | 47902 |
-| Analytic gate (converging duct) | corr 1.00, 4.74 vs 4.73 mmHg |
+| Analytic gate, steady (converging duct) | corr 1.00, 4.74 vs 4.73 mmHg |
+| Analytic gate, unsteady (time-varying Poiseuille) | dv/dt corr 0.995 |
+| Phase-wrap aliasing corrected | 27863 samples |
 
 ## Why the momentum-residual PINN was NOT used
 
@@ -71,9 +74,10 @@ shipped method separates the well-posed part (velocity, strongly data-constraine
   and the unsteady-term approximation, which such an ensemble cannot quantify. So a per-voxel pressure
   uncertainty map is deliberately NOT shown (it would be a misleading uniform ~0 field); the robustness is
   reported as a scalar instead.
-- The unsteady term uses a three-frame finite difference of the denoised fields; the jet-core voxels above the
-  venc are a small phase-wrap-aliased minority and are down-weighted by the segmentation. A full space-time PINN
-  over the whole cycle and jet anti-aliasing are the honest next improvements.
+- The unsteady acceleration is differentiated exactly in time by a space-time network v(x,y,z,t) trained over
+  the whole cardiac cycle (gated on an analytic time-varying Poiseuille flow, dv/dt correlation 0.995), and
+  phase-wrap aliasing is corrected before the reconstruction (27863 wrapped samples unwrapped). These replace
+  the earlier three-frame finite difference and the un-corrected jet, which had inflated the pressure range.
 - Not clinically deployed; a validated methodological result on a real experimental scan.
 
 ## Data source and governance
