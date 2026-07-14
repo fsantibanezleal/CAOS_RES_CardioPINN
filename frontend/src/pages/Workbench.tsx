@@ -1,12 +1,11 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { pick, useLang } from '../store';
 import { RealEcgi } from './RealEcgi';
 import { Flow4d } from './Flow4d';
 
-// The App is a catalogue of real applied cases across DIFFERENT physics domains, each recovering an
-// unmeasurable clinical field from a measurable one on real data. A top-level selector picks the case; each
-// case is a full per-case workbench with the same ADR tab structure (problem / target / how the PDE arises /
-// traditional approach / physics-informed proposal / result).
+// The App is a catalogue of real applied cases across DIFFERENT physics domains. The case selector is the top
+// block of the workbench LEFT COLUMN (ADR-0017 §1.2: control aside + 1fr main); each case renders the full
+// sidebar layout and places this selector at the top of its aside.
 const CASES = [
   {
     id: 'ecgi',
@@ -26,21 +25,18 @@ export function Workbench() {
   const lang = useLang();
   const [caseId, setCaseId] = useState('ecgi');
 
-  return (
-    <div>
-      <div className="case-switch">
-        <span className="case-switch-label">{pick(lang, 'Research case', 'Caso de investigacion')}</span>
-        <div className="case-switch-row">
-          {CASES.map((c) => (
-            <button key={c.id} className={`case-tile ${caseId === c.id ? 'on' : ''}`} onClick={() => setCaseId(c.id)}>
-              <span className="case-tile-title">{pick(lang, c.title[0], c.title[1])}</span>
-              <span className="case-tile-sub">{pick(lang, c.physics[0], c.physics[1])}</span>
-              <span className="case-tile-rec">{pick(lang, 'recover: ', 'recuperar: ')}{pick(lang, c.recover[0], c.recover[1])}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-      {caseId === 'ecgi' ? <RealEcgi /> : <Flow4d />}
+  const selector: ReactNode = (
+    <div className="cp-side-block">
+      <span className="cp-side-label">{pick(lang, 'Research case', 'Caso de investigacion')}</span>
+      {CASES.map((c) => (
+        <button key={c.id} className={`case-tile ${caseId === c.id ? 'on' : ''}`} onClick={() => setCaseId(c.id)}>
+          <span className="case-tile-title">{pick(lang, c.title[0], c.title[1])}</span>
+          <span className="case-tile-sub">{pick(lang, c.physics[0], c.physics[1])}</span>
+          <span className="case-tile-rec">{pick(lang, 'recover: ', 'recuperar: ')}{pick(lang, c.recover[0], c.recover[1])}</span>
+        </button>
+      ))}
     </div>
   );
+
+  return caseId === 'ecgi' ? <RealEcgi selector={selector} /> : <Flow4d selector={selector} />;
 }
