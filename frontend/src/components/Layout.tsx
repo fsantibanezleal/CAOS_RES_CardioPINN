@@ -7,7 +7,7 @@ import { ArchitectureModal } from './ArchitectureModal';
 import { ROUTES } from '../lib/routes';
 import { EXTERNAL_LINKS } from '../lib/links';
 
-const APP_VERSION = 'v0.15.000';
+const APP_VERSION = 'v0.16.000';
 
 export function Layout({ children }: { children: ReactNode }) {
   const { lang, theme, setLang, toggleTheme } = useStore();
