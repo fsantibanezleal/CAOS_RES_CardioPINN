@@ -63,6 +63,14 @@ shipped method separates the well-posed part (velocity, strongly data-constraine
   the physics. The absolute pressure magnitude carries the method's uncertainty (no invasive truth to check
   against); the validated claims are the analytic gate, the physiological range, the divergence-free denoising,
   and the Bernoulli bracket.
+- Noise-robustness (and its limit). A deep ensemble that perturbs the measured velocity with realistic
+  phase-contrast noise (5% of the venc) and re-runs the whole pipeline moves the recovered pressure by under
+  0.01 mmHg: the divergence-free denoiser makes the pressure essentially insensitive to velocity measurement
+  noise. This is a strength, but it also means an ensemble over that noise gives a near-zero, uninformative
+  uncertainty; the dominant uncertainty is instead the absent invasive gold standard, the lumen segmentation,
+  and the unsteady-term approximation, which such an ensemble cannot quantify. So a per-voxel pressure
+  uncertainty map is deliberately NOT shown (it would be a misleading uniform ~0 field); the robustness is
+  reported as a scalar instead.
 - The unsteady term uses a three-frame finite difference of the denoised fields; the jet-core voxels above the
   venc are a small phase-wrap-aliased minority and are down-weighted by the segmentation. A full space-time PINN
   over the whole cycle and jet anti-aliasing are the honest next improvements.

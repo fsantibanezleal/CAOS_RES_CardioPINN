@@ -17,3 +17,7 @@ def test_flow4d_pressure_artifact():
     assert 0.0 < m["ppe_pressure_drop_mmHg"] < 60.0, m       # physiological, not thousands of mmHg
     assert 0.1 < m["peak_velocity_ms"] < 6.0, m               # physiological aortic velocity
     assert m["bernoulli_mmHg"] > 0.0, m
+    # noise-robustness: a velocity-noise ensemble barely moves the pressure (the div-free denoiser absorbs it),
+    # so this is a small scalar robustness metric, not a per-voxel uncertainty field
+    assert m["ensemble_members"] >= 3, m
+    assert 0.0 <= m["noise_sensitivity_mmHg"] < 2.0, m

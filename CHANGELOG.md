@@ -3,6 +3,22 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.14.000], 2026-07-14
+
+### Added (BL-018: 4D-flow noise-robustness ensemble, with an honest negative outcome)
+- **A deep-ensemble noise-robustness analysis for the 4D-flow pressure**, the analogue of the ECGi per-node
+  UQ: each member perturbs the measured velocity with realistic phase-contrast noise (5% of the venc),
+  re-denoises (divergence-free PINN) and re-solves the pressure-Poisson equation.
+- **Honest outcome (a null result, reported not hidden):** the recovered pressure moves by under 0.01 mmHg
+  under that noise (metric `noise_sensitivity_mmHg`). The divergence-free denoiser makes the pressure
+  essentially insensitive to velocity measurement noise, which is a strength but also means an ensemble over
+  that noise gives a near-zero, uninformative per-voxel uncertainty. A per-voxel pressure-uncertainty map is
+  therefore deliberately NOT shown (it would be a misleading uniform ~0 field). The robustness is reported as
+  a scalar, and the App callout + docs state plainly that the dominant uncertainty is the absent invasive gold
+  standard, the lumen segmentation, and the unsteady-term approximation, which such an ensemble cannot
+  capture. The validated claims stay: the exact analytic gate, the physiological range, the noise-robustness,
+  and the Bernoulli bracket.
+
 ## [0.13.000], 2026-07-14
 
 ### Added (BL-017: boundary-element forward operator)
