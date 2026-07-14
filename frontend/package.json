@@ -1,7 +1,7 @@
 {
   "name": "cardiopinn-frontend",
   "private": true,
-  "version": "0.17.0",
+  "version": "0.18.0",
   "type": "module",
   "scripts": {
     "predev": "node copy-data.mjs",
@@ -12,14 +12,13 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fasl-work/caos-app-shell": "^0.3.0",
     "@react-three/drei": "^10.0.0",
     "@react-three/fiber": "^9.0.0",
-    "i18next": "^24.2.0",
     "katex": "^0.16.11",
-    "lucide-react": "^1.24.0",
+    "lucide-react": "^0.469.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-i18next": "^15.4.0",
     "react-router-dom": "^7.1.0",
     "three": "^0.171.0",
     "zustand": "^5.0.3"

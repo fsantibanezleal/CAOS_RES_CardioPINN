@@ -1,27 +1,18 @@
-// Global UI state (zustand): language, theme, the selected vertical + field + workbench controls. Theme and
-// language persist to localStorage so a reload keeps the user's choice.
+// App state (zustand): the selected case + field + workbench controls. Language and theme are owned by the
+// shared shell (@fasl-work/caos-app-shell): the header toggles drive them and `useLang` re-exports the shell's
+// language so every page and the shell chrome stay in lockstep. Only the workbench-specific state lives here.
 import { create } from 'zustand';
+import { useShellLang } from '@fasl-work/caos-app-shell';
 
 export type Lang = 'en' | 'es';
 export type Theme = 'light' | 'dark';
 
-const ls = (k: string): string | null => {
-  try { return localStorage.getItem(k); } catch { return null; }
-};
-const save = (k: string, v: string): void => {
-  try { localStorage.setItem(k, v); } catch { /* ignore */ }
-};
-
 interface State {
-  lang: Lang;
-  theme: Theme;
   caseId: string | null;
   field: string;
   timeCursor: number;   // 0..1 fraction of the activation-time range (wavefront reveal)
   showSensors: boolean;
   liveMode: boolean;    // onnxruntime-web re-inference vs baked replay
-  setLang: (l: Lang) => void;
-  toggleTheme: () => void;
   setCase: (id: string) => void;
   setField: (f: string) => void;
   setTimeCursor: (t: number) => void;
@@ -29,23 +20,12 @@ interface State {
   setLiveMode: (b: boolean) => void;
 }
 
-const initialTheme = (ls('cardiopinn.theme') as Theme) || 'dark';
-const initialLang = (ls('cardiopinn.lang') as Lang) || 'en';
-
 export const useStore = create<State>((set) => ({
-  lang: initialLang,
-  theme: initialTheme,
   caseId: null,
   field: 'T_pinn',
   timeCursor: 1,
   showSensors: true,
   liveMode: false,
-  setLang: (l) => { save('cardiopinn.lang', l); set({ lang: l }); },
-  toggleTheme: () => set((s) => {
-    const theme = s.theme === 'dark' ? 'light' : 'dark';
-    save('cardiopinn.theme', theme);
-    return { theme };
-  }),
   setCase: (id) => set({ caseId: id, field: 'T_pinn', timeCursor: 1, liveMode: false }),
   setField: (f) => set({ field: f }),
   setTimeCursor: (t) => set({ timeCursor: t }),
@@ -53,6 +33,7 @@ export const useStore = create<State>((set) => ({
   setLiveMode: (b) => set({ liveMode: b }),
 }));
 
-// tiny bilingual helper: pick(en, es)
-export const useLang = (): Lang => useStore((s) => s.lang);
+// The current language, sourced from the shell so the header language toggle drives every page.
+export const useLang = (): Lang => useShellLang();
+// tiny bilingual helper: pick(lang, en, es)
 export const pick = (lang: Lang, en: string, es: string): string => (lang === 'es' ? es : en);

@@ -1,6 +1,4 @@
-import { Callout } from '../components/Callout';
-import { Equation, InlineMath } from '../components/Equation';
-import { Refs } from '../components/Refs';
+import { Callout, Equation, InlineMath, Refs } from '@fasl-work/caos-app-shell';
 import { useLang, pick } from '../store';
 
 function PipelineSvg({ lang }: { lang: 'en' | 'es' }) {
@@ -64,7 +62,7 @@ export function Introduction() {
         <p>{pick(lang,
           'Cardiac arrhythmias (atrial fibrillation, ventricular tachycardia) are disorders of the heart’s electrical activation and a major cause of stroke and sudden death. The definitive treatment, catheter ablation, destroys the small region of tissue where the abnormal activity originates, so it depends entirely on localizing that origin. The routine 12-lead ECG cannot localize it; it is a projection of the whole heart onto a few leads. Electrocardiographic imaging (ECGi) reconstructs the full electrical map on the heart surface, non-invasively, from a body-surface electrode vest plus the patient’s torso geometry.',
           'Las arritmias cardiacas (fibrilacion auricular, taquicardia ventricular) son trastornos de la activacion electrica del corazon y una causa mayor de accidente cerebrovascular y muerte subita. El tratamiento definitivo, la ablacion con cateter, destruye la pequena region de tejido donde se origina la actividad anormal, asi que depende por completo de localizar ese origen. El ECG de rutina de 12 derivaciones no puede localizarlo. La imagen electrocardiografica (ECGi) reconstruye el mapa electrico completo en la superficie del corazon, de forma no invasiva.')}</p>
-        <Refs ids={['ramanathan2004', 'rudy1988']} />
+        <Refs ids={['ramanathan2004', 'rudy1988']} label="Refs" />
       </section>
 
       <section>
@@ -72,7 +70,7 @@ export function Introduction() {
         <p>{pick(lang,
           'The torso is a passive volume conductor: the heart is the source, and body tissue conducts the currents to the skin. At heartbeat frequencies the quasi-static approximation holds, so the extracellular potential is harmonic and the map from heart-surface to body-surface potentials is a single linear operator determined by the geometry and tissue conductivities. That operator is severely ill-conditioned, which is the entire difficulty of the inverse.',
           'El torso es un conductor de volumen pasivo: el corazon es la fuente, y el tejido conduce las corrientes a la piel. A frecuencias del latido vale la aproximacion cuasi-estatica, asi que el potencial extracelular es armonico y el mapa de superficie cardiaca a superficie corporal es un solo operador lineal determinado por la geometria y las conductividades. Ese operador esta severamente mal condicionado, que es toda la dificultad del inverso.')}</p>
-        <Refs ids={['barr1977', 'bear2018']} />
+        <Refs ids={['barr1977', 'bear2018']} label="Refs" />
       </section>
 
       <section>
@@ -98,7 +96,7 @@ export function Introduction() {
           <dt>{'S(v)'}</dt><dd>{pick(lang, 'the pressure-Poisson source (velocity-gradient product)', 'la fuente de Poisson de presion (producto de gradientes de velocidad)')}</dd>
           <dt>{'∇²'}</dt><dd>{pick(lang, 'the Laplacian operator', 'el operador Laplaciano')}</dd>
         </dl>
-        <Refs ids={['barr1977', 'rudy1988', 'raissi2020', 'krittian2012']} />
+        <Refs ids={['barr1977', 'rudy1988', 'raissi2020', 'krittian2012']} label="Refs" />
       </section>
 
       <section>
@@ -119,7 +117,7 @@ export function Introduction() {
             'Case A (ECG imaging) runs on real torso-tank experiments, the one setting where a real heart-surface gold standard exists (clinical ECGi has none), so every number is the measured reconstruction quality against that real truth, never a synthetic field. Case B (4D-flow) has NO invasive pressure gold standard, which is exactly why the method exists; there the validated claims are the exact analytic gate (a known-answer flow), the physiological range, and the bracket of the clinical Bernoulli estimate, and the absolute magnitude carries the method uncertainty. Every engine is gated on an analytic problem before real data; raw datasets are used under their data-use agreements and not redistributed. Not clinically deployed.',
             'El caso A (imagen de ECG) corre sobre experimentos reales de tanque de torso, el unico entorno donde existe un patron de oro real de superficie cardiaca (el ECGi clinico no tiene ninguno), asi que cada numero es la calidad de reconstruccion medida contra esa verdad real, nunca un campo sintetico. El caso B (flujo 4D) NO tiene patron de oro de presion invasivo, que es justo por lo que existe el metodo; alli las afirmaciones validadas son la prueba analitica exacta (un flujo de respuesta conocida), el rango fisiologico, y el encuadre de la estimacion clinica de Bernoulli, y la magnitud absoluta lleva la incertidumbre del metodo. Cada motor pasa una prueba analitica antes de datos reales; los datos crudos se usan bajo sus acuerdos y no se redistribuyen. No desplegado clinicamente.')}
         </Callout>
-        <Refs ids={['aras2015', 'cluitmans2018', 'raissi2020']} />
+        <Refs ids={['aras2015', 'cluitmans2018', 'raissi2020']} label="Refs" />
       </section>
     </div>
   );

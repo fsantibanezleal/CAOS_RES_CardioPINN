@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Callout } from '../components/Callout';
-import { Refs } from '../components/Refs';
-import { Tabs } from '../components/Tabs';
+import { Callout, Refs, Tabs, type TabDef } from '@fasl-work/caos-app-shell';
 import { useLang, pick, type Lang } from '../store';
 
 const BASE = import.meta.env.BASE_URL;
@@ -30,7 +28,6 @@ function RobustnessSvg({ lang }: { lang: Lang }) {
 
 export function Benchmark() {
   const lang = useLang();
-  const [tab, setTab] = useState('ecgi');
   const [cat, setCat] = useState<any>(null);
   const [flow, setFlow] = useState<any>(null);
   const [sel, setSel] = useState<{ ci: number; beat: string }>({ ci: 0, beat: 'paced-avp' });
@@ -40,25 +37,10 @@ export function Benchmark() {
   }, []);
   const DS_LABEL: Record<string, [string, string]> = { 'human-tank': ['Human, torso tank', 'Humano, tanque'], 'dog-insitu': ['Dog, in situ', 'Perro, in situ'] };
 
-  const tabs = [
-    { id: 'ecgi', label: pick(lang, 'ECGi: method comparison', 'ECGi: comparacion de metodos') },
-    { id: 'fwd', label: pick(lang, 'ECGi: forward-operator ablation', 'ECGi: ablacion del operador') },
-    { id: 'flow', label: pick(lang, '4D-flow: ablation + robustness', 'Flujo 4D: ablacion + robustez') },
-    { id: 'limits', label: pick(lang, 'Honest limits', 'Limites honestos') },
-  ];
-
-  return (
-    <div className="page-body prose">
-      <div className="page-head">
-        <h1>Benchmark</h1>
-        <p className="lede">{pick(lang,
-          'Every number here is read from a committed artifact, never typed in: the classical and learned ECGi reconstructions judged against the same REAL heart-surface potentials, the forward-operator ablation (single-layer vs boundary-element), and the 4D-flow ablations (space-time vs finite-difference, and the noise-robustness curve). The comparisons are fair and the findings, including the null ones, are reported not hidden.',
-          'Cada numero aqui se lee de un artefacto comprometido, nunca se escribe a mano: las reconstrucciones ECGi clasica y aprendida juzgadas contra los mismos potenciales REALES, la ablacion del operador directo (capa simple vs elementos de contorno), y las ablaciones de flujo 4D (espacio-tiempo vs diferencia finita, y la curva de robustez al ruido). Las comparaciones son justas y los hallazgos, incluidos los nulos, se reportan no se ocultan.')}</p>
-      </div>
-
-      <Tabs tabs={tabs} active={tab} onChange={setTab} />
-
-      {tab === 'ecgi' && (
+  const tabs: TabDef[] = [
+    {
+      id: 'ecgi', label: pick(lang, 'ECGi: method comparison', 'ECGi: comparacion de metodos'),
+      content: (
         <section>
           <h2>{pick(lang, 'Classical vs learned, on real ground truth', 'Clasico vs aprendido, sobre verdad real')}</h2>
           {!cat ? <div className="panel">Loading...</div> : (() => {
@@ -89,11 +71,13 @@ export function Benchmark() {
             );
           })()}
           <Callout>{pick(lang, 'A well-tuned Tikhonov is a strong baseline: the graph prior matches it on relative error and shifts correlation only slightly (both are limited by the same single-layer forward). The decisive difference is the calibrated per-node uncertainty the ensemble gives and a deterministic estimate cannot.', 'Un Tikhonov bien ajustado es un baseline fuerte: el prior de grafo lo iguala en error relativo y cambia la correlacion solo ligeramente (ambos limitados por el mismo directo de capa simple). La diferencia decisiva es la incertidumbre por nodo calibrada que da el ensemble y una estimacion determinista no puede.')}</Callout>
-          <Refs ids={['ghosh2009', 'cluitmans2018']} />
+          <Refs ids={['ghosh2009', 'cluitmans2018']} label="Refs" />
         </section>
-      )}
-
-      {tab === 'fwd' && (
+      ),
+    },
+    {
+      id: 'fwd', label: pick(lang, 'ECGi: forward-operator ablation', 'ECGi: ablacion del operador'),
+      content: (
         <section>
           <h2>{pick(lang, 'Forward operator: single-layer vs boundary-element', 'Operador directo: capa simple vs elementos de contorno')}</h2>
           <p>{pick(lang, 'A physically-correct boundary-element operator (BEM) was implemented and analytic-gated (concentric spheres: correlation 1.00, error halving per mesh refinement). The honest comparison, baked into the catalogue, asks whether it beats the calibrated single-layer on the real electrode geometry.', 'Se implemento un operador de elementos de contorno (BEM) fisicamente correcto y con prueba analitica (esferas concentricas: correlacion 1.00, error a la mitad por refinamiento). La comparacion honesta, horneada en el catalogo, pregunta si supera a la capa simple calibrada sobre la geometria real de electrodos.')}</p>
@@ -118,11 +102,13 @@ export function Benchmark() {
             </div>
           )}
           <Callout>{pick(lang, 'Null result, reported: on the dog (the only closed-mesh case) the BEM does NOT beat the single-layer (RE 0.63 vs 0.54). The human torso-tank surface is open, so the BEM does not apply there. On this coarse electrode geometry the reconstruction is regularization-dominated, so forward-operator fidelity is not the bottleneck; the BEM matters as electrode density and mesh closure improve.', 'Resultado nulo, reportado: en el perro (el unico caso de malla cerrada) el BEM NO supera a la capa simple (RE 0.63 vs 0.54). La superficie del tanque humano es abierta, asi que el BEM no aplica alli. En esta geometria gruesa la reconstruccion esta dominada por la regularizacion, asi que la fidelidad del directo no es el cuello de botella; el BEM importa al mejorar la densidad y el cierre de malla.')}</Callout>
-          <Refs ids={['barr1977', 'vanoosterom1983']} />
+          <Refs ids={['barr1977', 'vanoosterom1983']} label="Refs" />
         </section>
-      )}
-
-      {tab === 'flow' && (
+      ),
+    },
+    {
+      id: 'flow', label: pick(lang, '4D-flow: ablation + robustness', 'Flujo 4D: ablacion + robustez'),
+      content: (
         <section>
           <h2>{pick(lang, '4D-flow: the unsteady-term ablation + noise robustness', 'Flujo 4D: ablacion del termino no estacionario + robustez')}</h2>
           <p>{pick(lang, 'The unsteady acceleration dominates the pressure at peak systole. Replacing a noisy three-frame finite difference with a space-time PINN (analytic dv/dt, gated at correlation 0.995) corrects the recovered pressure range from an inflated value to a physiological one, the same order as the clinical Bernoulli estimate from the same scan.', 'La aceleracion no estacionaria domina la presion en sistole pico. Reemplazar una diferencia finita ruidosa de tres cuadros por un PINN espacio-temporal (dv/dt analitico, prueba a correlacion 0.995) corrige el rango de presion recuperado de un valor inflado a uno fisiologico, del mismo orden que la estimacion clinica de Bernoulli del mismo escaneo.')}</p>
@@ -139,24 +125,39 @@ export function Benchmark() {
             </div>
           )}
           <RobustnessSvg lang={lang} />
-          <Refs ids={['raissi2020', 'krittian2012']} />
+          <Refs ids={['raissi2020', 'krittian2012']} label="Refs" />
         </section>
-      )}
-
-      {tab === 'limits' && (
+      ),
+    },
+    {
+      id: 'limits', label: pick(lang, 'Honest limits', 'Limites honestos'),
+      content: (
         <section>
           <h2>{pick(lang, 'Honest limits', 'Limites honestos')}</h2>
           <p>{pick(lang,
             'We report the honest findings rather than inflated ones. For ECGi, the accuracy improvement over a strong classical baseline is modest, and the contribution is the calibrated uncertainty; a full boundary-element operator did not beat the single-layer on the coarse real geometry. For 4D-flow, there is no invasive pressure gold standard, so the absolute magnitude carries the method uncertainty; the validated claims are the exact analytic gate, the physiological range, the noise-robustness and the Bernoulli bracket.',
             'Reportamos los hallazgos honestos en lugar de inflados. Para ECGi, la mejora de precision sobre un baseline clasico fuerte es modesta, y la contribucion es la incertidumbre calibrada; un operador de elementos de contorno completo no supero a la capa simple en la geometria gruesa real. Para el flujo 4D, no hay patron de oro de presion invasivo, asi que la magnitud absoluta lleva la incertidumbre del metodo; las afirmaciones validadas son la prueba analitica exacta, el rango fisiologico, la robustez al ruido y el encuadre de Bernoulli.')}</p>
-          <Callout variant="warn">
+          <Callout variant="honest">
             {pick(lang,
               'Not clinically deployed. These are validated methodological results on real experimental data, deliberately kept at 0.x. Overstating a headline accuracy gain, or dressing a near-zero uncertainty as a per-voxel map, would be exactly the kind of result this project exists to avoid.',
               'No desplegado clinicamente. Estos son resultados metodologicos validados sobre datos experimentales reales, deliberadamente en 0.x. Exagerar una ganancia de precision de titular, o disfrazar una incertidumbre casi nula como un mapa por voxel, seria justo el tipo de resultado que este proyecto existe para evitar.')}
           </Callout>
-          <Refs ids={['cluitmans2018', 'diffusion2026']} />
+          <Refs ids={['cluitmans2018', 'diffusion2026']} label="Refs" />
         </section>
-      )}
+      ),
+    },
+  ];
+
+  return (
+    <div className="page-body prose">
+      <div className="page-head">
+        <h1>Benchmark</h1>
+        <p className="lede">{pick(lang,
+          'Every number here is read from a committed artifact, never typed in: the classical and learned ECGi reconstructions judged against the same REAL heart-surface potentials, the forward-operator ablation (single-layer vs boundary-element), and the 4D-flow ablations (space-time vs finite-difference, and the noise-robustness curve). The comparisons are fair and the findings, including the null ones, are reported not hidden.',
+          'Cada numero aqui se lee de un artefacto comprometido, nunca se escribe a mano: las reconstrucciones ECGi clasica y aprendida juzgadas contra los mismos potenciales REALES, la ablacion del operador directo (capa simple vs elementos de contorno), y las ablaciones de flujo 4D (espacio-tiempo vs diferencia finita, y la curva de robustez al ruido). Las comparaciones son justas y los hallazgos, incluidos los nulos, se reportan no se ocultan.')}</p>
+      </div>
+
+      <Tabs tabs={tabs} ariaLabel={pick(lang, 'Benchmark sections', 'Secciones de benchmark')} />
     </div>
   );
 }

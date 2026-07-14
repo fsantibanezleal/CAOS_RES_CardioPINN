@@ -3,6 +3,32 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.18.000], 2026-07-14
+
+### Changed (adopt the shared CAOS app shell, ADR-0016)
+The frontend had hand-rolled its own `Tabs`, `SubTabs`, `Callout`, `Equation`, `Cite`/`Refs`, header/footer
+(`Layout`) and `ArchitectureModal` instead of the shared `@fasl-work/caos-app-shell` (v0.3.0) that RotorVitals
+and every other CAOS product uses. That was the root cause of the tab styling, the reference style, and the
+header/footer not matching the ADRs. This release deletes the 8 hand-rolled components and adopts the shell.
+- **Shell chrome**: `main.tsx` now wraps the routes in the shell `AppShell` (sticky header: brand + nav +
+  external links + the ⓘ Architecture button + language/theme toggles) and its footer (provenance + honest
+  disclaimer). Language and theme are owned by the shell; `store.useLang` re-exports `useShellLang` so every
+  page and the chrome stay in lockstep.
+- **Content primitives from the shell**: every page now imports `Tabs`, `SubTabs`, `Callout`, `Equation`,
+  `InlineMath`, `Cite`, `Refs` from the shell. The controlled Tabs were converted to the shell's declarative
+  `TabDef[]`/`SubTabDef[]` API (Methodology's per-domain SubTabs remount on domain switch via `key`).
+- **References now render in the ADR style**: the shell `<Refs ids label="Refs">` renders a compact inline
+  `Refs: a · b · c` row (linked to each DOI), replacing the previous full per-section bibliography block.
+- **Architecture modal (ADR-0058)**: the 5 hand-authored themed SVGs + bilingual bodies are ported into an
+  `architecture.ts` `ArchitectureConfig` consumed by the shell's `ArchitectureModal`.
+- **CSS**: `styles.css` reduced to app-specific residue only (workbench layout, case selector, viz); the shell
+  owns the design system. App `--*` tokens are aliased to the shell `--color-*`/`--font-*` tokens so the
+  hand-authored SVGs and app CSS follow the shell's light/dark theme with no per-element edits.
+- **Deps**: added `@fasl-work/caos-app-shell@^0.3.0`; aligned `lucide-react` to `^0.469.0` (the shell needs the
+  `Github` icon export, absent in the legacy 1.x line); dropped unused `i18next`/`react-i18next`.
+- Verified: `tsc` clean, production build green, screenshot-verified every page + the architecture modal in
+  light and dark; the EDGAR citation (Aras et al. 2015, doi:10.1016/j.jelectrocard.2015.08.008) confirmed correct.
+
 ## [0.17.000], 2026-07-14
 
 ### Fixed / Added (multi-agent ADR-audit remediation)

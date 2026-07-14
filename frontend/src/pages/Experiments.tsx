@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Callout } from '../components/Callout';
-import { Equation } from '../components/Equation';
-import { Refs } from '../components/Refs';
-import { Tabs } from '../components/Tabs';
+import { Tabs, type TabDef, Callout, Equation, Refs } from '@fasl-work/caos-app-shell';
 import { useLang, pick, type Lang } from '../store';
 
 const BASE = import.meta.env.BASE_URL;
@@ -50,7 +47,6 @@ function ProtocolSvg({ lang }: { lang: Lang }) {
 
 export function Experiments() {
   const lang = useLang();
-  const [tab, setTab] = useState('protocol');
   const [cat, setCat] = useState<any>(null);
   const [flow, setFlow] = useState<any>(null);
   useEffect(() => {
@@ -58,27 +54,10 @@ export function Experiments() {
     fetch(`${BASE}data/real-flow4d-pressure/trace.json`).then((r) => r.json()).then(setFlow).catch(() => setFlow(null));
   }, []);
 
-  const tabs = [
-    { id: 'protocol', label: pick(lang, 'Protocol (leakage-safe)', 'Protocolo (sin fuga)') },
-    { id: 'metrics', label: pick(lang, 'Metrics', 'Metricas') },
-    { id: 'ecgi-cov', label: pick(lang, 'ECGi coverage', 'Cobertura ECGi') },
-    { id: 'ecgi-res', label: pick(lang, 'ECGi results', 'Resultados ECGi') },
-    { id: 'flow-proto', label: pick(lang, '4D-flow validation', 'Validacion flujo 4D') },
-    { id: 'datasets', label: pick(lang, 'Datasets', 'Conjuntos de datos') },
-  ];
-
-  return (
-    <div className="page-body prose">
-      <div className="page-head">
-        <h1>{pick(lang, 'Experiments', 'Experimentos')}</h1>
-        <p className="lede">{pick(lang,
-          'The validation design and the real results for both cases. For ECG imaging every number is the measured reconstruction quality against the REAL heart-surface potentials across a catalogue of independent EDGAR experiments; for 4D-flow, where no invasive pressure truth exists, validation is the analytic gate, the physiological range, and the clinical Bernoulli bracket. Nothing is validated against a synthetic field.',
-          'El diseno de validacion y los resultados reales para ambos casos. Para la imagen de ECG cada numero es la calidad de reconstruccion medida contra los potenciales REALES de superficie cardiaca en un catalogo de experimentos EDGAR independientes; para el flujo 4D, donde no existe verdad de presion invasiva, la validacion es la prueba analitica, el rango fisiologico, y el encuadre clinico de Bernoulli. Nada se valida contra un campo sintetico.')}</p>
-      </div>
-
-      <Tabs tabs={tabs} active={tab} onChange={setTab} />
-
-      {tab === 'protocol' && (
+  const tabs: TabDef[] = [
+    {
+      id: 'protocol', label: pick(lang, 'Protocol (leakage-safe)', 'Protocolo (sin fuga)'),
+      content: (
         <section>
           <h2>{pick(lang, 'The leakage-safe protocol', 'El protocolo sin fuga')}</h2>
           <p>{pick(lang,
@@ -86,11 +65,13 @@ export function Experiments() {
             'Cada experimento ECGi registro los potenciales de superficie corporal y cardiaca simultaneamente durante el latido. La reconstruccion ve SOLO los datos de superficie corporal; el registro de la jaula cardiaca se reserva y se usa unicamente para puntuar. Los cuadros o derivaciones marcados malos (NaN) se descartan. La unica ganancia escalar se calibra solo en la primera mitad del latido, asi que el modelo directo nunca se ajusta en la ventana de evaluacion, y ningun parametro de regularizacion se ajusta sobre la jaula reservada. El mismo pipeline corre en cada dataset sin reajuste, asi que los numeros miden un metodo, no un ajuste a una geometria.')}</p>
           <ProtocolSvg lang={lang} />
           <Callout>{pick(lang, 'The oracle-best lambda used in the tables is an UPPER bound reported to compare methods fairly (every method judged at its best); it is not claimed as a blind operating point. Reporting it is stated openly, not hidden.', 'El mejor lambda por oraculo usado en las tablas es una cota SUPERIOR reportada para comparar metodos con justicia (cada metodo en su mejor version); no se afirma como un punto de operacion ciego. Reportarlo se declara abiertamente, no se oculta.')}</Callout>
-          <Refs ids={['aras2015', 'cluitmans2018']} />
+          <Refs ids={['aras2015', 'cluitmans2018']} label="Refs" />
         </section>
-      )}
-
-      {tab === 'metrics' && (
+      ),
+    },
+    {
+      id: 'metrics', label: pick(lang, 'Metrics', 'Metricas'),
+      content: (
         <section>
           <h2>{pick(lang, 'The exact metrics', 'Las metricas exactas')}</h2>
           <p>{pick(lang, 'Two spatial metrics are computed per time frame and averaged over the beat, plus a calibration metric for the uncertainty.', 'Se computan dos metricas espaciales por cuadro de tiempo y se promedian sobre el latido, mas una metrica de calibracion para la incertidumbre.')}</p>
@@ -99,11 +80,13 @@ export function Experiments() {
           <Equation tex={String.raw`\text{node-UQ} = \frac{1}{N}\sum_i \mathbb{1}\!\left[\,|\hat\phi_i-\phi^{\text{true}}_i| \le 2\,s_i\,\right], \qquad s_i=\tau\cdot\mathrm{std}_k\,\hat\phi_i^{(k)}`}
             caption={pick(lang, 'The uncertainty reliability: the fraction of nodes whose true error is inside the recalibrated 2-sigma band; ~0.90 is well-calibrated.', 'La confiabilidad de la incertidumbre: la fraccion de nodos cuyo error real esta dentro de la banda 2-sigma recalibrada; ~0.90 esta bien calibrado.')} />
           <Callout>{pick(lang, 'For 4D-flow the analogous metric is the recovered pressure RANGE vs the clinical Bernoulli estimate 4·Vmax² and the analytic-gate error, since no per-voxel pressure truth exists.', 'Para el flujo 4D la metrica analoga es el RANGO de presion recuperado vs la estimacion clinica de Bernoulli 4·Vmax² y el error del gate analitico, ya que no existe verdad de presion por voxel.')}</Callout>
-          <Refs ids={['cluitmans2018', 'krittian2012']} />
+          <Refs ids={['cluitmans2018', 'krittian2012']} label="Refs" />
         </section>
-      )}
-
-      {tab === 'ecgi-cov' && (
+      ),
+    },
+    {
+      id: 'ecgi-cov', label: pick(lang, 'ECGi coverage', 'Cobertura ECGi'),
+      content: (
         <section>
           <h2>{pick(lang, 'ECGi coverage and real results', 'Cobertura ECGi y resultados reales')}</h2>
           <p>{pick(lang, 'Read directly from the committed catalogue artifact (never typed in). Two species, two labs, diffuse (sinus) and focal (paced) activation, one pipeline.', 'Leido directamente del artefacto de catalogo comprometido (nunca escrito a mano). Dos especies, dos laboratorios, activacion difusa (sinusal) y focal (marcapaso), un pipeline.')}</p>
@@ -130,22 +113,26 @@ export function Experiments() {
               </table>
             </div>
           )}
-          <Refs ids={['aras2015']} />
+          <Refs ids={['aras2015']} label="Refs" />
         </section>
-      )}
-
-      {tab === 'ecgi-res' && (
+      ),
+    },
+    {
+      id: 'ecgi-res', label: pick(lang, 'ECGi results', 'Resultados ECGi'),
+      content: (
         <section>
           <h2>{pick(lang, 'Reading the ECGi results', 'Leyendo los resultados ECGi')}</h2>
           <p>{pick(lang,
             'On the human tank, paced beats reconstruct with higher correlation than sinus (PVP 0.80, AVP 0.85 vs sinus 0.72), which is physically expected: a focal paced source is easier to localize than a diffuse sinus wavefront. The method transfers to the in-situ dog (a different species, geometry and electrode count, 140 body to a 1321-node epicardium) with no retuning, giving RE 0.54 / CC 0.78, so the numbers reflect a method rather than a fit to one heart.',
             'En el tanque humano, los latidos con marcapaso reconstruyen con mayor correlacion que el sinusal (PVP 0.80, AVP 0.85 vs sinusal 0.72), lo cual es fisicamente esperado: una fuente focal es mas facil de localizar que un frente sinusal difuso. El metodo se transfiere al perro in situ (otra especie, geometria y numero de electrodos, 140 cuerpo a un epicardio de 1321 nodos) sin reajuste, dando RE 0.54 / CC 0.78, asi que los numeros reflejan un metodo y no un ajuste a un corazon.')}</p>
           <Callout>{pick(lang, 'The absolute numbers are literature-consistent for a single-layer forward model on torso-tank data. The BEM was analytic-gated but did not beat the single-layer on the coarse real electrode geometry (a reported null result); a denser mesh would change that.', 'Los numeros absolutos son consistentes con la literatura para un modelo directo de capa simple sobre datos de tanque de torso. El BEM tiene prueba analitica pero no supero a la capa simple en la geometria gruesa real (un resultado nulo reportado); una malla mas densa lo cambiaria.')}</Callout>
-          <Refs ids={['aras2015', 'cluitmans2018', 'ghosh2009']} />
+          <Refs ids={['aras2015', 'cluitmans2018', 'ghosh2009']} label="Refs" />
         </section>
-      )}
-
-      {tab === 'flow-proto' && (
+      ),
+    },
+    {
+      id: 'flow-proto', label: pick(lang, '4D-flow validation', 'Validacion flujo 4D'),
+      content: (
         <section>
           <h2>{pick(lang, '4D-flow validation, without an invasive truth', 'Validacion de flujo 4D, sin verdad invasiva')}</h2>
           <p>{pick(lang,
@@ -167,11 +154,13 @@ export function Experiments() {
             </div>
           )}
           <Callout>{pick(lang, 'The recovered range (0.79 mmHg) is small and physiological for this unobstructed aorta and the same order as Bernoulli (2.51 mmHg). A velocity-noise ensemble moves it under 0.01 mmHg, so the dominant uncertainty is the absent gold standard, not measurement noise; the absolute magnitude carries the method uncertainty honestly.', 'El rango recuperado (0.79 mmHg) es pequeno y fisiologico para esta aorta sin obstruccion y del mismo orden que Bernoulli (2.51 mmHg). Un ensemble de ruido lo mueve menos de 0.01 mmHg, asi que la incertidumbre dominante es el patron de oro ausente, no el ruido; la magnitud absoluta lleva la incertidumbre del metodo con honestidad.')}</Callout>
-          <Refs ids={['raissi2020', 'krittian2012']} />
+          <Refs ids={['raissi2020', 'krittian2012']} label="Refs" />
         </section>
-      )}
-
-      {tab === 'datasets' && (
+      ),
+    },
+    {
+      id: 'datasets', label: pick(lang, 'Datasets', 'Conjuntos de datos'),
+      content: (
         <section>
           <h2>{pick(lang, 'Datasets and provenance', 'Conjuntos de datos y procedencia')}</h2>
           <div className="overflow-x">
@@ -186,10 +175,23 @@ export function Experiments() {
               </tbody>
             </table>
           </div>
-          <Callout variant="warn">{pick(lang, 'All raw datasets are used under their data-use agreements, read from a local path and gitignored; only the derived traces are committed. Excluded datasets are named with the honest reason, not silently dropped.', 'Todos los datos crudos se usan bajo sus acuerdos de uso, leidos de una ruta local y gitignored; solo los traces derivados se comprometen. Los datasets excluidos se nombran con la razon honesta, no se descartan en silencio.')}</Callout>
-          <Refs ids={['aras2015', 'cluitmans2018']} />
+          <Callout variant="honest">{pick(lang, 'All raw datasets are used under their data-use agreements, read from a local path and gitignored; only the derived traces are committed. Excluded datasets are named with the honest reason, not silently dropped.', 'Todos los datos crudos se usan bajo sus acuerdos de uso, leidos de una ruta local y gitignored; solo los traces derivados se comprometen. Los datasets excluidos se nombran con la razon honesta, no se descartan en silencio.')}</Callout>
+          <Refs ids={['aras2015', 'cluitmans2018']} label="Refs" />
         </section>
-      )}
+      ),
+    },
+  ];
+
+  return (
+    <div className="page-body prose">
+      <div className="page-head">
+        <h1>{pick(lang, 'Experiments', 'Experimentos')}</h1>
+        <p className="lede">{pick(lang,
+          'The validation design and the real results for both cases. For ECG imaging every number is the measured reconstruction quality against the REAL heart-surface potentials across a catalogue of independent EDGAR experiments; for 4D-flow, where no invasive pressure truth exists, validation is the analytic gate, the physiological range, and the clinical Bernoulli bracket. Nothing is validated against a synthetic field.',
+          'El diseno de validacion y los resultados reales para ambos casos. Para la imagen de ECG cada numero es la calidad de reconstruccion medida contra los potenciales REALES de superficie cardiaca en un catalogo de experimentos EDGAR independientes; para el flujo 4D, donde no existe verdad de presion invasiva, la validacion es la prueba analitica, el rango fisiologico, y el encuadre clinico de Bernoulli. Nada se valida contra un campo sintetico.')}</p>
+      </div>
+
+      <Tabs tabs={tabs} ariaLabel={pick(lang, 'Experiments sections', 'Secciones de experimentos')} />
     </div>
   );
 }
