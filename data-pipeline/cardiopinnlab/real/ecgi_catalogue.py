@@ -97,11 +97,38 @@ def load_case_beat(cfg: dict, beat: str) -> dict:
     tf = cfg.get("ts_field", "potvals")
     body_p = _potvals(d / body_rel, cfg.get("ts_struct", False), tf)
     heart_p = _potvals(d / heart_rel, cfg.get("ts_struct", False), tf)
-    body_n, _ = _mesh(d / cfg["body_mesh"][0], cfg["body_mesh"][1])
+    body_n, body_f = _mesh(d / cfg["body_mesh"][0], cfg["body_mesh"][1])
     heart_n, heart_f = _mesh(d / cfg["heart_mesh"][0], cfg["heart_mesh"][1])
     good = ~np.any(np.isnan(body_p), 0) & ~np.any(np.isnan(heart_p), 0)
     body_p, heart_p = body_p[:, good], heart_p[:, good]
-    return {"torso_p": body_p, "cage_p": heart_p, "torso_n": body_n, "cage_n": heart_n, "cage_f": heart_f}
+    return {"torso_p": body_p, "cage_p": heart_p, "torso_n": body_n, "cage_n": heart_n,
+            "cage_f": heart_f, "torso_f": body_f}
+
+
+def is_closed(nodes, faces) -> dict:
+    """Whether a triangulation is a closed 2-manifold (needed for a BEM forward operator): every edge shared by
+    exactly two triangles and the Euler characteristic 2 (a sphere-topology surface)."""
+    from collections import Counter
+    E = Counter()
+    for t in faces:
+        for a, b in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
+            E[(min(a, b), max(a, b))] += 1
+    boundary = sum(1 for v in E.values() if v == 1)
+    nonmanifold = sum(1 for v in E.values() if v > 2)
+    euler = len(nodes) - len(E) + len(faces)
+    return {"closed": boundary == 0 and nonmanifold == 0, "boundary_edges": boundary,
+            "nonmanifold_edges": nonmanifold, "euler": euler}
+
+
+def bem_transfer(data: dict) -> np.ndarray | None:
+    """Build the boundary-element forward matrix Z (phi_body = Z phi_heart) from the real heart+body
+    triangulations, IF both are closed 2-manifolds (else None; the electrode geometries fall back to the
+    single-layer operator). The operator is analytic-gated in tests/test_ecgi_bem.py."""
+    from .ecgi_bem import transfer_matrix
+    hn, hf, bn, bf = data["cage_n"], data["cage_f"], data["torso_n"], data["torso_f"]
+    if not (is_closed(hn, hf)["closed"] and is_closed(bn, bf)["closed"]):
+        return None
+    return transfer_matrix(hn, hf, bn, bf)
 
 
 def bake_case_beat(cfg: dict, beat: str, seed: int = 42, n_frames: int = 40) -> dict:
@@ -131,12 +158,35 @@ def bake_case_beat(cfg: dict, beat: str, seed: int = 42, n_frames: int = 40) -> 
     }
 
 
-def bake_catalogue() -> dict:
-    cat = {"schema": "cardiopinn.ecgi-catalogue/v1", "cases": []}
+def forward_comparison(cfg: dict) -> dict | None:
+    """Honest single-layer vs boundary-element (BEM) forward-operator comparison on the first beat, when both
+    surfaces are closed 2-manifolds (else the BEM does not apply). The BEM is analytic-gated (test_ecgi_bem);
+    on the coarse real electrode geometry it does not necessarily beat the calibrated single-layer, because the
+    reconstruction is regularization-dominated. The honest numbers are reported, not a claimed improvement."""
+    from .ecgi_bem import transfer_matrix
+    from .ecgi_edgar import evaluate, reconstruct
+    beat = next(iter(cfg["beats"]))
+    d = load_case_beat(cfg, beat)
+    hc = is_closed(d["cage_n"], d["cage_f"]); bc = is_closed(d["torso_n"], d["torso_f"])
+    if not (hc["closed"] and bc["closed"]):
+        return {"beat": beat, "bem_applicable": False,
+                "reason": f"body surface open ({bc['boundary_edges']} boundary edges); BEM needs a closed 2-manifold"}
+    Z = transfer_matrix(d["cage_n"], d["cage_f"], d["torso_n"], d["torso_f"])
+    m_sl = evaluate(reconstruct(d), d["cage_p"])
+    m_bem = evaluate(reconstruct(d, A=Z), d["cage_p"])
+    return {"beat": beat, "bem_applicable": True,
+            "single_layer": {"RE": m_sl["relative_error_tikhonov"], "CC": m_sl["correlation_tikhonov"]},
+            "bem": {"RE": m_bem["relative_error_tikhonov"], "CC": m_bem["correlation_tikhonov"]}}
+
+
+def bake_catalogue(with_forward_comparison: bool = True) -> dict:
+    cat = {"schema": "cardiopinn.ecgi-catalogue/v2", "cases": []}
     for cfg in CASES:
         case = {"id": cfg["id"], "name": cfg["name"], "context_en": cfg["context_en"],
                 "context_es": cfg["context_es"], "beats": {}}
         for beat in cfg["beats"]:
             case["beats"][beat] = bake_case_beat(cfg, beat)
+        if with_forward_comparison:
+            case["forward_comparison"] = forward_comparison(cfg)
         cat["cases"].append(case)
     return cat
