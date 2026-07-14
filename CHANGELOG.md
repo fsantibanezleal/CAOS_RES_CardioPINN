@@ -3,6 +3,24 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.12.001], 2026-07-14
+
+### Fixed (documentation + dependency coherence)
+- **Dependency manifests reconciled with the real application.** `data-pipeline/requirements.txt` now declares
+  exactly what the code imports (torch, numpy, scipy, pydicom) and drops seven stale packages left over from
+  the purged synthetic verticals that no source file imports (scikit-fmm, onnx, onnxruntime, trimesh, meshio,
+  robust-laplacian, potpourri3d). Added the missing `pydicom` (the 4D-flow DICOM loader needs it). An
+  experimental `h5py` install (probing the ischemia BEM matrices, which turned out not to be HDF5) was removed,
+  not declared.
+- **Removed stale ONNX / browser-inference claims** that no longer match the real architecture: the in-app
+  Architecture modal, `cardiopinnlab/__init__.py`, and `core/pinn.py` docstrings previously described exporting
+  to ONNX and re-running the network in the browser (onnxruntime-web) with a live/replay gate. The real app
+  bakes every result offline (ECGi on CPU with NumPy/SciPy, 4D-flow on GPU with torch) and the static web reads
+  committed JSON traces; no model runs in the browser.
+- **README + docs wiki brought current:** README now documents both cases (multi-dataset ECGi + 4D-flow
+  pressure) with the real file layout and run commands; `docs/README.md` lists both cases; added
+  `docs/cases/real-flow4d-pressure.md`; the ECGi case page now includes the in-situ dog dataset.
+
 ## [0.12.000], 2026-07-14
 
 ### Added

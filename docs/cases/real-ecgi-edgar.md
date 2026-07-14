@@ -5,10 +5,12 @@ validated against a real gold standard. No synthetic data.
 
 ## The case, the need, how the physics helps, what we compute
 
-- **The case.** A torso tank (Consortium for ECG Imaging, EDGAR; Utah 2018-08-09 experiment) holds a real
-  heart. 192 electrodes on the tank surface record the body-surface potentials; simultaneously a 256-electrode
-  cage around the heart records the true heart-surface potentials. Three rhythms are available: sinus, and two
-  paced beats (PVP, AVP).
+- **The case.** A MULTI-DATASET catalogue of real EDGAR experiments reconstructed by the identical pipeline
+  (no per-heart retuning): (1) a human torso tank (Utah 2018-08-09) where 192 tank electrodes record the
+  body-surface potentials and a 256-electrode cage records the true heart-surface potentials, in sinus and two
+  paced beats (PVP, AVP); (2) an in-situ dog (Maastricht) where 140 body electrodes record the body surface and
+  a 1321-node epicardial mesh records the true heart surface, in sinus. In each, the heart-surface recording is
+  the gold standard a patient never has.
 - **The need.** Electrocardiographic imaging (ECGi) reconstructs the heart-surface potentials from the
   body-surface recording, non-invasively, to localize the origin of an arrhythmia and guide ablation. In a
   patient you only have the body surface; the heart-surface cage is the gold standard you never get. The
@@ -25,11 +27,12 @@ validated against a real gold standard. No synthetic data.
 The recovered heart-surface potentials are compared to the REAL measured cage potentials with the standard
 ECGi metrics, the relative error (RE) and the spatial correlation (CC):
 
-| Rhythm | Relative error | Correlation | Node-UQ reliability (2 sigma) |
-|---|---|---|---|
-| Sinus | 0.65 | 0.72 | 0.90 |
-| Paced (PVP) | 0.58 | 0.80 | 0.89 |
-| AV-paced (AVP) | 0.54 | 0.85 | 0.90 |
+| Dataset | Beat | Relative error | Correlation | Node-UQ reliability (2 sigma) |
+|---|---|---|---|---|
+| Human torso tank | Sinus | 0.65 | 0.72 | 0.90 |
+| Human torso tank | Paced (PVP) | 0.58 | 0.80 | 0.89 |
+| Human torso tank | AV-paced (AVP) | 0.54 | 0.85 | 0.90 |
+| In-situ dog | Sinus | 0.54 | 0.78 | 0.90 |
 
 These are literature-consistent torso-tank ECGi numbers, and the paced beats reconstructing better than sinus
 (higher correlation) is physically expected: a focal paced activation is easier to localize than the diffuse

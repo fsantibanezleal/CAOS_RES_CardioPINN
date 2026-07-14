@@ -1,11 +1,13 @@
-"""cardiopinnlab, the offline GPU pipeline for CardioPINN (ADR-0057).
+"""cardiopinnlab, the offline pipeline for CardioPINN (ADR-0057).
 
-Physics-informed neural networks for cardiac electrophysiology and cardiovascular medicine. Each case is a
-research vertical (activation mapping, fiber/conductivity inverse, Delta-PINN geometry, AF phase mapping,
-4D-flow hemodynamics, ...). The heavy training + validation + ONNX export runs offline on a local NVIDIA GPU;
-the static web app re-infers the exported PINN in the browser (onnxruntime-web) and replays baked field
-traces. The two data contracts, the staged pipeline, the measured lane gate and the manifest/trace are the
-frozen ADR-0057 base; the engine (core/ + cases/) is the cardiac specialization.
+Physics-informed reconstruction of cardiac quantities that cannot be measured directly, from real clinical
+data that can, across two physics domains: (1) ECG imaging, recovering heart-surface potentials from a
+body-surface recording by quasi-static volume conduction (real EDGAR datasets; NumPy/SciPy); (2) 4D-flow,
+recovering the aortic pressure field from a measured MRI velocity scan by incompressible Navier-Stokes (a
+divergence-free velocity PINN in torch feeding a pressure-Poisson solve). Every case runs OFFLINE (the ECGi
+reconstruction on CPU, the 4D-flow PINN on a local GPU) and the derived results are baked to committed JSON
+traces; the static web app READS those traces (it does not run any model in the browser). Physics engines are
+gated on analytic problems with known answers before any real data is trusted (see real/ + tests/).
 """
 
-__version__ = "0.12.000"  # 4D-flow aortic pressure case (Navier-Stokes PPE) added to the catalogue
+__version__ = "0.12.001"  # docs/manifest coherence: pydicom declared, stale synthetic deps + ONNX claims removed
