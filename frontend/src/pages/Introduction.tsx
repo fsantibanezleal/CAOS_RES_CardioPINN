@@ -37,9 +37,12 @@ export function Introduction() {
         <h1>CardioPINN</h1>
         <p className="lede">
           {pick(lang,
-            'An applied framework for physics-informed reconstruction of cardiac quantities that cannot be measured directly, from data that can. Every case fits a real measured signal and is validated against a real gold standard; the flagship recovers heart-surface potentials from a body-surface recording, ',
-            'Un marco aplicado para la reconstruccion informada por fisica de cantidades cardiacas que no se pueden medir directamente, a partir de datos que si. Cada caso ajusta una senal real medida y se valida contra un patron de oro real; el caso insignia recupera potenciales de superficie cardiaca desde un registro de superficie corporal, ')}
-          <InlineMath tex={String.raw`\phi_{\text{body}}=A\,\phi_{\text{heart}}`} />.
+            'An applied framework for physics-informed reconstruction of cardiac quantities that cannot be measured directly, from data that can. It spans two real cases in two different physics domains: recovering heart-surface potentials from a body-surface recording by volume conduction, ',
+            'Un marco aplicado para la reconstruccion informada por fisica de cantidades cardiacas que no se pueden medir directamente, a partir de datos que si. Abarca dos casos reales en dos dominios fisicos distintos: recuperar potenciales de superficie cardiaca desde un registro de superficie corporal por conduccion de volumen, ')}
+          <InlineMath tex={String.raw`\phi_{\text{body}}=A\,\phi_{\text{heart}}`} />
+          {pick(lang, ', and recovering the aortic pressure field from a 4D-flow scan by incompressible Navier-Stokes, ', ', y recuperar el campo de presion aortica desde un escaneo de flujo 4D por Navier-Stokes incompresible, ')}
+          <InlineMath tex={String.raw`\nabla^2 p = S(\mathbf{v})`} />
+          {pick(lang, '. Every case fits a real measured signal and is checked against a real reference.', '. Cada caso ajusta una senal real medida y se contrasta con una referencia real.')}
         </p>
       </div>
 

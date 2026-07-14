@@ -3,6 +3,34 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.12.000], 2026-07-14
+
+### Added
+- **Real 4D-flow aortic pressure case (a second physics domain: Navier-Stokes).** The App is now a catalogue
+  of real applied cases across DIFFERENT physics, with a top-level research-case selector: ECG imaging (volume
+  conduction / Laplace) and 4D-flow pressure (incompressible Navier-Stokes). The new case recovers the aortic
+  relative pressure field from a real 4D-flow MRI velocity scan and answers the four questions per case
+  (problem / target / how the PDE arises / traditional Bernoulli / physics-informed proposal / result).
+- **Validated pressure pipeline.** The measured Philips velocity (venc 120, physiological peak 0.77 m/s) is
+  denoised by a divergence-free velocity PINN (data fit + div v = 0), and the relative pressure is recovered
+  by the pressure-Poisson equation from the network's ANALYTIC derivatives (no finite-difference edge
+  artifact). Computing the source and Neumann flux analytically was the fix that took the real-scan map from a
+  non-physiological ~thousands of mmHg (FD boundary artifact) to a physiological range: PPE pressure range
+  14.87 mmHg, bracketing the clinical simplified-Bernoulli estimate 2.37 mmHg from the same scan. The engine
+  is gated on an analytic converging duct (corr 1.00, 4.74 vs 4.73 mmHg) before any real data is trusted.
+- Committed artifact `data/derived/real-flow4d-pressure/trace.json` (1.6 MB: 9000-point lumen cloud, pressure
+  at peak systole + pulsatile speed over 16 frames). Frontend: `Flow4d.tsx` per-case workbench with a 3D
+  point-cloud pressure/speed viz, `Workbench.tsx` top-level case selector. Real Navier-Stokes / HFM / PPE
+  citations (Raissi 2020 Science, Krittian 2012 Med Image Anal) verified against primary sources. Artifact
+  validator + test guard the pressure is physiological (range < 60 mmHg, velocity < 6 m/s). Screenshot-verified
+  both cases and all tabs, light + dark, 0 console errors.
+
+### Honesty
+- No invasive pressure gold standard exists for a 4D-flow scan (the reason the method exists); the validated
+  claims are the exact analytic gate, the physiological range, the divergence-free denoising, and the bracket
+  of the clinical Bernoulli reference. The absolute magnitude carries the method's uncertainty. Not clinically
+  deployed.
+
 ## [0.11.000], 2026-07-14
 
 ### Added
