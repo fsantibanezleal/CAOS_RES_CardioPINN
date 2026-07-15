@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cardiopinnlab"
 # PEP 440 form of the display version X.XX.XXX (see CHANGELOG.md + cardiopinnlab.__version__).
-version = "0.19.1"
+version = "0.21.0"
 description = "CardioPINN: physics-informed neural networks for cardiac electrophysiology and cardiovascular medicine (offline pipeline)."
 readme = "README.md"
 requires-python = ">=3.11"

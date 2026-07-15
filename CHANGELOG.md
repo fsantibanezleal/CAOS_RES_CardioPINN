@@ -3,6 +3,56 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.21.000], 2026-07-14
+
+### Changed (App redo: every tab rebuilt to be interactive, dynamic and dense, per ADR-0017 and the interactive-visualization rubric)
+The App was a set of hollow tabs: static 3D views that did not react, walls of prose, incomplete equations that
+needed scrolling, controls in the global left rail that only drove one tab, and voids in the layout. All of it is
+documented as findings D-000..D-007 in `plans/cardiopinn/quality-defects.md`. This release rebuilds the two case
+workbenches (ECGi, 4D-flow), keeping the exact tab set but replacing the content with a reusable interactive kit.
+The redesign is grounded in an external-SOTA UX dossier (`research/app-redesign-2026-07-14/`), not in another
+CAOS product. Every tab was screenshot-verified in both cases and both themes (viz fills its stage, no void, no
+wall of text, footer 2 lines).
+- **Reusable interactive kit** (`frontend/src/kits/`): `FieldView3D` (orbit + click/keyboard node-pick with a
+  pinned marker + argmax marker + a perceptually-uniform colormap legend + value readout, mesh or point cloud),
+  `UPlotChart` (theme-aware uPlot wrapper with an external cursor, markers, identity line, hover/click), plus
+  `HoverMathEq`, `StatStrip`, `ClinicalStepper`, `DerivationStepper`, `Juxtapose`, `PipelineSvg`,
+  `SmallMultipleStrip`. Shared `colormap.ts` helpers (`fieldStats`, `colorFor`): diverging for signed fields,
+  sequential for unsigned.
+- **Reconstruction / Pressure-recovery tabs**: the 3D field is now the interactive hero. Click or key-select a
+  node to read its recovered-vs-measured trace over the cardiac cycle in a linked chart; field-toggle chips, a
+  phase scrubber and a play button drive the baked frames. The static heart/cloud is gone.
+- **The-problem tabs**: `StatStrip` of sourced figures + an annotated many-to-one clinical SVG coupled to a
+  `ClinicalStepper`, replacing the prose wall (D-004).
+- **The-target / How-the-PDE-arises tabs**: `HoverMathEq` (focusable symbol chips reveal meaning + units) and a
+  `DerivationStepper` that walks the derivation one equation at a time, replacing the scroll-clipped equations.
+- **Traditional-approach tabs**: a live Bernoulli / Tikhonov explorable (sliders drive a uPlot chart), a
+  discarded-terms ledger and Bernoulli-vs-physics bracket bars.
+- **Physics-informed-proposal tabs**: an inspectable `PipelineSvg` (hover/select a stage, play the flow) with
+  what-if chips that read the baked reconstruction each choice produces.
+- **Layout / controls / footer** (D-002, D-003, D-005): the control rail stretches the full main-column height
+  (no short-left-column void), per-tab controls (field/beat/scrub/pick) moved into the tab they drive, the
+  responsive `.canvas-wrap` fills the stage, and the footer is a compact 2 lines (ADR-0016 section 2).
+
+## [0.20.000], 2026-07-14
+
+### Added (adversarial beyond-SOTA evaluation of the 4D-flow PINN, on known-answer benchmarks)
+Four candidate advances over the 4D-flow pressure engine were implemented and evaluated ADVERSARIALLY (each
+tried to REFUTE the claimed advance) on analytic flows with exact ground truth, the honest way to decide a
+"beyond SOTA" claim when the real scan has no invasive pressure gold standard. Persisted in the dated dossier
+`research/beyond-sota-pinn-2026-07-14/` (design, per-experiment JSON, `findings.md`). GPU: RTX 4070.
+- **CONFIRMED and shipped**: the engine's analytic-autograd source/flux beats a finite-difference source (what a
+  standard PPE/WERP pipeline uses) by ~63x on a known answer (median pressure-drop error 0.066 vs 4.19 mmHg,
+  6/6 configs). Graduated into the engine as a gate, `flow4d_denoise.gate_analytic_vs_fd`, with
+  `tests/test_flow4d_analytic_source.py`, and documented in `docs/frameworks/02_pytorch.md`.
+- **Honest NULLs (refuted, not shipped)**: (1) hard divergence-free by construction (velocity as the curl of a
+  learned vector potential) drives the divergence residual ~6x lower but does NOT improve pressure (marginally
+  worse), the residual divergence was not the bottleneck; (2) end-to-end differentiable coupling of the denoiser
+  to the elliptic solve, a correct implicit-differentiation Poisson solve was built (reproduces `spsolve`
+  exactly) but coupling is subsumed by the two-stage pipeline for a linear elliptic solve; (3) a structural-
+  perturbation pressure UQ is calibrated but small on a clean, well-defined lumen (would need a real ambiguous
+  segmentation to show value).
+
 ## [0.19.001], 2026-07-14
 
 ### Fixed (coherence sweep, remove inconsistencies)
