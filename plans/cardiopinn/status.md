@@ -1,6 +1,6 @@
 # CardioPINN status
 
-Live: https://cardiopinn.fasl-work.com  ·  Version: 0.21.004  ·  Updated: 2026-07-15
+Live: https://cardiopinn.fasl-work.com  ·  Version: 0.21.005  ·  Updated: 2026-07-15
 
 ## What CardioPINN is
 A bake-and-read research app: the physics is computed offline (GPU) into committed JSON traces, and the web reads
@@ -32,6 +32,10 @@ Benchmark):
 - 0.21.004: fixed the one content-loss residual (ECGi Traditional closed-form equation was clipped in the narrow
   rail; moved full-width) + the PDE schematic caption to full-width. Remaining items are minor transient
   stepper/bracket height bands, accepted (padding a card with filler is disallowed).
+- 0.21.005: full adversarial revision (16-reviewer audit + verify pass, 61 confirmed findings; ~55 fixed, all 6
+  HIGH). Content-honesty (ensemble-vs-Tikhonov, cage gain/oracle-lambda leakage disclosure, denoised-vs-measured
+  velocity, severe-line metric), robustness (error boundary, fetch handling, dataset-aware target tab, coords
+  guard, NaN floor), styles + docs. Dossier: revision-2026-07-15.md (with the tracked remainder).
 
 ## Verified
 tsc + vite build + content-standards green. Every App tab screenshot-verified in both cases and both themes (viz
