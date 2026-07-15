@@ -136,7 +136,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
               <div className="hero-rail" style={{ marginTop: 8 }}>
                 <FieldView3D
                   vertices={tr.points_mm} values={vals} signed={signed} range={range}
-                  pickedNode={picked} argmaxNode={mi} onPick={setPicked} pointSize={3}
+                  pickedNode={picked} argmaxNode={mi} onPick={setPicked} pointSize={4}
                   legendLabel={signed ? pick(lang, 'Relative pressure', 'Presion relativa') : pick(lang, 'Speed', 'Rapidez')} unit={unit}
                   readout={<>{signed ? pick(lang, 'peak systole', 'sistole pico') : `t = ${tr.times_ms[rf]} ms`} · {pick(lang, 'point', 'punto')} {node} · p {pAt.toFixed(2)} mmHg · v {vAt.toFixed(2)} m/s</>}
                   srSummary={pick(lang,
@@ -258,11 +258,11 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
                   leftLabel={pick(lang, 'Measured speed (m/s)', 'Rapidez medida (m/s)')}
                   rightLabel={pick(lang, 'Recovered pressure (mmHg)', 'Presion recuperada (mmHg)')}
                   left={<FieldView3D vertices={tr.points_mm} values={sVals} signed={false} range={sRange}
-                    pickedNode={pickedT} onPick={setPickedT} pointSize={3}
+                    pickedNode={pickedT} onPick={setPickedT} pointSize={4}
                     legendLabel={pick(lang, 'Speed', 'Rapidez')} unit="m/s"
                     srSummary={pick(lang, `Measured speed at peak systole on the aortic lumen; range ${sRange.lo.toFixed(2)} to ${sRange.hi.toFixed(2)} m/s.`, `Rapidez medida en sistole pico sobre el lumen aortico; rango ${sRange.lo.toFixed(2)} a ${sRange.hi.toFixed(2)} m/s.`)} />}
                   right={<FieldView3D vertices={tr.points_mm} values={pVals} signed={true} range={pRange}
-                    pickedNode={pickedT} onPick={setPickedT} pointSize={3}
+                    pickedNode={pickedT} onPick={setPickedT} pointSize={4}
                     legendLabel={pick(lang, 'Relative pressure', 'Presion relativa')} unit="mmHg"
                     srSummary={pick(lang, `Recovered relative pressure at peak systole on the aortic lumen; range ${pRange.lo.toFixed(2)} to ${pRange.hi.toFixed(2)} mmHg.`, `Presion relativa recuperada en sistole pico sobre el lumen aortico; rango ${pRange.lo.toFixed(2)} a ${pRange.hi.toFixed(2)} mmHg.`)} />}
                 />

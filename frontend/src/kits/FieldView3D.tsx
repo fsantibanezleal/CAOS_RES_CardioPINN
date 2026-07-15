@@ -108,7 +108,9 @@ export function FieldView3D(props: FieldView3DProps) {
   const fmt = (x: number) => Math.abs(x) >= 100 ? x.toFixed(0) : x.toFixed(2);
 
   return (
-    <div className="canvas-wrap">
+    // point clouds render on a fixed neutral-dark viewport: the diverging colormap's midpoint is light grey,
+    // which would vanish on a light page background, so a data canvas keeps every point visible in both themes.
+    <div className={`canvas-wrap${renderPoints ? ' canvas-wrap--data' : ''}`}>
       <Canvas camera={{ position: camera, fov: 42, up: [0, 0, 1], near: 0.1, far: bound * 20 }}
         onCreated={({ raycaster }) => { if (renderPoints) raycaster.params.Points.threshold = Math.max(0.6, bound * 0.02); }} aria-hidden="true">
         <ambientLight intensity={0.75} />

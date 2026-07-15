@@ -3,6 +3,16 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.21.002], 2026-07-14
+
+### Fixed (4D-flow lumen point cloud read sparse/pale on a light background)
+The `FieldView3D` point cloud rendered on the page background. The diverging colormap's midpoint is light grey
+(coolwarm, `[0.865, 0.865, 0.865]`), so in the light theme the near-zero-pressure points (the majority of a
+physiologically small pressure field) were light-grey-on-white and effectively invisible, leaving the cloud
+looking sparse. Point clouds now render on a fixed mid-slate data viewport (`#39414f`, theme-independent), where
+both the coolwarm midpoint (light grey) and the magma low-end (near-black) stay visible; the aortic lumen now
+reads as a solid structure in both themes. Point size bumped 3 to 4 for density. Verified light and dark.
+
 ## [0.21.001], 2026-07-14
 
 ### Fixed (every linked uPlot chart rendered blank)
