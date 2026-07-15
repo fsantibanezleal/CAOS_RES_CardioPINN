@@ -1,6 +1,6 @@
 # CardioPINN status
 
-Live: https://cardiopinn.fasl-work.com  ·  Version: 0.21.002  ·  Updated: 2026-07-14
+Live: https://cardiopinn.fasl-work.com  ·  Version: 0.21.004  ·  Updated: 2026-07-15
 
 ## What CardioPINN is
 A bake-and-read research app: the physics is computed offline (GPU) into committed JSON traces, and the web reads
@@ -25,6 +25,13 @@ Benchmark):
 - 0.21.001: fixed every linked uPlot chart rendering blank (D-008), caught on the live deploy.
 - 0.21.002: fixed the 4D-flow lumen point cloud reading sparse/pale on a light background (diverging-midpoint
   invisible on the page bg); point clouds now render on a fixed mid-slate data viewport, solid in both themes.
+- 0.21.003: App tab layout (D-009). A per-tab audit found 30 layout defects (prose not using the full column
+  width, disperse symbol lists, hero-rail height voids). Fixed: tab prose fills the column, def-grids pair
+  term+definition, secondary content moved out of narrow rails into balanced full-width rows. A second audit pass
+  cut defects to 11.
+- 0.21.004: fixed the one content-loss residual (ECGi Traditional closed-form equation was clipped in the narrow
+  rail; moved full-width) + the PDE schematic caption to full-width. Remaining items are minor transient
+  stepper/bracket height bands, accepted (padding a card with filler is disallowed).
 
 ## Verified
 tsc + vite build + content-standards green. Every App tab screenshot-verified in both cases and both themes (viz
