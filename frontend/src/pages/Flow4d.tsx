@@ -28,7 +28,11 @@ function robustRange(vals: number[], signed: boolean): { lo: number; hi: number 
 const BASE = import.meta.env.BASE_URL;
 // closed-form Bernoulli explorables (Tabs 2 and 5) sweep peak velocity over a clinical range; pure algebra, no solver
 const VMAX_XS: number[] = Array.from({ length: 121 }, (_, i) => Number((i * 0.05).toFixed(2)));
-const SEVERE_MEAN = 40; // mmHg, severe-AS mean-gradient threshold
+// severe-AS peak-velocity criterion is 4.0 m/s; on the peak (4 Vmax^2) curve that is a 64 mmHg PEAK gradient.
+// (The 40 mmHg guideline value is a MEAN-gradient criterion, a different metric, so it is not the line drawn
+// against this peak curve.)
+const SEVERE_VMAX = 4.0;            // m/s, peak jet velocity severe threshold
+const SEVERE_PEAK_GRAD = 4 * SEVERE_VMAX * SEVERE_VMAX; // 64 mmHg peak gradient at the severe peak velocity
 
 interface Flow4dTrace {
   points_mm: number[][];
@@ -131,8 +135,10 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
           <h2>{pick(lang, 'The recovered pressure field, on the real aorta', 'El campo de presion recuperado, sobre la aorta real')}</h2>
           <p className="measure">{pick(lang, 'Orbit the aortic lumen; toggle the recovered relative pressure (at peak systole) against the measured speed; scrub or play the cardiac cycle. Click or arrow to a point to plot its speed pulse across the 16 phases.', 'Orbita el lumen aortico; alterna la presion relativa recuperada (en sistole pico) con la rapidez medida; desplaza o reproduce el ciclo cardiaco. Haz clic o usa las flechas en un punto para graficar su pulso de rapidez en las 16 fases.')}</p>
           {(() => {
-            const rf = Math.min(frame, tr.times_ms.length - 1);
             const signed = field === 'pressure';
+            // pressure is recovered only at peak systole, so in pressure mode the phase is locked there and the
+            // scrubber/play are disabled (otherwise they move the label without changing the static field).
+            const rf = signed ? tr.peak_frame : Math.min(frame, tr.times_ms.length - 1);
             const vals = signed ? tr.pressure_mmHg : tr.speed_ms_over_time[rf];
             const range = robustRange(vals, signed);
             const unit = signed ? 'mmHg' : 'm/s';
@@ -158,10 +164,11 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
                     <button className={`chip ${field === 'speed' ? 'on' : ''}`} onClick={() => setField('speed')}>{pick(lang, 'Speed over cycle', 'Rapidez en el ciclo')}</button>
                   </div>
                   <div className="viz-controls">
-                    <button className={`play-btn ${playing ? 'on' : ''}`} onClick={togglePlay} aria-label={pick(lang, 'Play cardiac cycle', 'Reproducir ciclo cardiaco')}>{playing ? '❚❚' : '▶'} {pick(lang, 'cycle', 'ciclo')}</button>
-                    <input className="scrub" type="range" min={0} max={tr.times_ms.length - 1} value={rf} onChange={(e) => { stopPlay(); setFrame(Number(e.target.value)); }} aria-label={pick(lang, 'Cardiac phase', 'Fase cardiaca')} />
-                    <span className="muted small">{tr.times_ms[rf]} ms</span>
+                    <button className={`play-btn ${playing ? 'on' : ''}`} onClick={togglePlay} disabled={signed} aria-label={pick(lang, 'Play cardiac cycle', 'Reproducir ciclo cardiaco')}>{playing ? '❚❚' : '▶'} {pick(lang, 'cycle', 'ciclo')}</button>
+                    <input className="scrub" type="range" min={0} max={tr.times_ms.length - 1} value={rf} disabled={signed} onChange={(e) => { stopPlay(); setFrame(Number(e.target.value)); }} aria-label={pick(lang, 'Cardiac phase', 'Fase cardiaca')} />
+                    <span className="muted small">{tr.times_ms[rf]} ms{signed ? pick(lang, ' (peak)', ' (pico)') : ''}</span>
                   </div>
+                  {signed && <div className="pick-note" style={{ marginTop: -2 }}>{pick(lang, 'Pressure is recovered at peak systole; switch to Speed to scrub the cardiac cycle.', 'La presion se recupera en sistole pico; cambia a Rapidez para desplazar el ciclo cardiaco.')}</div>}
                   <div className="pick-note">{picked != null
                     ? (lang === 'es' ? <>Punto <b>{picked}</b>: rapidez durante el ciclo cardiaco.</> : <>Point <b>{picked}</b>: speed over the cardiac cycle.</>)
                     : (lang === 'es' ? <>Haz clic en un punto del lumen. Mostrando el punto de max <b>{mi}</b>.</> : <>Click a point on the lumen. Showing the max point <b>{mi}</b>.</>)}</div>
@@ -216,14 +223,14 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
               </div>
               <div className="cp-readout" style={{ margin: '8px 0' }}>
                 <div className="ro"><span className="v">{(4 * vmaxP * vmaxP).toFixed(1)}</span><span className="k">{pick(lang, '4 Vmax^2 (mmHg)', '4 Vmax^2 (mmHg)')}</span></div>
-                <div className="ro"><span className="v">{4 * vmaxP * vmaxP >= SEVERE_MEAN ? pick(lang, 'severe', 'grave') : pick(lang, 'below', 'debajo')}</span><span className="k">{pick(lang, 'vs 40 mmHg threshold', 'vs umbral 40 mmHg')}</span></div>
+                <div className="ro"><span className="v">{vmaxP >= SEVERE_VMAX ? pick(lang, 'severe', 'grave') : pick(lang, 'below', 'debajo')}</span><span className="k">{pick(lang, 'vs 4.0 m/s severe (peak velocity)', 'vs 4.0 m/s grave (velocidad pico)')}</span></div>
               </div>
               <UPlotChart height={210}
-                data={[VMAX_XS, VMAX_XS.map((x) => 4 * x * x), VMAX_XS.map(() => SEVERE_MEAN)]}
-                series={[{ label: '4Vmax^2', stroke: 'var(--accent)', width: 2 }, { label: 'severe', stroke: 'var(--muted)', width: 1.4, dash: [5, 4] }]}
+                data={[VMAX_XS, VMAX_XS.map((x) => 4 * x * x), VMAX_XS.map(() => SEVERE_PEAK_GRAD)]}
+                series={[{ label: '4Vmax^2', stroke: 'var(--accent)', width: 2 }, { label: 'severe (4 m/s)', stroke: 'var(--muted)', width: 1.4, dash: [5, 4] }]}
                 xLabel="Vmax (m/s)" yLabel="mmHg"
                 markers={[{ x: vmaxP, y: 4 * vmaxP * vmaxP, color: 'var(--accent-2)', label: pick(lang, 'now', 'ahora') }]}
-                ariaLabel={pick(lang, `Simplified Bernoulli 4 Vmax squared curve; at Vmax ${vmaxP.toFixed(2)} m/s the gradient is ${(4 * vmaxP * vmaxP).toFixed(1)} mmHg, threshold 40 mmHg`, `Curva de Bernoulli simplificado 4 Vmax al cuadrado; en Vmax ${vmaxP.toFixed(2)} m/s el gradiente es ${(4 * vmaxP * vmaxP).toFixed(1)} mmHg, umbral 40 mmHg`)} />
+                ariaLabel={pick(lang, `Simplified Bernoulli 4 Vmax squared curve; at Vmax ${vmaxP.toFixed(2)} m/s the peak gradient is ${(4 * vmaxP * vmaxP).toFixed(1)} mmHg, severe peak-velocity threshold 4.0 m/s (64 mmHg peak gradient)`, `Curva de Bernoulli simplificado 4 Vmax al cuadrado; en Vmax ${vmaxP.toFixed(2)} m/s el gradiente pico es ${(4 * vmaxP * vmaxP).toFixed(1)} mmHg, umbral grave de velocidad pico 4.0 m/s (64 mmHg de gradiente pico)`)} />
               <p className="sr-summary">{pick(lang,
                 'The whole gradient is read off a single peak velocity through 4 Vmax squared. One number can cross the severe threshold on its own, blind to inflow velocity, viscosity, unsteady acceleration and pressure recovery.',
                 'Todo el gradiente se lee de una sola velocidad pico con 4 Vmax al cuadrado. Un numero puede cruzar el umbral grave por si solo, ciego a la velocidad de entrada, la viscosidad, la aceleracion no estacionaria y la recuperacion de presion.')}</p>
@@ -376,7 +383,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
                 <span className="muted small" style={{ fontFamily: 'var(--mono, monospace)' }}>{v1T.toFixed(2)}</span>
               </div>
               <UPlotChart height={230}
-                data={[VMAX_XS, VMAX_XS.map((x) => 4 * x * x), VMAX_XS.map((x) => Math.max(0, 4 * (x * x - v1T * v1T))), VMAX_XS.map(() => SEVERE_MEAN)]}
+                data={[VMAX_XS, VMAX_XS.map((x) => 4 * x * x), VMAX_XS.map((x) => Math.max(0, 4 * (x * x - v1T * v1T))), VMAX_XS.map(() => SEVERE_PEAK_GRAD)]}
                 series={[
                   { label: 'simplified 4Vmax^2', stroke: 'var(--accent)', width: 2 },
                   { label: 'expanded 4(Vmax^2-V1^2)', stroke: 'var(--accent-2)', width: 2, dash: [6, 3] },
@@ -393,7 +400,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
             <div>
               <span className="cp-side-label">{pick(lang, 'What 4 Vmax^2 discards', 'Lo que descarta 4 Vmax^2')}</span>
               <dl className="def-grid">
-                <dt>{pick(lang, 'inflow velocity', 'velocidad de entrada')}</dt><dd>{pick(lang, 'overstates the gradient once outflow exceeds about 1.5 m/s', 'sobreestima el gradiente cuando la salida supera cerca de 1.5 m/s')}</dd>
+                <dt>{pick(lang, 'inflow velocity', 'velocidad de entrada')}</dt><dd>{pick(lang, 'overstates the gradient once the inflow V1 exceeds about 1.5 m/s', 'sobreestima el gradiente cuando la velocidad de entrada V1 supera cerca de 1.5 m/s')}</dd>
                 <dt>{pick(lang, 'viscous friction', 'friccion viscosa')}</dt><dd>{pick(lang, 'irreversible loss the convective term ignores', 'perdida irreversible que el termino convectivo ignora')}</dd>
                 <dt>{pick(lang, 'unsteady acceleration', 'aceleracion no estacionaria')}</dt><dd>{pick(lang, 'the dv/dt term lost at coarse temporal resolution (Hardy 2025)', 'el termino dv/dt perdido a resolucion temporal gruesa (Hardy 2025)')}</dd>
                 <dt>{pick(lang, 'pressure recovery', 'recuperacion de presion')}</dt><dd>{pick(lang, 'Doppler overestimates the net catheter gradient, worst in a small aorta', 'el Doppler sobreestima el gradiente neto por cateter, peor en una aorta pequena')}</dd>
@@ -403,7 +410,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
               <span className="cp-side-label">{pick(lang, 'On this scan, Bernoulli vs the physics map', 'En este escaneo, Bernoulli vs el mapa fisico')}</span>
               <BracketBar label={pick(lang, 'Bernoulli 4Vmax^2', 'Bernoulli 4Vmax^2')} value={tr.metrics.bernoulli_mmHg} unit="mmHg" max={3} color="var(--accent-2)" />
               <BracketBar label={pick(lang, 'PPE pressure span', 'rango de presion PPE')} value={tr.metrics.ppe_pressure_drop_mmHg} unit="mmHg" max={3} color="var(--good)" />
-              <p className="muted small" style={{ margin: 0 }}>{pick(lang, 'Same order of magnitude on this clean aorta (0.791 m/s -> 2.51 vs 0.79 mmHg); they bracket each other.', 'Mismo orden de magnitud en esta aorta limpia (0.791 m/s -> 2.51 vs 0.79 mmHg); se encuadran mutuamente.')}</p>
+              <p className="muted small" style={{ margin: 0 }}>{pick(lang, 'Same order of magnitude on this clean aorta: the denoised peak (0.79 m/s) gives 4Vmax squared = 2.5 mmHg vs the physics-map span 0.79 mmHg; they bracket each other.', 'Mismo orden de magnitud en esta aorta limpia: la velocidad pico suavizada (0.79 m/s) da 4Vmax al cuadrado = 2.5 mmHg vs el rango del mapa fisico 0.79 mmHg; se encuadran mutuamente.')}</p>
             </div>
           </div>
           <Callout>
@@ -505,15 +512,15 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
             <div className="cp-side-block">
               <span className="cp-side-label">{pick(lang, 'Live readout (real scan)', 'Lectura en vivo (escaneo real)')}</span>
               <div className="cp-readout">
-                <div className="ro"><span className="v">{tr.metrics.peak_velocity_ms}</span><span className="k">{pick(lang, 'peak velocity (m/s)', 'velocidad pico (m/s)')}</span></div>
+                <div className="ro"><span className="v">{tr.metrics.peak_velocity_ms}</span><span className="k">{pick(lang, 'denoised peak velocity (m/s)', 'velocidad pico suavizada (m/s)')}</span></div>
                 <div className="ro"><span className="v">{tr.metrics.ppe_pressure_drop_mmHg}</span><span className="k">{pick(lang, 'pressure range (mmHg)', 'rango presion (mmHg)')}</span></div>
                 <div className="ro"><span className="v">{tr.metrics.bernoulli_mmHg}</span><span className="k">{pick(lang, 'Bernoulli 4Vmax² (mmHg)', 'Bernoulli 4Vmax² (mmHg)')}</span></div>
                 <div className="ro"><span className="v">{tr.metrics.n_lumen_voxels}</span><span className="k">{pick(lang, 'lumen voxels', 'voxeles lumen')}</span></div>
               </div>
             </div>
             <div className="cp-side-foot">{pick(lang,
-              'Real thoracic-aorta 4D-flow MRI: the aortic pressure field recovered from the measured velocity by incompressible Navier-Stokes. The field toggle, phase scrubber and point-pick live in the Pressure recovery tab.',
-              'Resonancia real de aorta toracica 4D-flow: el campo de presion aortica recuperado de la velocidad medida por Navier-Stokes incompresible. El campo, la fase y la seleccion de punto estan en la pestana Recuperacion de presion.')}</div>
+              'Real thoracic-aorta 4D-flow MRI: the aortic pressure field recovered from the measured velocity by incompressible Navier-Stokes. Peak velocity is read from the divergence-free denoised field (the raw measured speed field, shown by the Speed toggle, carries phase-contrast noise up to about 1.6 m/s); Bernoulli 4Vmax squared here uses that denoised peak. The field toggle, phase scrubber and point-pick live in the Pressure recovery tab.',
+              'Resonancia real de aorta toracica 4D-flow: el campo de presion aortica recuperado de la velocidad medida por Navier-Stokes incompresible. La velocidad pico se lee del campo suavizado sin divergencia (el campo de rapidez medida cruda, que muestra el conmutador Rapidez, lleva ruido de contraste de fase hasta cerca de 1.6 m/s); el Bernoulli 4Vmax cuadrado aqui usa esa velocidad pico suavizada. El campo, la fase y la seleccion de punto estan en la pestana Recuperacion de presion.')}</div>
           </>
         )}
         </div>
