@@ -67,7 +67,7 @@ scaffolding first, content last.
 
 ## 2. File / component map
 
-### 2.1 New reusable kit (`frontend/src/kits/`) — build once, used by both pages
+### 2.1 New reusable kit (`frontend/src/kits/`)  -  build once, used by both pages
 
 | File | Export(s) | Purpose | Used by |
 |---|---|---|---|
@@ -102,7 +102,7 @@ scaffolding first, content last.
 
 ## 3. Phase A: footer + layout voids (do first, no deps)
 
-### 3.1 Footer (max 2 lines) — `main.tsx` only
+### 3.1 Footer (max 2 lines)  -  `main.tsx` only
 
 Replace the `footer` block (lines 35-44) with the trimmed strings from `04-footer-layout.md`:
 
@@ -118,7 +118,7 @@ This collapses the shell footer to two visual lines at both the 1200px doc width
 provenance . GitHub . license . disclaimer, ~142 glyphs). Drops no material claim
 (`open-access`, `runs offline` were decorative/entailed). Do NOT touch the shell CSS.
 
-### 3.2 Layout voids — `styles.css` + tiny markup
+### 3.2 Layout voids  -  `styles.css` + tiny markup
 
 - **B. Control column reaches the bottom.** Wrap the aside body in `<div className="cp-side-inner">`
   in both pages; give `.cp-side` `align-self:stretch` + a right rail border, move
@@ -145,7 +145,7 @@ the scalar/point-cloud fallback and flags the field-level panel as "pending bake
 matching the existing pattern). Nothing blocks on a bake: the base hero of every tab works
 from data already on disk.
 
-### 4.1 ECGi `catalogue.json` (per beat) — `02 §0.5`
+### 4.1 ECGi `catalogue.json` (per beat)  -  `02 §0.5`
 - `forward_comparison`: `{ single_layer:{re,corr,body_field[192]}, bem:{re,corr,body_field}, applicable, note }`
   (populate for dog-insitu; `applicable:false` for human-tank). Enables Tab 4 / Recon-Forward field panels.
 - `lambda_sweep`: `{ lambdas[~9], residual_norm[9], solution_norm[9], relative_error[9], oracle_index, heart_field_at_lambda[9][~256] }`.
@@ -153,7 +153,7 @@ from data already on disk.
 - `calibration`: `{ pred_2sigma_bins[~12], empirical_coverage[12], nominal:0.95 }` (binned from
   existing per-node `uncertainty_mV` vs `abs_error_mV`). Overlay curve for Tab 1e reliability.
 
-### 4.2 4D-flow `trace.json` — `03 §0.5`
+### 4.2 4D-flow `trace.json`  -  `03 §0.5`
 - `centerline`: `{ s_mm[~50], xyz[~50][3], pressure_mmHg[~50], speed_ms_peak[~50] }`.
   The clinical payload: pressure + speed vs distance-along-vessel (Tabs 1b, 5).
 - `flow_lines`: `{ lines[K~40][P~60][3], speed[K][P] }` (streamlines/pathlines, peak systole).
@@ -174,7 +174,7 @@ slider inputs; no bake beyond one literature point (Baumgartner 1999).
 ### 5.0 The four load-bearing reusable interactives (build in this order)
 
 1. **`FieldView3D` (3D field with pick + scrub).** Props: `buildGeometry` (returns a centred
-   `THREE.BufferGeometry` with a color attribute — `CageMesh`/`LumenCloud` refactored to this
+   `THREE.BufferGeometry` with a color attribute  -  `CageMesh`/`LumenCloud` refactored to this
    shape), `values:number[]`, `signed:boolean`, `pickedNode|null`, `markers` (picked sphere +
    argmax ring), `onPick(node)`, `renderKind:'mesh'|'points'`. Internals: `<Canvas>` +
    `OrbitControls` + a click/keyboard `Raycaster` that maps the hit to the nearest vertex,
@@ -199,7 +199,7 @@ slider inputs; no bake beyond one literature point (Baumgartner 1999).
 Supporting pieces (`HoverMathEq`, `PipelineSvg`, `SmallMultipleStrip`, `StatStrip`,
 `ClinicalStepper`, `AnatomyHero`) are simpler and built alongside the tab that first needs them.
 
-### 5.1 ECGi tabs (`RealEcgi.tsx`) — from `02-ecgi-tabs.md`
+### 5.1 ECGi tabs (`RealEcgi.tsx`)  -  from `02-ecgi-tabs.md`
 
 Layout per tab: HERO+RAIL (`grid minmax(0,1.6fr) minmax(240px,0.9fr)`), a SMALL-MULTIPLE strip
 as the overview band, `SubTabs` for analytical add-ons (never new top-level tabs).
@@ -217,7 +217,7 @@ Honesty callouts kept verbatim in substance: EDGAR attribution / not clinically 
 (Tab 1), living patient has no gold standard -> torso tank (Tab 2), oracle-lambda baseline
 (Tab 5), BEM does not beat single-layer (Tab 4), UQ is the real payload not accuracy (Tab 6).
 
-### 5.2 4D-flow tabs (`Flow4d.tsx`) — from `03-flow-tabs.md`
+### 5.2 4D-flow tabs (`Flow4d.tsx`)  -  from `03-flow-tabs.md`
 
 Same shells, same kit. `LumenCloud` feeds `FieldView3D` (renderKind points). Convention:
 pressure -> diverging, speed/divergence -> sequential.
@@ -244,18 +244,18 @@ Each numbered item is one focused commit. Verify before moving on. Vertical: a t
 includes its interactive + real-data wiring + captions + a11y + honesty callout, all in that
 commit.
 
-**Phase A — footer + voids (no deps, ship first)**
+**Phase A  -  footer + voids (no deps, ship first)**
 1. `main.tsx`: replace footer strings with the trimmed EN/ES pair; verify the footer renders on 2 lines at desktop width (light + dark).
 2. `styles.css` + both pages: wrap aside body in `.cp-side-inner`, apply the `.cp-side` rail + sticky-inner CSS, add the bottom "what am I looking at" mini-card; verify the left column reaches the bottom with no void.
 3. `styles.css`: responsive `.canvas-wrap` (`aspect-ratio`), verify the 3D view fills the column width and never overflows the viewport, on a wide and a narrow window.
 4. Five doc pages + `styles.css`: add `.page-head.split` + `.page-head-aside` key-facts column; verify the doc-page lede no longer leaves the right half blank.
 
-**Phase B — dependency + bakes**
+**Phase B  -  dependency + bakes**
 5. `npm i uplot` locally; add to `package.json` dependencies; confirm the build still passes.
 6. Extend the ECGi bake script -> `catalogue.json`: `forward_comparison`, `lambda_sweep`, `calibration`; re-bake; assert shapes in the browser network tab.
 7. Extend `real/flow4d_*.py` -> `trace.json`: `centerline`, `analytic_gate`, `divergence`, `ensemble_spread`, `aliasing`, then `flow_lines` + `vectors_peak`; re-bake; assert shapes.
 
-**Phase C — reusable kit (build once, verify on one tab)**
+**Phase C  -  reusable kit (build once, verify on one tab)**
 8. `colormap.ts`: move `fieldStats`/`lumenStats` in as shared exports.
 9. `kits/UPlotChart.tsx`: theme-aware wrapper with external cursor sync, keyboard focus, `aria-label`. Unit-smoke on a static series.
 10. Refactor `CageMesh` + `LumenCloud` into geometry builders; build `kits/FieldView3D.tsx` (orbit + pick + argmax marker + legend + `.sr-summary`); verify pick + keyboard-cycle on the ECGi Recon hero.
@@ -263,7 +263,7 @@ commit.
 12. `kits/Juxtapose.tsx`; verify the divider drag + linked cursor readout on two shared-camera panels.
 13. `kits/PipelineSvg.tsx`, `kits/SmallMultipleStrip.tsx`, `kits/StatStrip.tsx`, `kits/ClinicalStepper.tsx`, `kits/AnatomyHero.tsx`; verify each in isolation (hover-inspect, click-to-drive, keyboard).
 
-**Phase D — ECGi tabs (one commit each, vertical)**
+**Phase D  -  ECGi tabs (one commit each, vertical)**
 14. ECGi Tab 1 Reconstruction: `FieldView3D` + linked node uPlot + `usePausedViz` scrubber + phase strip + Methods/Forward/Uncertainty SubTabs; keep the EDGAR callout; a11y + SR pass.
 15. ECGi Tab 2 The problem: `AnatomyHero` + 12-lead widget + `StatStrip` + `ClinicalStepper`; keep the torso-tank callout.
 16. ECGi Tab 3 The target: measured-vs-recovered `Juxtapose` + input/operator/output small-multiple + `HoverMathEq` FIGURE-ROW + beat chips.
@@ -271,7 +271,7 @@ commit.
 18. ECGi Tab 5 Traditional approach: lambda slider over `lambda_sweep` + interactive L-curve uPlot + regime small-multiples + classical-vs-truth `Juxtapose`; keep the oracle-lambda callout.
 19. ECGi Tab 6 Physics-informed proposal: `PipelineSvg` + what-if prior/UQ toggles + term-by-term objective + honest next-steps card; UQ-is-the-payload callout.
 
-**Phase E — 4D-flow tabs (reuse the kit, one commit each)**
+**Phase E  -  4D-flow tabs (reuse the kit, one commit each)**
 20. Flow Tab 1 Pressure recovery: `FieldView3D` cloud + linked speed-over-cycle uPlot + `usePausedViz` phase scrubber + Along-the-vessel / Flow-lines / Robustness SubTabs + phase strip; keep the robustness-limit callout.
 21. Flow Tab 2 The problem: `AnatomyHero`(aorta narrowing slider) + one-number-threshold self-explanation + `StatStrip` + `ClinicalStepper`; different-physics callout.
 22. Flow Tab 3 The target: speed-vs-pressure `Juxtapose` + input/operator/output small-multiple + `HoverMathEq` + venc/aliasing mini-explorable; no-gold-standard callout.
@@ -279,7 +279,7 @@ commit.
 24. Flow Tab 5 Traditional approach: live Bernoulli explorable + pressure-recovery demo + discarded-terms ledger + Bernoulli-vs-physics bracket; keep the small-gradient-is-correct callout.
 25. Flow Tab 6 Physics-informed proposal: `PipelineSvg` + denoise before/after + what-if stage toggles + term-by-term objective + analytic-gate figure + method-ladder chips; analytic-gate callout.
 
-**Phase F — verify + ship**
+**Phase F  -  verify + ship**
 26. Remove both ad-hoc `playOnce` rAFs; confirm every animation is `usePausedViz` (default paused, halts on hidden tab, no autoplay).
 27. Screenshot-verify every tab of both cases in light + dark and EN + ES; exercise every control, SubTab, slider, pick, toggle; confirm no full-width prose paragraph remains, no layout void, footer <= 2 lines.
 28. Keyboard + screen-reader pass on every interactive (arrows scrub/step, Tab to controls, Enter/Space toggle, `.sr-summary` states field/frame/range/headline metric).

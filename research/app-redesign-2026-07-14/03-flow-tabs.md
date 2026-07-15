@@ -140,18 +140,18 @@ under agreement, DICOMs not redistributed. No em-dash, no emoji, no autoplay.
 Add to `trace.json` (data-pipeline change in `data-pipeline/cardiopinnlab/real/flow4d_*.py`,
 committed once). All are static arrays read in the browser: NO solver runs client-side.
 
-- `centerline`: `{ s_mm[~50], xyz[~50][3], pressure_mmHg[~50], speed_ms_peak[~50] }` — the
+- `centerline`: `{ s_mm[~50], xyz[~50][3], pressure_mmHg[~50], speed_ms_peak[~50] }`  -  the
   aortic centerline arc-length + the recovered pressure and measured speed sampled along it.
   Unlocks the linked "pressure and speed vs distance along the aorta" uPlot (Tabs 1, 5), the
   single most clinically legible object. Cheap (~50 points).
-- `flow_lines`: `{ lines[K][P][3], speed[K][P] }` — K seeded streamlines (peak systole) and/or
+- `flow_lines`: `{ lines[K][P][3], speed[K][P] }`  -  K seeded streamlines (peak systole) and/or
   pathlines integrated through the denoised velocity, as polylines colored by speed. Needs the
   denoised 3D velocity that `flow4d_denoise.py` already produces internally; bake the integral
   curves, not the full vector field, to keep JSON small (K~40, P~60).
-- `vectors_peak`: `{ xyz[M][3], vec[M][3] }` — decimated 3D velocity glyphs at peak systole
+- `vectors_peak`: `{ xyz[M][3], vec[M][3] }`  -  decimated 3D velocity glyphs at peak systole
   (M~800) for the optional vector-arrow layer (the classic 4D-flow glyph view).
 - `analytic_gate`: `{ x[~40], p_exact[~40], p_recovered[~40], correlation, drop_exact_mmHg,
-  drop_recovered_mmHg }` — the converging-duct validation curve (exact vs recovered pressure),
+  drop_recovered_mmHg }`  -  the converging-duct validation curve (exact vs recovered pressure),
   so Tab 6's gate is a FIGURE (two overlaid curves, corr 1.00, 4.74 vs 4.73) not a sentence.
 - `divergence`: `{ raw[N'], denoised[N'] }` decimated per-point divergence before/after the
   div-free denoiser (N'~2000), so Tab 6 shows WHERE incompressibility was violated and the
@@ -159,7 +159,7 @@ committed once). All are static arrays read in the browser: NO solver runs clien
 - `ensemble_spread`: `{ std_mmHg[N'] }` decimated per-point pressure std across the 4 ensemble
   members, so Tab 1/6's robustness claim ("< 0.01 mmHg") is a visible near-flat band, not a
   scalar.
-- `aliasing`: `{ wrapped_mask[9000] (bool), speed_prewrap[9000] }` — which voxels were phase-
+- `aliasing`: `{ wrapped_mask[9000] (bool), speed_prewrap[9000] }`  -  which voxels were phase-
   unwrapped (27863 samples) and the pre-correction speed, for Tab 4/6's aliasing before/after
   toggle.
 

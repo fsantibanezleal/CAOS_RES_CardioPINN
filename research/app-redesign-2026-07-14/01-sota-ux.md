@@ -1,4 +1,4 @@
-# SOTA UX for interactive scientific explainers — per-section-type patterns
+# SOTA UX for interactive scientific explainers  -  per-section-type patterns
 
 **Dossier:** `research/app-redesign-2026-07-14/01-sota-ux.md`
 **Date:** 2026-07-14
@@ -30,7 +30,7 @@ These are the field's validated defaults; each specific tab below draws from the
   (Multimedia Principle: words+pictures > either alone).
 - **Segmentation & pacing control:** break content into steps the reader can
   play/pause/scrub; "learners perform better when information is segmented." Prefer a
-  **stepper/slideshow** over free-scroll for comprehension tasks — Zhi et al. found
+  **stepper/slideshow** over free-scroll for comprehension tasks  -  Zhi et al. found
   comprehension was *better* in slideshow layouts than vertical scroll; McKenna et al.
   found readers prefer step/scroll over static with no engagement penalty. For
   bake-and-read this is ideal: discrete baked frames map to discrete steps.
@@ -41,7 +41,7 @@ These are the field's validated defaults; each specific tab below draws from the
   aesthetically pleasing is more likely to have a positive attitude toward it"; time-on-
   page and emotion predict learning. Fill the width with figure+text rows, side figures,
   small-multiple grids; never stretched full-width body paragraphs.
-- **Gold-standard authorship model — Bartosz Ciechanowski (ciechanow.ski):** builds each
+- **Gold-standard authorship model  -  Bartosz Ciechanowski (ciechanow.ski):** builds each
   concept "from the ground up" with 100+ bespoke interactive canvases, no framework, each
   widget draggable/scrubbable and self-contained. His articles (Watch, Cameras and Lenses,
   Color Spaces, Airfoil, GPS) are the bar for "every idea gets its own manipulable figure."
@@ -76,7 +76,7 @@ These are the field's validated defaults; each specific tab below draws from the
   small annotated stat panel / unit-visualization (a la NYT unit-viz): incidence,
   catheter-mapping time, spatial resolution gap. Numbers with one-line annotations read
   faster and are more credible than adjective-laden text.
-- **Self-explanation beat:** "Where do you think the arrhythmia focus is?" — let the
+- **Self-explanation beat:** "Where do you think the arrhythmia focus is?"  -  let the
   reader click a point on the torso before the real focus is revealed.
 
 **Cited exemplars:** ONVZ brain guide (Maglr/lifesciencesmarketing case study);
@@ -93,20 +93,20 @@ its figure column.
 
 ## 2. "The target" / what-we-measure-vs-what-we-recover
 
-**Core idea:** this tab is fundamentally a *contrast* — surface signals (body-surface
+**Core idea:** this tab is fundamentally a *contrast*  -  surface signals (body-surface
 potentials; velocity field) vs the hidden quantity we recover (epicardial potentials;
 pressure field). The whole SOTA vocabulary for contrast applies.
 
 **Proven patterns**
 
 - **Before/after drag slider (juxtapose pattern).** A draggable divider overlays two
-  pixel-aligned fields so "even subtle changes are immediately visible" — the standard
+  pixel-aligned fields so "even subtle changes are immediately visible"  -  the standard
   scientific ground-truth-vs-reconstruction device. Left = measured/observable, right =
   recovered/hidden, one handle. More legible than two separate figures because the eye
   compares in place.
 - **Small multiples for the input->output map (Tufte).** "For a wide range of problems in
-  data presentation, small multiples are the best design solution." A labeled grid —
-  measured signal | forward operator | hidden target — with a shared color scale lets the
+  data presentation, small multiples are the best design solution." A labeled grid  - 
+  measured signal | forward operator | hidden target  -  with a shared color scale lets the
   reader compare in parallel at a glance. Pew and InfoVis-wiki document the shared-scale +
   per-panel-label rules.
 - **Linked brushing between "what we measure" and "what we recover".** Selecting/hovering
@@ -128,7 +128,7 @@ navigation across panels.
 
 ---
 
-## 3. "How the governing PDE arises" — the derivation
+## 3. "How the governing PDE arises"  -  the derivation
 
 **Failure mode to kill:** a static block of equations dumped as text.
 
@@ -168,7 +168,7 @@ captions.
 
 ## 4. "Traditional approach and why it falls short"
 
-**Core idea:** a *comparison* tab — classical solver (e.g. Tikhonov-regularized inverse;
+**Core idea:** a *comparison* tab  -  classical solver (e.g. Tikhonov-regularized inverse;
 finite-difference pressure) vs its failure mode (noise amplification, regularization
 bias, mesh/boundary sensitivity).
 
@@ -176,8 +176,8 @@ bias, mesh/boundary sensitivity).
 
 - **Interactive parameter demo showing the failure live (distill "Interactive
   Simulations").** The strongest pattern: a slider over the very knob that breaks the
-  classical method — e.g. a regularization-strength (\(\lambda\)) slider that sweeps from
-  over-smoothed to noise-amplified, or a noise-level slider — reading from *baked frames*
+  classical method  -  e.g. a regularization-strength (\(\lambda\)) slider that sweeps from
+  over-smoothed to noise-amplified, or a noise-level slider  -  reading from *baked frames*
   (no solver in-browser). "Playing with parameters to see their effect" is distill's most
   effective documented device (t-SNE, UMAP explainers built entirely on this). Bake a
   parameter sweep, let the slider scrub it.
@@ -188,7 +188,7 @@ bias, mesh/boundary sensitivity).
 - **Before/after slider: classical result vs ground truth.** Reuse the juxtapose divider
   to show where the traditional reconstruction diverges from truth, region by region.
 - **Annotated-figure callouts.** Point arrows + short labels directly onto the failure
-  (ringing at the boundary, smeared focus) rather than describing it in a paragraph —
+  (ringing at the boundary, smeared focus) rather than describing it in a paragraph  - 
   the "from zero to figure hero" scientific-figure checklist (arXiv 2408.16007) and
   distill annotated figures.
 
@@ -203,7 +203,7 @@ callouts on the failure modes. All from committed JSON.
 
 ---
 
-## 5. "Physics-informed method" — the pipeline
+## 5. "Physics-informed method"  -  the pipeline
 
 **Core idea:** communicate a data-flow (inputs -> network -> physics residual /
 PDE loss -> recovered field). The ML-explainer community has a mature, cited grammar for
@@ -220,17 +220,17 @@ exactly this.
   node to reveal what tensor/quantity flows there.
 - **Layered interactive architecture diagram (CNN Explainer, IEEE VIS 2020).** Poloclub's
   CNN Explainer (Svelte + D3, TF.js) lets users click any layer to expand its operation,
-  with fluid overview<->detail transitions — the model for a clickable PINN block diagram
+  with fluid overview<->detail transitions  -  the model for a clickable PINN block diagram
   where each block expands to its role and equation.
 - **"Play with the model" sandbox (TensorFlow Playground / GAN Lab).** Playground and GAN
   Lab (poloclub) let readers toggle inputs and watch the network respond in-browser. For
   bake-and-read the analog is a *what-if over baked traces*: toggle which loss terms are
   on (data-only vs data+physics), scrub training epoch, and read the recovered field / loss
-  curve from committed frames — the interaction feel of Playground without in-browser
+  curve from committed frames  -  the interaction feel of Playground without in-browser
   training.
 - **Progressive disclosure of the loss.** Reveal the composite loss term-by-term (data
   misfit, PDE residual, boundary/IC) with each term hover-explained and its contribution
-  plotted — details-on-demand over the objective.
+  plotted  -  details-on-demand over the objective.
 
 **Cited exemplars:** Transformer Explainer (Cho/Wang/Chau, dl.acm.org/10.1145/3772318.3791725,
 poloclub.github.io/transformer-explainer); CNN Explainer (Wang et al., IEEE VIS 2020,
@@ -298,41 +298,41 @@ keyboard + SR-poster fallback.
 | Reconstruction / Pressure recovery | Orbit+pick+linked-chart 3D + cycle scrubber | streamline/pathline layers, phase strip | VTK.js/itk-vtk-viewer; 4D-flow RadioGraphics |
 
 **Two rules that recur across ALL six:** (1) the figure carries the meaning, prose is a
-caption — kill full-width paragraphs; (2) every interactive needs a static poster,
+caption  -  kill full-width paragraphs; (2) every interactive needs a static poster,
 keyboard control, SR text, and a perceptually-uniform theme-aware colormap.
 
 ---
 
 ## Sources
 
-- distill.pub — *Communicating with Interactive Articles*, Hohman et al. 2020.
+- distill.pub  -  *Communicating with Interactive Articles*, Hohman et al. 2020.
   https://distill.pub/2020/communicating-with-interactive-articles/
-- Bartosz Ciechanowski — https://ciechanow.ski/ (Watch, Cameras and Lenses, Color Spaces);
+- Bartosz Ciechanowski  -  https://ciechanow.ski/ (Watch, Cameras and Lenses, Color Spaces);
   CSS-Tricks feature https://css-tricks.com/bartosz-ciechanowskis-interactive-blog-posts/
-- ScrollyVis — Morth et al., arXiv 2207.03616 https://arxiv.org/pdf/2207.03616
-- Garrison/Mittenentzwei et al. — *Investigating user behavior in slideshows and
+- ScrollyVis  -  Morth et al., arXiv 2207.03616 https://arxiv.org/pdf/2207.03616
+- Garrison/Mittenentzwei et al.  -  *Investigating user behavior in slideshows and
   scrollytelling as narrative genres in medical visualization*, Computers & Graphics 2023.
   https://www.sciencedirect.com/science/article/abs/pii/S0097849323001061
-- ONVZ interactive brain guide — case study,
+- ONVZ interactive brain guide  -  case study,
   https://www.lifesciencesmarketing.nl/scrollytelling/ ; https://www.maglr.com/blog/best-scrollytelling-examples
-- Manim / 3Blue1Brown — https://github.com/3b1b/manim ; *Manim for STEM Education*,
+- Manim / 3Blue1Brown  -  https://github.com/3b1b/manim ; *Manim for STEM Education*,
   arXiv 2510.01187 https://arxiv.org/html/2510.01187v1
-- setosa.io explorables — https://setosa.io/ ; Explorable Explanations (Nicky Case)
+- setosa.io explorables  -  https://setosa.io/ ; Explorable Explanations (Nicky Case)
   https://explorabl.es/ , https://ncase.me/
-- Tufte small multiples — InfoVis-wiki https://infovis-wiki.net/wiki/Small_Multiples ;
+- Tufte small multiples  -  InfoVis-wiki https://infovis-wiki.net/wiki/Small_Multiples ;
   Pew Research https://www.pewresearch.org/decoded/2018/12/20/how-pew-research-center-uses-small-multiple-charts/
-- Scientific-figure checklist — *From zero to figure hero*, arXiv 2408.16007
+- Scientific-figure checklist  -  *From zero to figure hero*, arXiv 2408.16007
   https://arxiv.org/pdf/2408.16007
-- Transformer Explainer — CHI 2026, https://dl.acm.org/doi/10.1145/3772318.3791725 ;
+- Transformer Explainer  -  CHI 2026, https://dl.acm.org/doi/10.1145/3772318.3791725 ;
   demo https://poloclub.github.io/transformer-explainer/
-- CNN Explainer — Wang et al., IEEE VIS 2020, https://poloclub.github.io/cnn-explainer/ ;
+- CNN Explainer  -  Wang et al., IEEE VIS 2020, https://poloclub.github.io/cnn-explainer/ ;
   paper https://poloclub.github.io/papers/20-vis-cnnexplainer.pdf
-- GAN Lab — https://poloclub.github.io/ganlab/ ; TensorFlow Playground —
+- GAN Lab  -  https://poloclub.github.io/ganlab/ ; TensorFlow Playground  - 
   https://playground.tensorflow.org/
-- VTK.js / itk-vtk-viewer — https://github.com/Kitware/vtk-js ;
+- VTK.js / itk-vtk-viewer  -  https://github.com/Kitware/vtk-js ;
   https://github.com/Kitware/itk-vtk-viewer ; *Modern Scientific Visualizations on the Web*,
   Informatics 2020, https://www.mdpi.com/2227-9709/7/4/37/htm
-- 4D-flow MRI viz — RadioGraphics 10.1148/rg.2019180091
+- 4D-flow MRI viz  -  RadioGraphics 10.1148/rg.2019180091
   https://pubs.rsna.org/doi/abs/10.1148/rg.2019180091 ; RSNA Radiology
   10.1148/radiol.242972 ; X3D-in-browser 4D-flow pipeline, ACM 2024,
   https://dl.acm.org/doi/fullHtml/10.1145/3665318.3677155 ; Lattido http://www.lattido.com/
