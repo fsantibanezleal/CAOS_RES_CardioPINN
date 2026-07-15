@@ -3,6 +3,23 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.21.004], 2026-07-15
+
+### Fixed (layout follow-up, from a second adversarial audit pass)
+A re-audit of all 12 tabs after 0.21.003 dropped the defect count 30 to 11 (the prose voids were gone) and
+surfaced one content-loss defect plus minor residuals.
+- **ECGi Traditional: the closed-form Tikhonov equation was clipped** (content loss). The long one-line equation
+  (`... = (A^T A + lambda^2 L^T L)^{-1} A^T phi_body`) lived in the ~383px hero-rail column and scrolled off at
+  `= (A`, so the actual solve was hidden while the caption said "the closed form is a single linear solve". Moved
+  the equation to a full-width block below the rail; it now renders complete. The lambda explanation stays in the
+  rail beside the L-curve so the two columns balance.
+- **ECGi How-the-PDE-arises: the schematic caption is now full-width** (it describes the whole physics, not just
+  the left figure), which also shortens the left column and reduces the rail height gap.
+
+Remaining known-minor items (not fixed, would require padding a card with filler): the ClinicalStepper /
+bracket-set columns are a little shorter than their paired chart/figure at the default step, leaving a small
+transient height band that closes as the reader steps through. Registry: `plans/cardiopinn/quality-defects.md`.
+
 ## [0.21.003], 2026-07-15
 
 ### Fixed (App tab layout: prose and content did not use the full column width, leaving dead voids)

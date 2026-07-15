@@ -163,9 +163,6 @@ function ControlVolumeSvg({ lang, step }: { lang: 'en' | 'es'; step: number }) {
         </g>
         <defs><marker id="cv-a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="currentColor" /></marker></defs>
       </svg>
-      <div className="fig-cap">{pick(lang,
-        'The torso as a passive volume conductor: currents J = -sigma grad phi flow from the heart source on Gamma_H to the body surface Gamma_B, where no current leaves (air insulates). The heart-to-body map is a single matrix A whose singular values decay to zero, which is the ill-posedness.',
-        'El torso como conductor de volumen pasivo: las corrientes J = -sigma grad phi fluyen desde la fuente cardiaca en Gamma_H hacia la superficie corporal Gamma_B, donde no sale corriente (el aire aisla). El mapa corazon-cuerpo es una sola matriz A cuyos valores singulares decaen a cero, que es el mal planteamiento.')}</div>
     </div>
   );
 }
@@ -462,6 +459,9 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
               />
             </div>
           </div>
+          <div className="fig-cap" style={{ textAlign: 'left' }}>{pick(lang,
+            'The torso as a passive volume conductor: currents J = -sigma grad phi flow from the heart source on Gamma_H to the body surface Gamma_B, where no current leaves (air insulates). The heart-to-body map is a single matrix A whose singular values decay to zero, which is the ill-posedness.',
+            'El torso como conductor de volumen pasivo: las corrientes J = -sigma grad phi fluyen desde la fuente cardiaca en Gamma_H hacia la superficie corporal Gamma_B, donde no sale corriente (el aire aisla). El mapa corazon-cuerpo es una sola matriz A cuyos valores singulares decaen a cero, que es el mal planteamiento.')}</div>
           <HoverMathEq
             tex={String.raw`\nabla\cdot\big(\sigma(x)\,\nabla \phi(x)\big) = 0 \quad \text{in } \Omega, \qquad \phi = \phi_{\text{heart}} \text{ on } \Gamma_H, \qquad \sigma\,\partial_n\phi = 0 \text{ on } \Gamma_B`}
             terms={[
@@ -505,19 +505,19 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
                 : lambdaPos > 0.66
                   ? pick(lang, 'High lambda: the reconstruction is over-smoothed, blurring sharp activation fronts (a plausible but wrong map).', 'Lambda alto: la reconstruccion se sobre-suaviza, difuminando frentes de activacion agudos (un mapa plausible pero incorrecto).')
                   : pick(lang, 'Near the corner: the L-curve trade-off between data misfit and solution norm; the classical sweet spot, close to the oracle lambda.', 'Cerca de la esquina: el compromiso de la curva L entre desajuste a datos y norma de la solucion; el punto dulce clasico, cercano al lambda oraculo.')}</div>
-              <HoverMathEq
-                tex={String.raw`\hat{\phi} = \arg\min_{\phi}\; \lVert A\phi - \phi_{\text{body}}\rVert_2^2 + \lambda^2\lVert L\phi\rVert_2^2 = (A^{\top}A + \lambda^2 L^{\top}L)^{-1} A^{\top}\phi_{\text{body}}`}
-                terms={[
-                  { tex: String.raw`\lambda`, meaning: pick(lang, 'regularization strength: too small is unstable, too large over-smooths', 'fuerza de regularizacion: muy pequena es inestable, muy grande sobre-suaviza') },
-                  { tex: `L`, meaning: pick(lang, 'the penalty operator: identity (magnitude) or a surface derivative (roughness)', 'el operador de penalizacion: identidad (magnitud) o una derivada de superficie (rugosidad)') },
-                  { tex: String.raw`A^{\top}A`, meaning: pick(lang, 'the normal operator; adding lambda-squared L-transpose-L makes the solve well-conditioned', 'el operador normal; sumar lambda-cuadrado L-transpuesta-L hace el sistema bien condicionado') },
-                ]}
-                caption={pick(lang, 'Tikhonov reconstruction: the closed form is a single linear solve. L = I penalizes magnitude; a surface Laplacian penalizes roughness.', 'Reconstruccion de Tikhonov: la forma cerrada es un solo sistema lineal. L = I penaliza magnitud; un Laplaciano de superficie penaliza rugosidad.')} />
               <p className="measure" style={{ marginBottom: 0 }}>{pick(lang,
                 'The one free knob is lambda, classically chosen by the L-curve corner (the trade-off between misfit and solution norm) or by CRESO. The cost of stability is a smoothness bias that blurs sharp activation fronts, and the result is a single point estimate with no measure of where it can be trusted. L1 / total-variation variants sharpen the fronts but remain deterministic.',
                 'La unica perilla libre es lambda, elegida clasicamente por la esquina de la curva L (el compromiso entre desajuste y norma de la solucion) o por CRESO. El costo de la estabilidad es un sesgo de suavidad que difumina los frentes de activacion agudos, y el resultado es una sola estimacion puntual sin medida de donde se puede confiar. Las variantes L1 / de variacion total agudizan los frentes pero siguen siendo deterministas.')}</p>
             </div>
           </div>
+          <HoverMathEq
+            tex={String.raw`\hat{\phi} = \arg\min_{\phi}\; \lVert A\phi - \phi_{\text{body}}\rVert_2^2 + \lambda^2\lVert L\phi\rVert_2^2 = (A^{\top}A + \lambda^2 L^{\top}L)^{-1} A^{\top}\phi_{\text{body}}`}
+            terms={[
+              { tex: String.raw`\lambda`, meaning: pick(lang, 'regularization strength: too small is unstable, too large over-smooths', 'fuerza de regularizacion: muy pequena es inestable, muy grande sobre-suaviza') },
+              { tex: `L`, meaning: pick(lang, 'the penalty operator: identity (magnitude) or a surface derivative (roughness)', 'el operador de penalizacion: identidad (magnitud) o una derivada de superficie (rugosidad)') },
+              { tex: String.raw`A^{\top}A`, meaning: pick(lang, 'the normal operator; adding lambda-squared L-transpose-L makes the solve well-conditioned', 'el operador normal; sumar lambda-cuadrado L-transpuesta-L hace el sistema bien condicionado') },
+            ]}
+            caption={pick(lang, 'Tikhonov reconstruction: the closed form is a single linear solve. L = I penalizes magnitude; a surface Laplacian penalizes roughness.', 'Reconstruccion de Tikhonov: la forma cerrada es un solo sistema lineal. L = I penaliza magnitud; un Laplaciano de superficie penaliza rugosidad.')} />
           <Callout>
             {pick(lang,
               'In the comparison we give Tikhonov its ORACLE-best lambda, the value that minimizes the true reconstruction error, so the classical baseline is judged at its best, not strawmanned. A well-tuned Tikhonov is a strong baseline.',
