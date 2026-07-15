@@ -10,4 +10,4 @@ traces; the static web app READS those traces (it does not run any model in the 
 gated on analytic problems with known answers before any real data is trusted (see real/ + tests/).
 """
 
-__version__ = "0.21.002"  # point-cloud viewport: fixed mid-slate data canvas so the coolwarm midpoint (light grey) and magma low-end (near-black) stay visible in both themes; +point size
+__version__ = "0.21.003"  # App layout: kill the .measure prose voids (tab prose fills the column), fix disperse def-grids to adjacent term|definition, move secondary content out of narrow rails to balanced full-width rows

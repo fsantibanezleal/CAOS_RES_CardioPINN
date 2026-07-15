@@ -323,13 +323,13 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
                   { tex: String.raw`S(\mathbf{v})`, meaning: pick(lang, 'the Poisson source, a product of measured velocity derivatives (rho = 1060 kg/m^3)', 'la fuente de Poisson, un producto de derivadas de la velocidad medida (rho = 1060 kg/m^3)') },
                 ]}
                 caption={pick(lang, 'A single elliptic Poisson equation: solve it and out comes the relative pressure field.', 'Una sola ecuacion de Poisson eliptica: resuelvela y sale el campo de presion relativa.')} />
-              <dl className="def-grid">
-                <dt>{'ρ, μ'}</dt><dd>{pick(lang, 'blood density 1060 kg/m^3, dynamic viscosity 0.0035 Pa s', 'densidad de la sangre 1060 kg/m^3, viscosidad dinamica 0.0035 Pa s')}</dd>
-                <dt>{'S(v)'}</dt><dd>{pick(lang, 'the Poisson source, a product of velocity derivatives', 'la fuente de Poisson, un producto de derivadas de velocidad')}</dd>
-                <dt>{'∂p/∂n'}</dt><dd>{pick(lang, 'the Neumann boundary flux, set by the momentum equation at the vessel wall', 'el flujo Neumann de frontera, fijado por la ecuacion de momento en la pared del vaso')}</dd>
-              </dl>
             </div>
           </div>
+          <dl className="def-grid">
+            <dt>{'ρ, μ'}</dt><dd>{pick(lang, 'blood density 1060 kg/m^3, dynamic viscosity 0.0035 Pa s', 'densidad de la sangre 1060 kg/m^3, viscosidad dinamica 0.0035 Pa s')}</dd>
+            <dt>{'S(v)'}</dt><dd>{pick(lang, 'the Poisson source, a product of velocity derivatives', 'la fuente de Poisson, un producto de derivadas de velocidad')}</dd>
+            <dt>{'∂p/∂n'}</dt><dd>{pick(lang, 'the Neumann boundary flux, set by the momentum equation at the vessel wall', 'el flujo Neumann de frontera, fijado por la ecuacion de momento en la pared del vaso')}</dd>
+          </dl>
           <PpeSvg lang={lang} />
           <Refs ids={['krittian2012', 'raissi2020']} label="Refs" />
         </section>
@@ -351,8 +351,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
               { tex: '4', meaning: pick(lang, 'the constant that folds in blood density and unit conversion to mmHg', 'la constante que incorpora la densidad de la sangre y la conversion a mmHg') },
             ]}
             caption={pick(lang, 'The whole gradient is read off one peak velocity: fast, ubiquitous, and blind to everything the peak velocity does not capture.', 'Todo el gradiente se lee de una sola velocidad pico: rapido, ubicuo, y ciego a todo lo que la velocidad pico no captura.')} />
-          <div className="hero-rail">
-            <div>
+          <div className="viz-stack">
               <div className="viz-controls">
                 <label className="muted small" style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
                   Vmax
@@ -380,8 +379,9 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
               <p className="sr-summary">{pick(lang,
                 `At Vmax ${vmaxT.toFixed(2)} m/s and inflow ${v1T.toFixed(2)} m/s, the simplified form reads ${(4 * vmaxT * vmaxT).toFixed(1)} mmHg while the expanded form reads ${Math.max(0, 4 * (vmaxT * vmaxT - v1T * v1T)).toFixed(1)} mmHg. Dropping the inflow velocity overstates the gradient once V1 exceeds about 1.5 m/s.`,
                 `En Vmax ${vmaxT.toFixed(2)} m/s y entrada ${v1T.toFixed(2)} m/s, la forma simplificada da ${(4 * vmaxT * vmaxT).toFixed(1)} mmHg mientras la ampliada da ${Math.max(0, 4 * (vmaxT * vmaxT - v1T * v1T)).toFixed(1)} mmHg. Descartar la velocidad de entrada sobreestima el gradiente cuando V1 supera cerca de 1.5 m/s.`)}</p>
-            </div>
-            <div className="hero-rail-side">
+          </div>
+          <div className="two-col">
+            <div>
               <span className="cp-side-label">{pick(lang, 'What 4 Vmax^2 discards', 'Lo que descarta 4 Vmax^2')}</span>
               <dl className="def-grid">
                 <dt>{pick(lang, 'inflow velocity', 'velocidad de entrada')}</dt><dd>{pick(lang, 'overstates the gradient once outflow exceeds about 1.5 m/s', 'sobreestima el gradiente cuando la salida supera cerca de 1.5 m/s')}</dd>
@@ -389,7 +389,9 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
                 <dt>{pick(lang, 'unsteady acceleration', 'aceleracion no estacionaria')}</dt><dd>{pick(lang, 'the dv/dt term lost at coarse temporal resolution (Hardy 2025)', 'el termino dv/dt perdido a resolucion temporal gruesa (Hardy 2025)')}</dd>
                 <dt>{pick(lang, 'pressure recovery', 'recuperacion de presion')}</dt><dd>{pick(lang, 'Doppler overestimates the net catheter gradient, worst in a small aorta', 'el Doppler sobreestima el gradiente neto por cateter, peor en una aorta pequena')}</dd>
               </dl>
-              <span className="cp-side-label" style={{ marginTop: 4 }}>{pick(lang, 'On this scan, Bernoulli vs the physics map', 'En este escaneo, Bernoulli vs el mapa fisico')}</span>
+            </div>
+            <div>
+              <span className="cp-side-label">{pick(lang, 'On this scan, Bernoulli vs the physics map', 'En este escaneo, Bernoulli vs el mapa fisico')}</span>
               <BracketBar label={pick(lang, 'Bernoulli 4Vmax^2', 'Bernoulli 4Vmax^2')} value={tr.metrics.bernoulli_mmHg} unit="mmHg" max={3} color="var(--accent-2)" />
               <BracketBar label={pick(lang, 'PPE pressure span', 'rango de presion PPE')} value={tr.metrics.ppe_pressure_drop_mmHg} unit="mmHg" max={3} color="var(--good)" />
               <p className="muted small" style={{ margin: 0 }}>{pick(lang, 'Same order of magnitude on this clean aorta (0.791 m/s -> 2.51 vs 0.79 mmHg); they bracket each other.', 'Mismo orden de magnitud en esta aorta limpia (0.791 m/s -> 2.51 vs 0.79 mmHg); se encuadran mutuamente.')}</p>
@@ -412,8 +414,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
           <p className="measure">{pick(lang,
             'The pressure-Poisson source is quadratic in velocity gradients, so raw noise (which violates incompressibility) is amplified into a non-physiological pressure. The pipeline separates a well-posed velocity denoising from the elliptic pressure solve. Hover or click a stage to inspect it.',
             'La fuente de la Poisson de presion es cuadratica en los gradientes de velocidad, asi que el ruido crudo (que viola la incompresibilidad) se amplifica en una presion no fisiologica. El pipeline separa un suavizado de velocidad bien planteado de la resolucion eliptica de presion. Pasa el cursor o haz clic en una etapa para inspeccionarla.')}</p>
-          <div className="hero-rail">
-            <PipelineSvg animate onSelect={(id) => setPipeSel((s) => (s === id ? null : id))} selected={pipeSel}
+          <PipelineSvg animate onSelect={(id) => setPipeSel((s) => (s === id ? null : id))} selected={pipeSel}
               playLabel={pick(lang, 'Play flow', 'Reproducir flujo')}
               captionEmpty={pick(lang, 'Hover or focus a stage to inspect it.', 'Pasa el cursor o enfoca una etapa para inspeccionarla.')}
               ariaLabel={pick(lang, 'Physics-informed pressure pipeline', 'Pipeline de presion informado por fisica')}
@@ -424,7 +425,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
                 { id: 'solve', kind: 'proc', label: pick(lang, 'Poisson solve', 'resolver Poisson'), sub: 'lap p = S(v)', detail: pick(lang, 'a sparse direct elliptic solve; well-posed, unlike a naive inversion of the transfer.', 'una resolucion eliptica directa dispersa; bien planteada, a diferencia de una inversion ingenua.') },
                 { id: 'p', kind: 'out', label: pick(lang, 'relative pressure', 'presion relativa'), sub: 'p(x)', detail: pick(lang, 'the recovered field, physiological on the real scan and gated on an analytic case first.', 'el campo recuperado, fisiologico en el escaneo real y validado antes en un caso analitico.') },
               ]} />
-            <div className="hero-rail-side">
+          <div className="fig-row">
               <HoverMathEq
                 tex={String.raw`\min_{\theta}\; \lVert \mathbf{v}_\theta - \mathbf{v}^{\text{meas}}\rVert^2 + \lambda\,\lVert \nabla\cdot\mathbf{v}_\theta\rVert^2 \;\Rightarrow\; \nabla^2 p = S(\mathbf{v}_\theta)`}
                 terms={[
@@ -438,7 +439,6 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
                 { value: `${tr.metrics.div_denoised_per_s} /s`, label: pick(lang, 'after the divergence-free denoise', 'tras el suavizado sin divergencia') },
                 { value: `${tr.metrics.div_reduction_x}x`, label: pick(lang, 'reduction; keeps the quadratic source from amplifying noise', 'reduccion; evita que la fuente cuadratica amplifique el ruido') },
               ]} />
-            </div>
           </div>
           <p className="measure">{pick(lang,
             'This is the hidden-fluid-mechanics idea, learning the pressure a flow implies while the measured velocity drives the fit, made robust for real noisy 4D-flow by separating the well-posed velocity denoising from the elliptic pressure solve.',
