@@ -51,7 +51,7 @@ export function Introduction() {
           <InlineMath tex={String.raw`\phi_{\text{body}}=A\,\phi_{\text{heart}}`} />
           {pick(lang, ', and recovering the aortic pressure field from a 4D-flow scan by incompressible Navier-Stokes, ', ', y recuperar el campo de presion aortica desde un escaneo de flujo 4D por Navier-Stokes incompresible, ')}
           <InlineMath tex={String.raw`\nabla^2 p = S(\mathbf{v})`} />
-          {pick(lang, '. Every case fits a real measured signal and is checked against a real reference.', '. Cada caso ajusta una senal real medida y se contrasta con una referencia real.')}
+          {pick(lang, '. Case A is fit to a real measured signal and validated against a real heart-surface gold standard; Case B is fit to a real 4D-flow scan and checked against an analytic gate, the physiological pressure range, and the clinical Bernoulli estimate it brackets.', '. El caso A se ajusta a una senal real medida y se valida contra un patron de oro real de superficie cardiaca; el caso B se ajusta a un escaneo real de flujo 4D y se contrasta contra una prueba analitica, el rango de presion fisiologico y la estimacion clinica de Bernoulli que encuadra.')}
         </p>
       </div>
 
@@ -76,8 +76,8 @@ export function Introduction() {
       <section>
         <h2>{pick(lang, '3. The two governing equations', '3. Las dos ecuaciones gobernantes')}</h2>
         <p>{pick(lang,
-          'The two cases live in two different physics. Case A (ECG imaging) is quasi-static volume conduction: the extracellular potential is harmonic in the torso, so the heart-to-body map is a single linear operator A, severely ill-conditioned. Case B (4D-flow pressure) is incompressible Navier-Stokes: taking the divergence of the momentum equation and using incompressibility turns it into a Poisson equation for pressure whose source is built from the measured velocity’s spatial derivatives.',
-          'Los dos casos viven en dos fisicas distintas. El caso A (imagen de ECG) es conduccion de volumen cuasi-estatica: el potencial extracelular es armonico en el torso, asi que el mapa corazon-cuerpo es un solo operador lineal A, severamente mal condicionado. El caso B (presion de flujo 4D) es Navier-Stokes incompresible: tomar la divergencia de la ecuacion de momento y usar la incompresibilidad la convierte en una ecuacion de Poisson para la presion cuya fuente se construye de las derivadas espaciales de la velocidad medida.')}</p>
+          'The two cases live in two different physics. Case A (ECG imaging) is the quasi-static volume conduction of Section 2, written below as the forward operator A. Case B (4D-flow pressure) is incompressible Navier-Stokes: taking the divergence of the momentum equation and using incompressibility turns it into a Poisson equation for pressure whose source is built from the measured velocity’s spatial derivatives.',
+          'Los dos casos viven en dos fisicas distintas. El caso A (imagen de ECG) es la conduccion de volumen cuasi-estatica de la Seccion 2, escrita abajo como el operador directo A. El caso B (presion de flujo 4D) es Navier-Stokes incompresible: tomar la divergencia de la ecuacion de momento y usar la incompresibilidad la convierte en una ecuacion de Poisson para la presion cuya fuente se construye de las derivadas espaciales de la velocidad medida.')}</p>
         <Equation tex={String.raw`\text{A: }\;\nabla\cdot(\sigma\nabla\phi)=0 \text{ in } \Omega,\;\; \phi=\phi_{\text{heart}} \text{ on } \Gamma_H,\;\; \sigma\partial_n\phi=0 \text{ on } \Gamma_B \;\Rightarrow\; \phi_{\text{body}}=A\,\phi_{\text{heart}}`}
           caption={pick(lang, 'Case A: quasi-static volume conduction reduces to a linear forward operator A between the two surfaces.', 'Caso A: la conduccion de volumen cuasi-estatica se reduce a un operador directo lineal A entre las dos superficies.')} />
         <Equation tex={String.raw`\text{B: }\;\rho(\partial_t\mathbf{v}+(\mathbf{v}\cdot\nabla)\mathbf{v})=-\nabla p+\mu\nabla^2\mathbf{v},\;\; \nabla\cdot\mathbf{v}=0`}
@@ -90,7 +90,6 @@ export function Introduction() {
           <dt>{'∂_n'}</dt><dd>{pick(lang, 'outward normal derivative', 'derivada normal saliente')}</dd>
           <dt>A</dt><dd>{pick(lang, 'forward transfer matrix (single-layer or BEM)', 'matriz de transferencia directa (capa simple o BEM)')}</dd>
           <dt>{'φ_body, φ_heart'}</dt><dd>{pick(lang, 'measured body-surface / heart-surface potentials', 'potenciales medidos de superficie corporal / cardiaca')}</dd>
-          <dt>{'λ, L, σ_k'}</dt><dd>{pick(lang, 'regularization strength; penalty operator; singular values of A', 'fuerza de regularizacion; operador de penalizacion; valores singulares de A')}</dd>
           <dt>{'v, p'}</dt><dd>{pick(lang, 'measured blood velocity; relative pressure to recover', 'velocidad sanguinea medida; presion relativa a recuperar')}</dd>
           <dt>{'ρ, μ'}</dt><dd>{pick(lang, 'blood density 1060 kg/m³; dynamic viscosity 0.0035 Pa·s', 'densidad de la sangre 1060 kg/m³; viscosidad dinamica 0.0035 Pa·s')}</dd>
           <dt>{'S(v)'}</dt><dd>{pick(lang, 'the pressure-Poisson source (velocity-gradient product)', 'la fuente de Poisson de presion (producto de gradientes de velocidad)')}</dd>
@@ -100,13 +99,22 @@ export function Introduction() {
       </section>
 
       <section>
-        <h2>{pick(lang, '4. The end-to-end pipeline', '4. El pipeline de extremo a extremo')}</h2>
+        <h2>{pick(lang, '4. The two end-to-end pipelines', '4. Los dos pipelines de extremo a extremo')}</h2>
+        <h3>{pick(lang, 'A. ECGi (volume conduction)', 'A. ECGi (conduccion de volumen)')}</h3>
         <ol>
           <li>{pick(lang, 'Load the REAL EDGAR torso-tank data: 192 body-surface + 256 heart-cage measured potentials over the beat, plus the real electrode geometries and triangulations.', 'Cargar los datos REALES del tanque de torso EDGAR: 192 potenciales medidos de superficie corporal + 256 de la jaula cardiaca durante el latido, mas las geometrias reales de electrodos y triangulaciones.')}</li>
           <li>{pick(lang, 'Build the forward operator A on the real geometry (single-layer kernel, calibrated gain).', 'Construir el operador directo A sobre la geometria real (nucleo de capa simple, ganancia calibrada).')}</li>
           <li>{pick(lang, 'Reconstruct: Tikhonov (oracle lambda) and a graph-Laplacian-regularized inverse.', 'Reconstruir: Tikhonov (lambda oraculo) y un inverso regularizado por Laplaciano de grafo.')}</li>
           <li>{pick(lang, 'Deep ensemble over measurement-noise draws, recalibrated, for a per-node uncertainty.', 'Ensemble profundo sobre realizaciones de ruido de medicion, recalibrado, para una incertidumbre por nodo.')}</li>
           <li>{pick(lang, 'Validate against the REAL measured heart-cage potentials (relative error, correlation).', 'Validar contra los potenciales REALES medidos de la jaula cardiaca (error relativo, correlacion).')}</li>
+        </ol>
+        <h3>{pick(lang, 'B. 4D-flow pressure (Navier-Stokes)', 'B. Presion de flujo 4D (Navier-Stokes)')}</h3>
+        <ol>
+          <li>{pick(lang, 'Load the REAL 4D-flow scan: the measured aortic velocity field v(x,t) over the cardiac cycle inside the segmented lumen, with its velocity-encoding (venc) for de-aliasing.', 'Cargar el escaneo REAL de flujo 4D: el campo de velocidad aortica medido v(x,t) durante el ciclo cardiaco dentro del lumen segmentado, con su codificacion de velocidad (venc) para el des-aliasing.')}</li>
+          <li>{pick(lang, 'Denoise with a divergence-free PINN that enforces incompressibility (∇·v=0) on the measured velocity.', 'Suavizar con un PINN sin divergencia que impone la incompresibilidad (∇·v=0) sobre la velocidad medida.')}</li>
+          <li>{pick(lang, 'Build the analytic space-time source: differentiate the smoothed velocity to form the unsteady and convective terms S(v).', 'Construir la fuente analitica espacio-temporal: derivar la velocidad suavizada para formar los terminos no estacionario y convectivo S(v).')}</li>
+          <li>{pick(lang, 'Solve the pressure-Poisson equation ∇²p = S(v) for the relative pressure field.', 'Resolver la ecuacion de Poisson de presion ∇²p = S(v) para el campo de presion relativa.')}</li>
+          <li>{pick(lang, 'Validate: gate on an analytic known-answer flow, check the physiological range, and confirm the recovered drop brackets the clinical Bernoulli estimate.', 'Validar: prueba sobre un flujo analitico de respuesta conocida, verificar el rango fisiologico y confirmar que la caida recuperada encuadra la estimacion clinica de Bernoulli.')}</li>
         </ol>
       </section>
 

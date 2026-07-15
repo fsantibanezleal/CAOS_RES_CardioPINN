@@ -3,7 +3,7 @@
 // Enter/Space selects (onSelect). Box stroke colour keys off `kind` via the shell CSS vars so it repaints
 // light/dark. Flow animation is reader-triggered (a button), single-pass, never autoplays. A text list under
 // the figure is the screen-reader alternative. All chrome colours are CSS variables, no hardcoded hex.
-import { useId, useMemo, useRef, useState, type JSX, type ReactNode, type KeyboardEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type JSX, type ReactNode, type KeyboardEvent } from 'react';
 
 export type PipeKind = 'in' | 'proc' | 'out' | 'gate';
 
@@ -50,6 +50,7 @@ export function PipelineSvg({
   const [hovered, setHovered] = useState<string | null>(null);
   const [flowing, setFlowing] = useState(false);
   const flowTimer = useRef<number | null>(null);
+  const flowRaf = useRef<number | null>(null);
 
   const n = stages.length;
   const vbW = PAD * 2 + n * BOX_W + Math.max(0, n - 1) * GAP;
@@ -64,14 +65,25 @@ export function PipelineSvg({
 
   const triggerFlow = () => {
     if (flowTimer.current != null) window.clearTimeout(flowTimer.current);
+    if (flowRaf.current != null) window.cancelAnimationFrame(flowRaf.current);
     // restart the one-pass animation cleanly
     setFlowing(false);
-    window.requestAnimationFrame(() => {
+    flowRaf.current = window.requestAnimationFrame(() => {
+      flowRaf.current = null;
       setFlowing(true);
       // single pass: arrows animate for ~1.1s then settle
       flowTimer.current = window.setTimeout(() => setFlowing(false), 1200 + n * 120);
     });
   };
+
+  // cancel any pending flow timer/rAF if the component unmounts mid-animation
+  useEffect(
+    () => () => {
+      if (flowTimer.current != null) window.clearTimeout(flowTimer.current);
+      if (flowRaf.current != null) window.cancelAnimationFrame(flowRaf.current);
+    },
+    [],
+  );
 
   const onBoxKey = (e: KeyboardEvent<SVGGElement>, id: string) => {
     if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {

@@ -8,6 +8,8 @@ import 'katex/dist/katex.min.css';
 import './styles.css';
 import { CITATIONS } from './data/citations';
 import { EXTERNAL_LINKS } from './lib/links';
+import { APP_VERSION } from './lib/version';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { architecture } from './architecture';
 import { Workbench } from './pages/Workbench';
 import { Introduction } from './pages/Introduction';
@@ -30,7 +32,7 @@ const config: ShellConfig = {
     { path: '/benchmark', en: 'Benchmark', es: 'Benchmark' },
   ],
   links: { github: EXTERNAL_LINKS.github, personal: EXTERNAL_LINKS.personal, portfolio: EXTERNAL_LINKS.portfolio },
-  version: '0.21.004',
+  version: APP_VERSION,
   architecture,
   footer: {
     provenance: {
@@ -50,6 +52,7 @@ if (el) createRoot(el).render(
     <HashRouter>
       <CitationsProvider items={Object.values(CITATIONS)}>
         <AppShell config={config}>
+          <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Workbench />} />
             <Route path="/introduction" element={<Introduction />} />
@@ -59,6 +62,7 @@ if (el) createRoot(el).render(
             <Route path="/benchmark" element={<Benchmark />} />
             <Route path="*" element={<Workbench />} />
           </Routes>
+          </ErrorBoundary>
         </AppShell>
       </CitationsProvider>
     </HashRouter>

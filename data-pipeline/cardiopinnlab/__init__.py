@@ -10,4 +10,4 @@ traces; the static web app READS those traces (it does not run any model in the 
 gated on analytic problems with known answers before any real data is trusted (see real/ + tests/).
 """
 
-__version__ = "0.21.004"  # App layout follow-up: Tikhonov closed-form equation no longer clipped in the narrow rail (moved full-width); ECGi PDE schematic caption full-width
+__version__ = "0.21.005"  # full adversarial revision (61 confirmed findings): content-honesty (ensemble-vs-Tikhonov, cage gain/oracle-lambda leakage disclosure, denoised-vs-measured velocity), robustness (error boundary, fetch handling, dataset-aware tabs, coords guard, NaN floor), plus docs/kits fixes

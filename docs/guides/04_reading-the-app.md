@@ -66,7 +66,8 @@ varies, which a single Bernoulli number cannot.
 
 The default "Pressure recovery" tab renders the aortic lumen as an orbitable 3D point cloud coloured by the
 selected field (diverging for signed relative pressure, sequential for speed). With Speed selected, a "Cardiac
-phase" slider scrubs the cycle and "Play cycle" animates it once. The honest-scope callout explains the
+phase" slider scrubs the cycle and "Play cycle" animates it once. Click any lumen point to plot that point's
+speed over the cardiac cycle in a linked interactive chart (it defaults to the peak-speed point). The honest-scope callout explains the
 noise-robustness result and its limit: a velocity-noise ensemble moves the pressure by under 0.01 mmHg, so the
 dominant uncertainty is NOT measurement noise (it is the absent invasive gold standard, the lumen
 segmentation, and the unsteady-term approximation), which is why a per-voxel uncertainty MAP is deliberately
@@ -91,6 +92,34 @@ doc pages and the Pages deploy), the science (the two governing chains), and the
 gitignored, only the derived trace committed, guarded by completeness and physiological floors). It is the
 fastest way to see that no model runs in the browser: the heavy physics is baked offline and gated on an
 analytic known answer, and the web reads the committed trace.
+
+## 6. The five deep doc pages (top-nav)
+
+Beyond the workbench route (`/`), the header nav links to five deep documentation pages that carry the theory,
+the code, the validation, and the comparisons behind the workbench numbers. All five are bilingual (EN/ES) and
+theme-aware, and every equation is real KaTeX with inline references and real DOIs.
+
+- **Introduction** (`/introduction`): the framing page. Five numbered sections walk the clinical problem, the
+  physics that links heart to body, the two governing equations (with a symbol glossary), the end-to-end
+  pipeline (a two-lane SVG spanning both physics domains), and the honesty-and-scope statement. It explains
+  why the two cases share one physics-informed pattern.
+- **Methodology** (`/methodology`): the method walk-through, in sub-tabs split by case. ECGi covers the forward
+  operator (torso volume conduction), the Tikhonov inverse, the regularization-parameter choice, the
+  graph-Laplacian prior, physics-constrained reconstruction, and ensemble uncertainty. 4D-flow covers
+  Navier-Stokes to the pressure-Poisson equation, the divergence-free PINN, the space-time unsteady term, the
+  pressure-Poisson solve, and the analytic gates. Each tab pairs a captioned KaTeX equation with a theme-aware
+  SVG figure.
+- **Implementation** (`/implementation`): how the offline pipeline is built, in tabs: the architecture (two
+  offline lanes, one artifact contract), the ECGi loader, forward operator and reconstruction, the 4D-flow
+  decode, denoise-plus-PPE and space-time steps, the artifact contract with its CI guards, and deployment.
+  This is the code-level view of what produces the committed traces the workbench reads.
+- **Experiments** (`/experiments`): the validation protocol and real results, in tabs: the leakage-safe
+  protocol, the exact metrics, ECGi coverage, ECGi results, 4D-flow validation (without an invasive truth),
+  and datasets with provenance. The numbers are read live from the committed catalogue and trace, so they
+  match the workbench readouts.
+- **Benchmark** (`/benchmark`): head-to-head comparison tables, in tabs: the ECGi method comparison (classical
+  vs learned on real ground truth), the forward-operator ablation (single-layer vs boundary-element), the
+  4D-flow ablation plus noise robustness, and the honest limits of both cases.
 
 ## What the app is, and is not
 

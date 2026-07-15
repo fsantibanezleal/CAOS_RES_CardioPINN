@@ -19,6 +19,8 @@ cases split cleanly across the stack:
   real Philips 4D-flow MRI series.
 - **Browser render (both cases).** three.js via react-three-fiber draws the committed geometry: the ECGi
   heart-cage triangle mesh and the 4D-flow aortic point cloud, colored by perceptually-uniform colormaps.
+  uPlot draws the linked 2D charts beside those views (the coupled per-point time series and the Bernoulli
+  gradient curves) through one theme-aware wrapper, reading the same committed traces.
 
 ## Cards
 
@@ -30,6 +32,8 @@ cases split cleanly across the stack:
   venc rescale, patient-frame voxel geometry, and phase-wrap anti-aliasing.
 - [04, three.js / react-three-fiber](frameworks/04_three-js.md) : the browser render of the heart-cage mesh
   and the aortic point cloud, the magma and coolwarm colormaps, and the no-compute-bomb discipline.
+- [05, uPlot](frameworks/05_uplot.md) : the theme-aware wrapper for every linked 2D chart, the synced cursor
+  and pinned markers coupling the charts to the 3D scrubber, and the explicit data-extent ranging.
 
 ## Runtime versus reference
 

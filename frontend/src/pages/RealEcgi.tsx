@@ -19,6 +19,7 @@ function fieldStats(vals: number[], signed: boolean): { lo: number; hi: number }
 }
 const isSigned = (field: string) => field === 'recovered_mV' || field === 'measured_mV';
 import { useLang, pick } from '../store';
+import { APP_VERSION } from '../lib/version';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -58,7 +59,7 @@ const FIELD_LABEL: Record<string, [string, string]> = {
 
 
 // A theme-aware SVG of the ECGi forward + inverse chain (colors via CSS variables so it repaints with the theme).
-function ForwardSvg({ lang }: { lang: 'en' | 'es' }) {
+function ForwardSvg({ lang, nBody = 192, nHeart = 256 }: { lang: 'en' | 'es'; nBody?: number; nHeart?: number }) {
   return (
     <div className="fig-svg">
       <svg viewBox="0 0 620 200" role="img">
@@ -66,9 +67,9 @@ function ForwardSvg({ lang }: { lang: 'en' | 'es' }) {
         <text x="150" y="30" textAnchor="middle" fill="var(--muted)" fontSize="12">{pick(lang, 'torso (volume conductor)', 'torso (conductor de volumen)')}</text>
         <ellipse cx="150" cy="105" rx="42" ry="34" fill="color-mix(in srgb, var(--accent) 22%, transparent)" stroke="var(--accent)" strokeWidth="2" />
         <text x="150" y="108" textAnchor="middle" fill="var(--fg)" fontSize="11">heart</text>
-        <text x="150" y="122" textAnchor="middle" fill="var(--accent)" fontSize="10">phi_heart (256)</text>
+        <text x="150" y="122" textAnchor="middle" fill="var(--accent)" fontSize="10">phi_heart ({nHeart})</text>
         {[0, 1, 2, 3, 4, 5].map((i) => <circle key={i} cx={150 + 120 * Math.cos((i / 6) * 6.28)} cy={100 + 80 * Math.sin((i / 6) * 6.28)} r="4" fill="var(--accent-2)" />)}
-        <text x="150" y="185" textAnchor="middle" fill="var(--accent-2)" fontSize="10">phi_body (192)</text>
+        <text x="150" y="185" textAnchor="middle" fill="var(--accent-2)" fontSize="10">phi_body ({nBody})</text>
         <path d="M280 100 H360" stroke="var(--good)" strokeWidth="2" markerEnd="url(#a)" />
         <text x="320" y="90" textAnchor="middle" fill="var(--good)" fontSize="11">A (forward)</text>
         <path d="M360 130 H280" stroke="var(--accent)" strokeWidth="2" strokeDasharray="4 3" markerEnd="url(#a)" />
@@ -219,8 +220,16 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
   const [priorMesh, setPriorMesh] = useState(true);
   const [uqOn, setUqOn] = useState(true);
   const [pipeSel, setPipeSel] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  useEffect(() => { fetch(`${BASE}data/real-ecgi-catalogue/catalogue.json`).then((r) => r.json()).then(setCat); }, []);
+  useEffect(() => {
+    let alive = true;
+    fetch(`${BASE}data/real-ecgi-catalogue/catalogue.json?v=${APP_VERSION}`)
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status} loading the ECGi catalogue`); return r.json(); })
+      .then((d) => { if (alive) setCat(d); })
+      .catch((e) => { if (alive) setLoadError(String(e && e.message ? e.message : e)); });
+    return () => { alive = false; };
+  }, []);
 
   const ds = cat ? cat.cases[caseIdx] : null;
   const rd = ds && ds.beats[beat] ? ds.beats[beat] : ds ? ds.beats[Object.keys(ds.beats)[0]] : null;
@@ -299,8 +308,8 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
             );
           })()}
           <p style={{ marginTop: 12 }}>{pick(lang,
-            'Orbit the heart; scrub or play the beat; toggle the recovered potential, the real measured potential, their absolute error, and the per-node uncertainty. On the human tank the paced rhythms (PVP, AVP) reconstruct with higher correlation than sinus, which is physically expected: a focal paced activation is easier to localize than the diffuse sinus wavefront. The method transfers to the dog heart (a different species, geometry, and electrode count) with no retuning.',
-            'Orbita el corazon; desplaza o reproduce el latido; alterna el potencial recuperado, el real medido, su error absoluto, y la incertidumbre por nodo. En el tanque humano los ritmos con marcapaso (PVP, AVP) reconstruyen con mayor correlacion que el sinusal, lo cual es fisicamente esperado. El metodo se transfiere al corazon de perro (otra especie, geometria y numero de electrodos) sin reajuste.')}</p>
+            'Orbit the heart; scrub or play the beat; toggle the recovered potential, the real measured potential, their absolute error, and the per-node uncertainty. On the human tank the AVP paced rhythm reconstructs with higher correlation than sinus (displayed ensemble: sinus 0.72, PVP 0.71, AVP 0.80), physically expected for a focal paced source that is easier to localize than the diffuse sinus wavefront; PVP is comparable to sinus here. The method transfers to the dog heart (a different species, geometry, and electrode count) with no retuning.',
+            'Orbita el corazon; desplaza o reproduce el latido; alterna el potencial recuperado, el real medido, su error absoluto, y la incertidumbre por nodo. En el tanque humano el ritmo con marcapaso AVP reconstruye con mayor correlacion que el sinusal (ensemble mostrado: sinusal 0.72, PVP 0.71, AVP 0.80), fisicamente esperado para una fuente focal mas facil de localizar que el frente sinusal difuso; el PVP es comparable al sinusal aqui. El metodo se transfiere al corazon de perro (otra especie, geometria y numero de electrodos) sin reajuste.')}</p>
           <Callout>
             {pick(lang,
               'Data: EDGAR (Consortium for ECG Imaging). Human torso tank (Utah, 2018) and in-situ dog (Maastricht), used under the EDGAR data-use agreement with attribution; the raw datasets are not redistributed. The measured field is shown as a research visualization. Not clinically deployed.',
@@ -406,28 +415,40 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
               </>
             );
           })()}
-          <div className="fig-row">
-            <HoverMathEq
-              tex={String.raw`\phi_{\text{body}}(t) = A\,\phi_{\text{heart}}(t), \qquad \phi_{\text{body}} \in \mathbb{R}^{192},\; \phi_{\text{heart}} \in \mathbb{R}^{256}`}
-              terms={[
-                { tex: String.raw`\phi_{\text{body}}`, meaning: pick(lang, 'measured body-surface potentials (192 electrodes, 244 ms at 1 kHz)', 'potenciales medidos de superficie corporal (192 electrodos, 244 ms a 1 kHz)') },
-                { tex: String.raw`\phi_{\text{heart}}`, meaning: pick(lang, 'heart-surface potentials to recover (256 electrodes); the cage measurement is the gold standard', 'potenciales de superficie cardiaca a recuperar (256 electrodos); la medicion de la jaula es el patron de oro') },
-                { tex: `A`, meaning: pick(lang, 'the forward transfer matrix set by the torso geometry (next tab)', 'la matriz de transferencia directa fijada por la geometria del torso (siguiente pestana)') },
-                { tex: `t`, meaning: pick(lang, 'time through the beat; the linear map holds at every instant', 'tiempo a lo largo del latido; el mapa lineal se cumple en cada instante') },
-              ]}
-              caption={pick(lang, 'The body-surface potentials are a fixed linear map A of the heart-surface potentials at every instant t of the beat.', 'Los potenciales de superficie corporal son un mapa lineal fijo A de los potenciales de superficie cardiaca en cada instante t del latido.')} />
-            <ForwardSvg lang={lang} />
-          </div>
-          <dl className="def-grid">
-            <dt>{'φ_body'}</dt><dd>{pick(lang, 'measured body-surface potentials (192 electrodes, 244 ms at 1 kHz)', 'potenciales medidos de superficie corporal (192 electrodos, 244 ms a 1 kHz)')}</dd>
-            <dt>{'φ_heart'}</dt><dd>{pick(lang, 'heart-surface potentials to recover (256 electrodes); measured by the cage = the gold standard', 'potenciales de superficie cardiaca a recuperar (256 electrodos); medidos por la jaula = el patron de oro')}</dd>
-            <dt>A</dt><dd>{pick(lang, 'the forward transfer matrix set by the torso geometry (next tab)', 'la matriz de transferencia directa fijada por la geometria del torso (siguiente pestana)')}</dd>
-          </dl>
-          <Callout>
-            {pick(lang,
-              'Three beats are available (sinus and two paced rhythms). Reconstruction quality is measured against the cage recording; a patient would never have that cage, which is exactly why the reconstruction is needed and why a torso tank is the right validation setting.',
-              'Hay tres latidos disponibles (sinusal y dos ritmos con marcapaso). La calidad de reconstruccion se mide contra el registro de la jaula; un paciente nunca tendria esa jaula, que es justo por lo que se necesita la reconstruccion y por lo que un tanque de torso es el entorno de validacion correcto.')}
-          </Callout>
+          {(() => {
+            const nBody = rd?.metrics?.n_torso_electrodes ?? 192;
+            const nHeart = rd?.metrics?.n_heart_electrodes ?? rd?.mesh.n_vertices ?? 256;
+            const nBeats = ds ? Object.keys(ds.beats).length : 3;
+            const nFrames = rd ? rd.times_ms.length : 0;
+            const beatsEn = nBeats === 1 ? 'A single sinus beat is available for this dataset' : `${nBeats} beats are available (sinus and paced rhythms)`;
+            const beatsEs = nBeats === 1 ? 'Hay un unico latido sinusal disponible para este conjunto' : `Hay ${nBeats} latidos disponibles (sinusal y ritmos con marcapaso)`;
+            return (
+              <>
+                <div className="fig-row">
+                  <HoverMathEq
+                    tex={String.raw`\phi_{\text{body}}(t) = A\,\phi_{\text{heart}}(t), \qquad \phi_{\text{body}} \in \mathbb{R}^{${nBody}},\; \phi_{\text{heart}} \in \mathbb{R}^{${nHeart}}`}
+                    terms={[
+                      { tex: String.raw`\phi_{\text{body}}`, meaning: pick(lang, `measured body-surface potentials (${nBody} electrodes${nFrames ? `, ${nFrames} frames through the beat` : ''})`, `potenciales medidos de superficie corporal (${nBody} electrodos${nFrames ? `, ${nFrames} cuadros durante el latido` : ''})`) },
+                      { tex: String.raw`\phi_{\text{heart}}`, meaning: pick(lang, `heart-surface potentials to recover (${nHeart} cage nodes); the cage measurement is the gold standard`, `potenciales de superficie cardiaca a recuperar (${nHeart} nodos de jaula); la medicion de la jaula es el patron de oro`) },
+                      { tex: `A`, meaning: pick(lang, 'the forward transfer matrix set by the torso geometry (next tab)', 'la matriz de transferencia directa fijada por la geometria del torso (siguiente pestana)') },
+                      { tex: `t`, meaning: pick(lang, 'time through the beat; the linear map holds at every instant', 'tiempo a lo largo del latido; el mapa lineal se cumple en cada instante') },
+                    ]}
+                    caption={pick(lang, 'The body-surface potentials are a fixed linear map A of the heart-surface potentials at every instant t of the beat.', 'Los potenciales de superficie corporal son un mapa lineal fijo A de los potenciales de superficie cardiaca en cada instante t del latido.')} />
+                  <ForwardSvg lang={lang} nBody={nBody} nHeart={nHeart} />
+                </div>
+                <dl className="def-grid">
+                  <dt>{'φ_body'}</dt><dd>{pick(lang, `measured body-surface potentials (${nBody} electrodes)`, `potenciales medidos de superficie corporal (${nBody} electrodos)`)}</dd>
+                  <dt>{'φ_heart'}</dt><dd>{pick(lang, `heart-surface potentials to recover (${nHeart} cage nodes); measured by the cage = the gold standard`, `potenciales de superficie cardiaca a recuperar (${nHeart} nodos de jaula); medidos por la jaula = el patron de oro`)}</dd>
+                  <dt>A</dt><dd>{pick(lang, 'the forward transfer matrix set by the torso geometry (next tab)', 'la matriz de transferencia directa fijada por la geometria del torso (siguiente pestana)')}</dd>
+                </dl>
+                <Callout>
+                  {pick(lang,
+                    `${beatsEn}. Reconstruction quality is measured against the cage recording; a patient would never have that cage, which is exactly why the reconstruction is needed and why a torso tank is the right validation setting.`,
+                    `${beatsEs}. La calidad de reconstruccion se mide contra el registro de la jaula; un paciente nunca tendria esa jaula, que es justo por lo que se necesita la reconstruccion y por lo que un tanque de torso es el entorno de validacion correcto.`)}
+                </Callout>
+              </>
+            );
+          })()}
           <Refs ids={['aras2015', 'barr1977']} label="Refs" />
         </section>
       ),
@@ -598,6 +619,21 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
     },
   ];
 
+  if (loadError || !cat) {
+    return (
+      <div className="cardiopinn-layout prose">
+        <div className="cp-main" style={{ gridColumn: '1 / -1' }}>
+          <div className="page-head"><h1>{pick(lang, 'Real ECG imaging: recovering heart-surface potentials', 'Imagen de ECG real: recuperar potenciales de superficie cardiaca')}</h1></div>
+          <div className="panel" role="status" style={{ marginTop: 16 }}>
+            {loadError
+              ? pick(lang, `The ECGi data could not be loaded (${loadError}). If you just deployed, hard-refresh once; the web reads a committed JSON trace.`, `No se pudieron cargar los datos de ECGi (${loadError}). Si acabas de desplegar, recarga forzado una vez; la web lee un trace JSON versionado.`)
+              : pick(lang, 'Loading the ECGi catalogue...', 'Cargando el catalogo de ECGi...')}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="cardiopinn-layout prose">
       <aside className="cp-side">
@@ -621,13 +657,16 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
             </div>
             {rd && (
               <div className="cp-side-block">
-                <span className="cp-side-label">{pick(lang, 'Live diagnosis vs real gold standard', 'Diagnostico en vivo vs patron de oro real')}</span>
+                <span className="cp-side-label">{pick(lang, 'Displayed reconstruction vs real gold standard', 'Reconstruccion mostrada vs patron de oro real')}</span>
                 <div className="cp-readout">
-                  <div className="ro"><span className="v">{rd.metrics.relative_error_tikhonov}</span><span className="k">{pick(lang, 'relative error', 'error relativo')}</span></div>
-                  <div className="ro"><span className="v">{rd.metrics.correlation_tikhonov}</span><span className="k">{pick(lang, 'correlation', 'correlacion')}</span></div>
+                  <div className="ro"><span className="v">{rd.metrics.relative_error_ensemble ?? rd.metrics.relative_error_tikhonov}</span><span className="k">{pick(lang, 'relative error', 'error relativo')}</span></div>
+                  <div className="ro"><span className="v">{rd.metrics.correlation_ensemble ?? rd.metrics.correlation_tikhonov}</span><span className="k">{pick(lang, 'correlation', 'correlacion')}</span></div>
                   <div className="ro"><span className="v">{rd.metrics.uq_calibration_2sigma}</span><span className="k">{pick(lang, 'node-UQ (2σ)', 'UQ nodo (2σ)')}</span></div>
                   <div className="ro"><span className="v">{rd.metrics.n_heart_electrodes}</span><span className="k">{pick(lang, 'heart nodes', 'nodos cardiacos')}</span></div>
                 </div>
+                <p className="muted small" style={{ margin: '8px 0 0' }}>{pick(lang,
+                  'These are the ensemble (physics-informed) reconstruction the app shows. The oracle-Tikhonov baseline is modestly more accurate; the Benchmark page compares all methods. The scale-dependent relative error uses a single magnitude gain calibrated on the first-half cage; correlation is scale-free.',
+                  'Estas son de la reconstruccion por ensemble (informada por fisica) que muestra la app. El baseline Tikhonov por oraculo es algo mas preciso; la pagina Benchmark compara todos los metodos. El error relativo (dependiente de escala) usa una ganancia de magnitud calibrada en la primera mitad de la jaula; la correlacion no depende de la escala.')}</p>
               </div>
             )}
             <div className="cp-side-foot">{pick(lang,

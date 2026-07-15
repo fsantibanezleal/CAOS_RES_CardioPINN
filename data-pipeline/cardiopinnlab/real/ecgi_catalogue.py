@@ -100,6 +100,15 @@ def load_case_beat(cfg: dict, beat: str) -> dict:
     body_n, body_f = _mesh(d / cfg["body_mesh"][0], cfg["body_mesh"][1])
     heart_n, heart_f = _mesh(d / cfg["heart_mesh"][0], cfg["heart_mesh"][1])
     good = ~np.any(np.isnan(body_p), 0) & ~np.any(np.isnan(heart_p), 0)
+    # A whole time frame is dropped if ANY electrode is NaN in it, so a single persistently-dead lead can empty
+    # the beat and feed a zero-width time axis into reconstruct. Floor it: fail LOUDLY instead of baking an empty
+    # or degenerate beat (the trace-completeness gate downstream cannot recover a beat with too few frames).
+    n_good = int(good.sum())
+    if n_good < 8:
+        raise ValueError(
+            f"only {n_good} clean time frames survive the NaN drop for this beat (out of {good.size}); "
+            f"a persistently-dead electrode is emptying the beat. Need at least 8 frames. Inspect the raw "
+            f"dataset's per-lead NaN before baking.")
     body_p, heart_p = body_p[:, good], heart_p[:, good]
     return {"torso_p": body_p, "cage_p": heart_p, "torso_n": body_n, "cage_n": heart_n,
             "cage_f": heart_f, "torso_f": body_f}

@@ -36,9 +36,17 @@ def bake_flow4d(seed: int = 42, max_points: int = 9000, venc_cm_s: float = 120.0
     aliasing_corrected = int(f.get("aliasing_corrected_samples", 0))
     nz, ny, nx = f["grid"]
     nt = f["velocity"].shape[0]
-    vel = f["velocity"].reshape(nt, nz, ny, nx, 3)      # m/s
-    coords = f["coords"].reshape(nz, ny, nx, 3)         # m
-    h = 2.5e-3
+    vel = f["velocity"].reshape(nt, nz, ny, nx, 3)      # m/s (loader returns mm/ms, numerically identical)
+    coords = f["coords"].reshape(nz, ny, nx, 3)         # mm (patient frame); the Poisson solve below uses h in m
+    h = 2.5e-3                                           # m, isotropic grid spacing used by the pressure-Poisson solve
+    # Unit guard: the source S ~ (dv/dx)^2 scales like 1/h^2, so a spacing mismatch (a unit slip, or a re-bake of a
+    # DICOM whose voxels are not 2.5 mm) silently rescales the pressure. Assert the physical spacing derived from the
+    # coords (mm) matches h (m) before trusting the solve, so a mismatch fails LOUDLY at bake time.
+    _step = np.linalg.norm(np.diff(coords, axis=0).reshape(-1, 3), axis=1)
+    _sp_mm = float(np.median(_step[_step > 1e-6])) if np.any(_step > 1e-6) else 0.0
+    assert abs(_sp_mm / 1000.0 - h) <= 0.5 * h, (
+        f"4D-flow voxel spacing from coords ({_sp_mm:.3f} mm) is inconsistent with the Poisson grid spacing "
+        f"h={h * 1000:.3f} mm; coords must be in mm and h in m (check the DICOM PixelSpacing / loader units).")
 
     # aortic lumen: pulsatile-flow threshold, largest connected component
     mask = mask_lumen(f, speed_thresh_cm_s=40.0).reshape(nz, ny, nx)

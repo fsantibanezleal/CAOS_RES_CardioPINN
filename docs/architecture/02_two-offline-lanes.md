@@ -15,7 +15,8 @@ data-pipeline/cardiopinnlab/
   real/flow4d_denoise.py   # single-frame divergence-free velocity PINN with analytic source/flux (torch)
   real/flow4d_spacetime.py # space-time v(x,y,z,t) PINN: analytic spatial source/flux AND analytic dv/dt
   real/flow4d_ppe.py       # pressure-Poisson sparse direct solve + the analytic converging-duct gate
-  real/flow4d_pinn.py      # the momentum-residual NS-PINN, kept as the documented FAILED approach
+  real/flow4d_pinn.py      # the SI momentum-residual NS-PINN, the documented FAILED approach (not imported by the bake)
+  real/ns_pinn.py          # earlier dimensional (mm/ms) NS-PINN prototype of the same FAILED approach, also unshipped
   real/flow4d_bake.py      # bake the 4D-flow pressure trace the web reads
 ```
 
@@ -120,14 +121,18 @@ boundary conditions and one central Dirichlet pin (which removes the pure-Neuman
 directly with `scipy.sparse.linalg.spsolve`. Constants throughout: $\rho = 1060$ kg/m$^3$, $\mu = 0.0035$
 Pa·s, $1$ mmHg $= 133.322$ Pa. `gate_converging` is the analytic gate (see note 03).
 
-### `flow4d_pinn.py`, the documented failed baseline
+### `flow4d_pinn.py` and `ns_pinn.py`, the two documented failed NS-PINN baselines
 
 A single network $(x,y,z,t)\to(u,v,w,p)$ trained on the momentum residual (the hidden-fluid-mechanics
 formulation) does NOT recover pressure at aortic Reynolds numbers: pressure is gauge-free and only weakly
 coupled to the loss, so it stays near its initialization (under 10 percent of the true gradient on analytic
-Poiseuille). This module is kept as the honest, documented failure; the shipped method separates the well-posed
-part (velocity, strongly data-constrained) from the ill-posed part (pressure, solved by the elliptic Poisson
-equation).
+Poiseuille). Two versions of this attempt are kept: `flow4d_pinn.py` is the SI, non-dimensionalized network
+(gated by `verify_poiseuille_si`), and `ns_pinn.py` is an earlier dimensional (mm/ms) prototype of the same
+attempt (gated by `test_poiseuille`). Read on their own, both module docstrings are still written as if this
+were the intended method (a Bernoulli framing, a "trustworthy engine"); do not take them at face value. Neither
+module is imported by `flow4d_bake.py`: both are unshipped and kept only as the honest, documented failure. The
+shipped method instead separates the well-posed part (velocity, strongly data-constrained) from the ill-posed
+part (pressure, solved by the elliptic Poisson equation).
 
 ### `flow4d_bake.py`, the trace the web reads
 

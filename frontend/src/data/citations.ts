@@ -60,6 +60,9 @@ export const CITATIONS: Record<string, Citation> = {
     citation: 'Sahli Costabal F, Yang Y, Perdikaris P, Hurtado DE, Kuhl E (2020). Physics-Informed Neural Networks for Cardiac Activation Mapping. Frontiers in Physics 8:42.',
     doi: '10.3389/fphy.2020.00042',
   },
+  // Legacy key 'bear2018' is a misnomer: the paper is Bear et al. 2015 (label/year/DOI below are correct).
+  // Kept so the existing <Refs id="bear2018"> in the pages still resolve; renaming the key would require
+  // coordinated edits to Introduction/Methodology/Implementation/RealEcgi, which is out of this file's scope.
   bear2018: {
     id: 'bear2018', label: 'Bear 2015',
     citation: 'Bear LR, Cheng LK, LeGrice IJ, Sands GB, Lever NA, Paterson DJ, Smaill BH (2015). Forward problem of electrocardiography: is it solved? Circulation: Arrhythmia and Electrophysiology 8(3):677-684.',
@@ -67,7 +70,7 @@ export const CITATIONS: Record<string, Citation> = {
   },
   diffusion2026: {
     id: 'diffusion2026', label: 'Diffusion inverse-ECG 2026',
-    citation: 'Geometry-Free Conditional Diffusion Modeling for Solving the Inverse Electrocardiography Problem (2026).',
+    citation: 'Valdes Jara R, Meyers A (2026). Geometry-Free Conditional Diffusion Modeling for Solving the Inverse Electrocardiography Problem. arXiv:2601.18615.',
     url: 'https://arxiv.org/abs/2601.18615',
   },
   lakshminarayanan2017: {
@@ -117,6 +120,8 @@ export const CITATIONS: Record<string, Citation> = {
     citation: 'Stout KK, Daniels CJ, Aboulhosn JA, et al. (2019). 2018 AHA/ACC Guideline for the Management of Adults With Congenital Heart Disease. Circulation 139(14):e698-e800.',
     doi: '10.1161/CIR.0000000000000603',
   },
+  // NOTE: real 4D-flow coarctation source, currently defined but not yet wired into any <Refs>
+  // (wiring belongs in Flow4d.tsx, out of this file's scope); kept rather than dropped.
   rengier2014: {
     id: 'rengier2014', label: 'Rengier 2014',
     citation: 'Rengier F, Delles M, Eichhorn J, et al. (2014). Noninvasive pressure difference mapping derived from 4D flow MRI in patients with unrepaired and repaired aortic coarctation. Cardiovascular Diagnosis and Therapy 4(2):97-103.',
@@ -127,6 +132,8 @@ export const CITATIONS: Record<string, Citation> = {
     citation: 'Saitta S, Pirola S, Piatti F, et al. (2019). Evaluation of 4D flow MRI-based non-invasive pressure assessment in aortic coarctations. Journal of Biomechanics 94:13-21.',
     doi: '10.1016/j.jbiomech.2019.07.004',
   },
+  // NOTE: real 4D-flow primer, currently defined but not yet wired into any <Refs>
+  // (wiring belongs in Flow4d.tsx, out of this file's scope); kept rather than dropped.
   bissell2023: {
     id: 'bissell2023', label: 'Bissell 2023',
     citation: 'Bissell MM, et al. (2023). A clinician\'s guide to understanding aortic 4D flow MRI. Insights into Imaging 14:122.',
@@ -166,7 +173,7 @@ export const CITATIONS: Record<string, Citation> = {
   },
   hardy2025: {
     id: 'hardy2025', label: 'Hardy 2025',
-    citation: 'Hardy J, Zimmermann J, Lechner S, et al. (2025). Comprehensive Analysis of Relative Pressure Estimation Methods Utilizing 4D-Flow MRI. arXiv:2503.02847.',
+    citation: 'Hardy B, Zimmermann J, Lechner V, et al. (2025). Comprehensive Analysis of Relative Pressure Estimation Methods Utilizing 4D Flow MRI. arXiv:2503.02847.',
     doi: '10.48550/arXiv.2503.02847',
   },
 
@@ -181,9 +188,11 @@ export const CITATIONS: Record<string, Citation> = {
     citation: 'Duchateau J, Sacher F, Pambrun T, et al. (2019). Performance and limitations of noninvasive cardiac activation mapping. Heart Rhythm 16(3):435-442.',
     doi: '10.1016/j.hrthm.2018.10.010',
   },
+  // Legacy key 'gharib2024digitaltwin' is a misnomer: the survey has no Gharib author (first author is Li).
+  // Key kept so the existing <Refs id="gharib2024digitaltwin"> in RealEcgi still resolves; renaming is out of this file's scope.
   gharib2024digitaltwin: {
     id: 'gharib2024digitaltwin', label: 'Digital-twin ECGi survey 2024',
-    citation: 'Solving the Inverse Problem of Electrocardiography for Cardiac Digital Twins: A Survey (2024). arXiv:2406.11445.',
+    citation: 'Li L, Camps J, Rodriguez B, Grau V (2024). Solving the Inverse Problem of Electrocardiography for Cardiac Digital Twins: A Survey. arXiv:2406.11445.',
     url: 'https://arxiv.org/abs/2406.11445',
   },
 };

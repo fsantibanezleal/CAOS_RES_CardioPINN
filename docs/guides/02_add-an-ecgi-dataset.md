@@ -30,7 +30,7 @@ CASES = [
         "id": "human-tank", "name": "Human torso tank",
         "context_en": "explanted human heart in a torso tank; sinus and two paced beats",
         "context_es": "...",
-        "dir": "edgar", "field_body": "potvals_ts", "field_heart": "potvals_ts",
+        "dir": "edgar",
         "beats": {"sinus": ("signals/torsoBeat_sinus.mat", "signals/cageBeat_sinus.mat"),
                   "paced-pvp": ("signals/torsoBeat_pvp.mat", "signals/cageBeat_pvp.mat"),
                   "paced-avp": ("signals/torsoBeat_avp.mat", "signals/cageBeat_avp.mat")},
