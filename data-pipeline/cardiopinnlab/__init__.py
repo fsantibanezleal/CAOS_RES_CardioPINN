@@ -10,4 +10,4 @@ traces; the static web app READS those traces (it does not run any model in the 
 gated on analytic problems with known answers before any real data is trusted (see real/ + tests/).
 """
 
-__version__ = "0.21.000"  # App redo: all 12 tabs (both cases) rebuilt into an interactive kit (FieldView3D pick+linked-chart, uPlot, HoverMathEq, StatStrip, steppers, PipelineSvg); rich/dynamic per ADR-0017
+__version__ = "0.21.001"  # fix: UPlotChart scales never ranged (chart built empty, setData did not re-range) + CSS-var stroke unresolved by canvas -> every linked chart drew blank; explicit range fns + resolveColor
