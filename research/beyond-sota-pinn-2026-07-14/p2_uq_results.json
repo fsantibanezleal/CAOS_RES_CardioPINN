@@ -1,0 +1,27 @@
+{
+  "structural": {
+    "median_spread_mmHg": 0.01635,
+    "mean_error_mmHg": 0.01665,
+    "temperature": 1.153,
+    "coverage_2sigma": 0.93,
+    "n_members": 9,
+    "n_vox": 5967
+  },
+  "velnoise": {
+    "median_spread_mmHg": 0.01121,
+    "mean_error_mmHg": 0.01237,
+    "temperature": 1.128,
+    "coverage_2sigma": 0.909,
+    "n_members": 4,
+    "n_vox": 8077
+  },
+  "verdict": {
+    "structural_spread_mmHg": 0.01635,
+    "velnoise_spread_mmHg": 0.01121,
+    "structural_over_velnoise": 1.5,
+    "structural_coverage_2sigma": 0.93,
+    "informative": false,
+    "calibrated": true,
+    "advance": false
+  }
+}

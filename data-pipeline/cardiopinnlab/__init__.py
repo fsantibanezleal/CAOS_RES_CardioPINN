@@ -10,4 +10,4 @@ traces; the static web app READS those traces (it does not run any model in the 
 gated on analytic problems with known answers before any real data is trusted (see real/ + tests/).
 """
 
-__version__ = "0.19.001"  # coherence sweep: MIT license standardization, removed dead store + orphaned SVGs, EDGAR terms corrected, version reconciled
+__version__ = "0.20.000"  # adversarial beyond-SOTA evaluation of the 4D-flow PINN: analytic-vs-FD source gate shipped, curl/coupling/structural-UQ refuted as honest nulls

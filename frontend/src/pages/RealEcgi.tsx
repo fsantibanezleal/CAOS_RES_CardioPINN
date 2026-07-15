@@ -1,9 +1,7 @@
-import { OrbitControls } from '@react-three/drei';
-import { Canvas } from '@react-three/fiber';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import * as THREE from 'three';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Tabs, type TabDef, Callout, Equation, InlineMath, Refs, Cite } from '@fasl-work/caos-app-shell';
-import { seq, div, seqCss, divCss } from '../kits/colormap';
+import { FieldView3D } from '../kits/FieldView3D';
+import { UPlotChart } from '../kits/UPlotChart';
 
 // range for the current field/frame; signed potential fields are centred at 0 and use the diverging map
 function fieldStats(vals: number[], signed: boolean): { lo: number; hi: number } {
@@ -53,35 +51,6 @@ const FIELD_LABEL: Record<string, [string, string]> = {
   uncertainty_mV: ['Uncertainty (per node)', 'Incertidumbre (por nodo)'],
 };
 
-function CageMesh({ rd, field, frame }: { rd: RhythmData; field: string; frame: number }) {
-  const geom = useMemo(() => {
-    const g = new THREE.BufferGeometry();
-    const cen = [0, 0, 0];
-    rd.mesh.vertices.forEach((v) => { cen[0] += v[0]; cen[1] += v[1]; cen[2] += v[2]; });
-    const n = rd.mesh.vertices.length; cen.forEach((_, i) => (cen[i] /= n));
-    const pos = new Float32Array(n * 3);
-    rd.mesh.vertices.forEach((v, i) => { pos[i * 3] = v[0] - cen[0]; pos[i * 3 + 1] = v[1] - cen[1]; pos[i * 3 + 2] = v[2] - cen[2]; });
-    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const idx = new Uint32Array(rd.mesh.triangles.length * 3);
-    rd.mesh.triangles.forEach((t, i) => { idx[i * 3] = t[0]; idx[i * 3 + 1] = t[1]; idx[i * 3 + 2] = t[2]; });
-    g.setIndex(new THREE.BufferAttribute(idx, 1));
-    g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(n * 3), 3));
-    g.computeVertexNormals();
-    return g;
-  }, [rd]);
-
-  useEffect(() => {
-    const vals = rd.fields_over_time[field][frame];
-    const signed = isSigned(field);
-    const { lo, hi } = fieldStats(vals, signed);
-    const cmap = signed ? div : seq;
-    const color = geom.getAttribute('color') as THREE.BufferAttribute;
-    for (let i = 0; i < vals.length; i++) { const [r, g2, b] = cmap((vals[i] - lo) / (hi - lo)); color.setXYZ(i, r, g2, b); }
-    color.needsUpdate = true;
-  }, [geom, rd, field, frame]);
-
-  return <mesh geometry={geom}><meshStandardMaterial vertexColors side={THREE.DoubleSide} roughness={0.7} metalness={0.0} /></mesh>;
-}
 
 // A theme-aware SVG of the ECGi forward + inverse chain (colors via CSS variables so it repaints with the theme).
 function ForwardSvg({ lang }: { lang: 'en' | 'es' }) {
@@ -117,6 +86,8 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
   const [beat, setBeat] = useState('sinus');
   const [field, setField] = useState('recovered_mV');
   const [frame, setFrame] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const [playing, setPlaying] = useState(false);
   const raf = useRef<number | null>(null);
 
   useEffect(() => { fetch(`${BASE}data/real-ecgi-catalogue/catalogue.json`).then((r) => r.json()).then(setCat); }, []);
@@ -124,16 +95,17 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
   const ds = cat ? cat.cases[caseIdx] : null;
   const rd = ds && ds.beats[beat] ? ds.beats[beat] : ds ? ds.beats[Object.keys(ds.beats)[0]] : null;
 
-  const playOnce = () => {
-    if (raf.current || !rd) return;
-    const n = rd.times_ms.length;
-    let start = 0;
+  const togglePlay = () => {
+    if (raf.current) { cancelAnimationFrame(raf.current); raf.current = null; setPlaying(false); return; }
+    if (!rd) return;
+    setPlaying(true);
+    const n = rd.times_ms.length; let start = 0;
     const step = (ts: number) => {
       if (!start) start = ts;
       const p = Math.min(1, (ts - start) / 3000);
       setFrame(Math.min(n - 1, Math.floor(p * (n - 1))));
       if (p < 1 && document.visibilityState === 'visible') raf.current = requestAnimationFrame(step);
-      else raf.current = null;
+      else { raf.current = null; setPlaying(false); }
     };
     raf.current = requestAnimationFrame(step);
   };
@@ -153,38 +125,49 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
             const vals = rd.fields_over_time[field][rf];
             const signed = isSigned(field);
             const { lo, hi } = fieldStats(vals, signed);
-            const gradCss = signed ? divCss : seqCss;
-            // detected feature: the node of maximum absolute error at this frame (marked below + summarized)
             const err = rd.fields_over_time.abs_error_mV?.[rf] ?? vals.map(() => 0);
             let mi = 0; for (let i = 1; i < err.length; i++) if (err[i] > err[mi]) mi = i;
+            const node = picked ?? mi;
+            const rec = rd.fields_over_time.recovered_mV.map((f) => f[node]);
+            const meas = rd.fields_over_time.measured_mV.map((f) => f[node]);
             return (
-              <>
-                <div className="canvas-wrap">
-                  <Canvas camera={{ position: [90, -70, 60], fov: 40, up: [0, 0, 1] }} aria-hidden="true">
-                    <ambientLight intensity={0.55} />
-                    <directionalLight position={[80, -60, 90]} intensity={0.9} />
-                    <directionalLight position={[-70, 50, -40]} intensity={0.4} />
-                    <CageMesh key={ds.id + beat} rd={rd} field={field} frame={rf} />
-                    <OrbitControls target={[0, 0, 0]} />
-                  </Canvas>
-                  <div className="legend">
-                    <div>{pick(lang, FIELD_LABEL[field][0], FIELD_LABEL[field][1])} (mV)</div>
-                    <div className="bar" style={{ background: `linear-gradient(90deg, ${gradCss(0)}, ${gradCss(0.5)}, ${gradCss(1)})` }} />
-                    <div className="legend-ticks"><span>{lo.toFixed(2)}</span><span>{((lo + hi) / 2).toFixed(2)}</span><span>{hi.toFixed(2)}</span></div>
+              <div className="hero-rail" style={{ marginTop: 8 }}>
+                <FieldView3D
+                  key={ds.id + beat}
+                  vertices={rd.mesh.vertices} triangles={rd.mesh.triangles}
+                  values={vals} signed={signed} range={{ lo, hi }}
+                  pickedNode={picked} argmaxNode={mi} onPick={setPicked}
+                  legendLabel={pick(lang, FIELD_LABEL[field][0], FIELD_LABEL[field][1])} unit="mV"
+                  readout={<>t = {rd.times_ms[rf]} ms · {pick(lang, 'node', 'nodo')} {node} · max|err| {pick(lang, 'node', 'nodo')} {mi}</>}
+                  srSummary={pick(lang,
+                    `3D heart, ${rd.mesh.n_vertices} nodes, ${FIELD_LABEL[field][0]} at ${rd.times_ms[rf]} ms; range ${lo.toFixed(2)} to ${hi.toFixed(2)} mV; ensemble relative error ${rd.metrics.relative_error_ensemble ?? rd.metrics.relative_error_tikhonov}, correlation ${rd.metrics.correlation_ensemble ?? rd.metrics.correlation_tikhonov}; largest absolute error ${err[mi].toFixed(2)} mV at node ${mi}. Click a node to plot its recovered vs measured potential over the beat.`,
+                    `Corazon 3D de ${rd.mesh.n_vertices} nodos, ${FIELD_LABEL[field][1]} en ${rd.times_ms[rf]} ms; rango ${lo.toFixed(2)} a ${hi.toFixed(2)} mV; error relativo ${rd.metrics.relative_error_ensemble ?? rd.metrics.relative_error_tikhonov}, correlacion ${rd.metrics.correlation_ensemble ?? rd.metrics.correlation_tikhonov}; mayor error ${err[mi].toFixed(2)} mV en el nodo ${mi}. Haz clic en un nodo para graficar su potencial recuperado vs medido durante el latido.`)}
+                />
+                <div className="hero-rail-side">
+                  <div className="chip-wrap">
+                    {FIELDS.map((f) => <button key={f} className={`chip ${field === f ? 'on' : ''}`} onClick={() => setField(f)}>{pick(lang, FIELD_LABEL[f][0], FIELD_LABEL[f][1])}</button>)}
                   </div>
-                  <div className="readout">t = {rd.times_ms[rf]} ms · {pick(lang, 'max |error| at node', 'max |error| en nodo')} {mi} = {err[mi].toFixed(2)} mV</div>
+                  <div className="viz-controls">
+                    <button className={`play-btn ${playing ? 'on' : ''}`} onClick={togglePlay} aria-label={pick(lang, 'Play beat', 'Reproducir latido')}>{playing ? '❚❚' : '▶'} {pick(lang, 'beat', 'latido')}</button>
+                    <input className="scrub" type="range" min={0} max={rd.times_ms.length - 1} value={rf} onChange={(e) => { if (raf.current) { cancelAnimationFrame(raf.current); raf.current = null; setPlaying(false); } setFrame(Number(e.target.value)); }} aria-label={pick(lang, 'Beat time', 'Tiempo del latido')} />
+                    <span className="muted small">{rd.times_ms[rf]} ms</span>
+                  </div>
+                  <div className="pick-note">{picked != null
+                    ? (lang === 'es' ? <>Nodo <b>{picked}</b>: recuperado vs medido durante el latido.</> : <>Node <b>{picked}</b>: recovered vs measured over the beat.</>)
+                    : (lang === 'es' ? <>Haz clic en un nodo del corazon. Mostrando el nodo de max error <b>{mi}</b>.</> : <>Click a node on the heart. Showing the max-error node <b>{mi}</b>.</>)}</div>
+                  <UPlotChart height={190}
+                    data={[rd.times_ms, rec, meas]}
+                    series={[{ label: 'recovered', stroke: 'var(--accent)', width: 2 }, { label: 'measured', stroke: 'var(--muted)', width: 1.6, dash: [4, 3] }]}
+                    xLabel="ms" yLabel="mV" cursorX={rd.times_ms[rf]}
+                    ariaLabel={pick(lang, `Recovered vs measured potential at node ${node} over the beat`, `Potencial recuperado vs medido en el nodo ${node} durante el latido`)} />
+                  <dl className="cp-readout">
+                    <div className="ro"><span className="v">{rd.metrics.relative_error_ensemble ?? rd.metrics.relative_error_tikhonov}</span><span className="k">{pick(lang, 'relative error', 'error relativo')}</span></div>
+                    <div className="ro"><span className="v">{rd.metrics.correlation_ensemble ?? rd.metrics.correlation_tikhonov}</span><span className="k">{pick(lang, 'correlation', 'correlacion')}</span></div>
+                  </dl>
                 </div>
-                <p className="sr-summary">{pick(lang,
-                  `3D view: ${pick(lang, FIELD_LABEL[field][0], FIELD_LABEL[field][0])} on the ${rd.mesh.n_vertices}-node heart geometry at t = ${rd.times_ms[rf]} ms; value range ${lo.toFixed(2)} to ${hi.toFixed(2)} mV; reconstruction relative error ${rd.metrics.relative_error_tikhonov}, correlation ${rd.metrics.correlation_tikhonov}; largest absolute error ${err[mi].toFixed(2)} mV at node ${mi}.`,
-                  `Vista 3D: ${FIELD_LABEL[field][1]} sobre la geometria cardiaca de ${rd.mesh.n_vertices} nodos en t = ${rd.times_ms[rf]} ms; rango ${lo.toFixed(2)} a ${hi.toFixed(2)} mV; error relativo ${rd.metrics.relative_error_tikhonov}, correlacion ${rd.metrics.correlation_tikhonov}; mayor error absoluto ${err[mi].toFixed(2)} mV en el nodo ${mi}.`)}</p>
-              </>
+              </div>
             );
           })()}
-          <div className="row" style={{ marginTop: 10 }}>
-            <span className="muted small">{pick(lang, 'Beat time', 'Tiempo del latido')}:</span>
-            <input type="range" min={0} max={rd.times_ms.length - 1} value={Math.min(frame, rd.times_ms.length - 1)} onChange={(e) => setFrame(Number(e.target.value))} />
-            <button className="iconbtn" onClick={playOnce}>{pick(lang, 'Play beat', 'Reproducir latido')}</button>
-          </div>
           <p style={{ marginTop: 12 }}>{pick(lang,
             'Orbit the heart; scrub or play the beat; toggle the recovered potential, the real measured potential, their absolute error, and the per-node uncertainty. On the human tank the paced rhythms (PVP, AVP) reconstruct with higher correlation than sinus, which is physically expected: a focal paced activation is easier to localize than the diffuse sinus wavefront. The method transfers to the dog heart (a different species, geometry, and electrode count) with no retuning.',
             'Orbita el corazon; desplaza o reproduce el latido; alterna el potencial recuperado, el real medido, su error absoluto, y la incertidumbre por nodo. En el tanque humano los ritmos con marcapaso (PVP, AVP) reconstruyen con mayor correlacion que el sinusal, lo cual es fisicamente esperado. El metodo se transfiere al corazon de perro (otra especie, geometria y numero de electrodos) sin reajuste.')}</p>

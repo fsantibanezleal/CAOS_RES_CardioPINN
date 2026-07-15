@@ -1,0 +1,38 @@
+{
+  "err_two": {
+    "corr": 0.9999,
+    "scale": 0.9983,
+    "true_drop_mmHg": 4.732,
+    "rec_drop_mmHg": 4.829,
+    "drop_err_mmHg": 0.0963,
+    "rmse_mmHg": 0.0204
+  },
+  "err_coupled": {
+    "corr": 0.9679,
+    "scale": 0.0591,
+    "true_drop_mmHg": 4.732,
+    "rec_drop_mmHg": 0.381,
+    "drop_err_mmHg": 4.3516,
+    "rmse_mmHg": 1.319
+  },
+  "err_curl": {
+    "corr": 0.9893,
+    "scale": 1.3189,
+    "true_drop_mmHg": 4.732,
+    "rec_drop_mmHg": 10.259,
+    "drop_err_mmHg": 5.5267,
+    "rmse_mmHg": 0.5234
+  },
+  "verdict": {
+    "diff_solve_matches_spsolve_maxdiff": 0.0,
+    "diff_solve_correct": true,
+    "drop_err_mmHg": {
+      "two_stage_soft": 0.0963,
+      "coupled_soft": 4.3516,
+      "curl_two_stage": 5.5267
+    },
+    "coupling_helps": false,
+    "curl_subsumes": false,
+    "advance": false
+  }
+}

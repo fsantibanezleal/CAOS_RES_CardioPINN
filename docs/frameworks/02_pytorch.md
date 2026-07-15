@@ -61,6 +61,17 @@ $S = -\rho \sum_{ij}(\partial_j v_i)(\partial_i v_j)$ and the steady Neumann flu
 $b = -\rho\,(v\cdot\nabla)v + \mu\,\nabla^2 v$, both computed by second-order autograd (a Jacobian and a
 Laplacian per point, batched at 20000 points). These feed SciPy's sparse pressure-Poisson solve (card 01).
 
+This analytic-derivative choice is the decisive one, and it is now proven on a known answer (research dossier
+`beyond-sota-pinn-2026-07-14`). On an analytic converging duct whose exact pressure is known, a denoiser fit to
+noisy velocity recovers the pressure drop to a median 0.066 mmHg through this analytic path, versus 4.19 mmHg
+(about 50% inflated) when the SAME fitted field's source is finite-differenced on the grid instead, the
+approach a standard finite-difference PPE/WERP pipeline uses. That is a 63x gap on identical data, gated in CI
+by `gate_analytic_vs_fd` / `test_flow4d_analytic_source`. Two candidate upgrades were tested adversarially
+against this baseline and REFUTED on the same benchmark: enforcing incompressibility by construction (velocity
+as the curl of a learned vector potential, exact div-free) did not improve pressure, and an end-to-end
+differentiable coupling of the denoiser to the elliptic solve was subsumed by the two-stage pipeline. The
+honest record is in the dossier's `findings.md`.
+
 ## The space-time network for the analytic dv/dt (`real/flow4d_spacetime.py`)
 
 The unsteady pressure term needs $\partial v/\partial t$. Estimating it from three frames by finite difference

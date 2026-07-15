@@ -39,3 +39,19 @@ export function fieldRange(values: number[]): [number, number] {
   if (hi === lo) hi = lo + 1;
   return [lo, hi];
 }
+
+/** Shared field range convention (moved out of the pages so FieldView3D + Juxtapose agree): a SIGNED field is
+ * ranged symmetrically about 0 (so the diverging map centres at 0); an unsigned field uses its own [min,max]. */
+export function fieldStats(values: number[], signed: boolean): { lo: number; hi: number } {
+  let mx = -Infinity, mn = Infinity;
+  for (const v of values) { if (Number.isFinite(v)) { if (v > mx) mx = v; if (v < mn) mn = v; } }
+  if (!isFinite(mx)) return { lo: 0, hi: 1 };
+  if (signed) { const a = Math.max(Math.abs(mn), Math.abs(mx)) || 1; return { lo: -a, hi: a }; }
+  const lo = Math.min(0, mn); const hi = mx > lo ? mx : lo + 1; return { lo, hi };
+}
+
+/** Map a value to its colormap CSS string given a range and whether the field is signed (diverging) or not. */
+export function colorFor(v: number, lo: number, hi: number, signed: boolean): string {
+  const t = hi > lo ? (v - lo) / (hi - lo) : 0.5;
+  return signed ? divCss(t) : seqCss(t);
+}

@@ -3,6 +3,25 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.20.000], 2026-07-14
+
+### Added (adversarial beyond-SOTA evaluation of the 4D-flow PINN, on known-answer benchmarks)
+Four candidate advances over the 4D-flow pressure engine were implemented and evaluated ADVERSARIALLY (each
+tried to REFUTE the claimed advance) on analytic flows with exact ground truth, the honest way to decide a
+"beyond SOTA" claim when the real scan has no invasive pressure gold standard. Persisted in the dated dossier
+`research/beyond-sota-pinn-2026-07-14/` (design, per-experiment JSON, `findings.md`). GPU: RTX 4070.
+- **CONFIRMED and shipped**: the engine's analytic-autograd source/flux beats a finite-difference source (what a
+  standard PPE/WERP pipeline uses) by ~63x on a known answer (median pressure-drop error 0.066 vs 4.19 mmHg,
+  6/6 configs). Graduated into the engine as a gate, `flow4d_denoise.gate_analytic_vs_fd`, with
+  `tests/test_flow4d_analytic_source.py`, and documented in `docs/frameworks/02_pytorch.md`.
+- **Honest NULLs (refuted, not shipped)**: (1) hard divergence-free by construction (velocity as the curl of a
+  learned vector potential) drives the divergence residual ~6x lower but does NOT improve pressure (marginally
+  worse), the residual divergence was not the bottleneck; (2) end-to-end differentiable coupling of the denoiser
+  to the elliptic solve, a correct implicit-differentiation Poisson solve was built (reproduces `spsolve`
+  exactly) but coupling is subsumed by the two-stage pipeline for a linear elliptic solve; (3) a structural-
+  perturbation pressure UQ is calibrated but small on a clean, well-defined lumen (would need a real ambiguous
+  segmentation to show value).
+
 ## [0.19.001], 2026-07-14
 
 ### Fixed (coherence sweep, remove inconsistencies)

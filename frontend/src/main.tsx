@@ -30,12 +30,12 @@ const config: ShellConfig = {
     { path: '/benchmark', en: 'Benchmark', es: 'Benchmark' },
   ],
   links: { github: EXTERNAL_LINKS.github, personal: EXTERNAL_LINKS.personal, portfolio: EXTERNAL_LINKS.portfolio },
-  version: '0.19.001',
+  version: '0.20.000',
   architecture,
   footer: {
     provenance: {
-      en: 'Data: EDGAR / Consortium for ECG Imaging (Aras 2015, open-access, attribution requested) + a real thoracic-aorta 4D-flow MRI; engines: graph-Tikhonov ECGi + Navier-Stokes pressure-Poisson PINN',
-      es: 'Datos: EDGAR / Consortium for ECG Imaging (Aras 2015, acceso abierto, atribucion solicitada) + una resonancia real de flujo 4D de aorta toracica; motores: ECGi Tikhonov-grafo + PINN de Poisson de presion Navier-Stokes',
+      en: 'Data: EDGAR (open-access) + a real 4D-flow aorta MRI',
+      es: 'Datos: EDGAR (acceso abierto) + una resonancia real de aorta 4D-flow',
     },
     disclaimer: {
       en: 'runs offline, the web reads baked traces; not clinically deployed',
