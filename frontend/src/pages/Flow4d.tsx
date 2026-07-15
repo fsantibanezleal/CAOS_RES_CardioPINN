@@ -282,6 +282,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
   return (
     <div className="cardiopinn-layout prose">
       <aside className="cp-side">
+        <div className="cp-side-inner">
         {selector}
         {tr && (
           <>
@@ -303,8 +304,12 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
                 <div className="ro"><span className="v">{tr.metrics.n_lumen_voxels}</span><span className="k">{pick(lang, 'lumen voxels', 'voxeles lumen')}</span></div>
               </div>
             </div>
+            <div className="cp-side-foot">{pick(lang,
+              'Real thoracic-aorta 4D-flow MRI: the aortic pressure field recovered from the measured velocity by incompressible Navier-Stokes. The field toggle, phase scrubber and point-pick live in the Pressure recovery tab.',
+              'Resonancia real de aorta toracica 4D-flow: el campo de presion aortica recuperado de la velocidad medida por Navier-Stokes incompresible. El campo, la fase y la seleccion de punto estan en la pestana Recuperacion de presion.')}</div>
           </>
         )}
+        </div>
       </aside>
       <div className="cp-main">
       <div className="page-head">

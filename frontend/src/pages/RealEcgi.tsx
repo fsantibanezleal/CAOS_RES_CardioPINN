@@ -327,26 +327,21 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
   return (
     <div className="cardiopinn-layout prose">
       <aside className="cp-side">
+        <div className="cp-side-inner">
         {selector}
         {cat && ds && (
           <>
             <div className="cp-side-block">
               <label className="cp-field">
                 <span>{pick(lang, 'Dataset', 'Conjunto de datos')}</span>
-                <select className="cp-select" value={caseIdx} onChange={(e) => { const i = Number(e.target.value); setCaseIdx(i); setBeat(Object.keys(cat.cases[i].beats)[0]); setFrame(0); }}>
+                <select className="cp-select" value={caseIdx} onChange={(e) => { const i = Number(e.target.value); setCaseIdx(i); setBeat(Object.keys(cat.cases[i].beats)[0]); setFrame(0); setPicked(null); }}>
                   {cat.cases.map((c, i) => <option key={c.id} value={i}>{pick(lang, DATASET_LABEL[c.id]?.[0] ?? c.name, DATASET_LABEL[c.id]?.[1] ?? c.name)}</option>)}
                 </select>
               </label>
               <label className="cp-field">
                 <span>{pick(lang, 'Beat', 'Latido')}</span>
-                <select className="cp-select" value={beat} onChange={(e) => { setBeat(e.target.value); setFrame(0); }}>
+                <select className="cp-select" value={beat} onChange={(e) => { setBeat(e.target.value); setFrame(0); setPicked(null); }}>
                   {Object.keys(ds.beats).map((r) => <option key={r} value={r}>{pick(lang, BEAT_LABEL[r]?.[0] ?? r, BEAT_LABEL[r]?.[1] ?? r)}</option>)}
-                </select>
-              </label>
-              <label className="cp-field">
-                <span>{pick(lang, 'Field', 'Campo')}</span>
-                <select className="cp-select" value={field} onChange={(e) => setField(e.target.value)}>
-                  {FIELDS.map((f) => <option key={f} value={f}>{pick(lang, FIELD_LABEL[f][0], FIELD_LABEL[f][1])}</option>)}
                 </select>
               </label>
             </div>
@@ -361,8 +356,12 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
                 </div>
               </div>
             )}
+            <div className="cp-side-foot">{pick(lang,
+              'Real EDGAR experiment: heart-surface potentials recovered from a body-surface recording, scored against the simultaneously measured cage. The field toggle, beat scrubber and node-pick live in the Reconstruction tab.',
+              'Experimento real EDGAR: potenciales de superficie cardiaca recuperados de un registro de superficie corporal, puntuados contra la jaula medida simultaneamente. El campo, el latido y la seleccion de nodo estan en la pestana Reconstruccion.')}</div>
           </>
         )}
+        </div>
       </aside>
       <div className="cp-main">
       <div className="page-head">
