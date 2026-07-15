@@ -513,11 +513,11 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
                   { tex: String.raw`A^{\top}A`, meaning: pick(lang, 'the normal operator; adding lambda-squared L-transpose-L makes the solve well-conditioned', 'el operador normal; sumar lambda-cuadrado L-transpuesta-L hace el sistema bien condicionado') },
                 ]}
                 caption={pick(lang, 'Tikhonov reconstruction: the closed form is a single linear solve. L = I penalizes magnitude; a surface Laplacian penalizes roughness.', 'Reconstruccion de Tikhonov: la forma cerrada es un solo sistema lineal. L = I penaliza magnitud; un Laplaciano de superficie penaliza rugosidad.')} />
+              <p className="measure" style={{ marginBottom: 0 }}>{pick(lang,
+                'The one free knob is lambda, classically chosen by the L-curve corner (the trade-off between misfit and solution norm) or by CRESO. The cost of stability is a smoothness bias that blurs sharp activation fronts, and the result is a single point estimate with no measure of where it can be trusted. L1 / total-variation variants sharpen the fronts but remain deterministic.',
+                'La unica perilla libre es lambda, elegida clasicamente por la esquina de la curva L (el compromiso entre desajuste y norma de la solucion) o por CRESO. El costo de la estabilidad es un sesgo de suavidad que difumina los frentes de activacion agudos, y el resultado es una sola estimacion puntual sin medida de donde se puede confiar. Las variantes L1 / de variacion total agudizan los frentes pero siguen siendo deterministas.')}</p>
             </div>
           </div>
-          <p className="measure">{pick(lang,
-            'The one free knob is lambda, classically chosen by the L-curve corner (the trade-off between misfit and solution norm) or by CRESO. The cost of stability is a smoothness bias that blurs sharp activation fronts, and the result is a single point estimate with no measure of where it can be trusted. L1 / total-variation variants sharpen the fronts but remain deterministic.',
-            'La unica perilla libre es lambda, elegida clasicamente por la esquina de la curva L (el compromiso entre desajuste y norma de la solucion) o por CRESO. El costo de la estabilidad es un sesgo de suavidad que difumina los frentes de activacion agudos, y el resultado es una sola estimacion puntual sin medida de donde se puede confiar. Las variantes L1 / de variacion total agudizan los frentes pero siguen siendo deterministas.')}</p>
           <Callout>
             {pick(lang,
               'In the comparison we give Tikhonov its ORACLE-best lambda, the value that minimizes the true reconstruction error, so the classical baseline is judged at its best, not strawmanned. A well-tuned Tikhonov is a strong baseline.',
@@ -561,7 +561,7 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
                 const corr = rd.metrics[`correlation_${method}`];
                 return (
                   <>
-                    <dl className="cp-readout" style={{ marginTop: 10 }}>
+                    <dl className="cp-readout" style={{ marginTop: 10, gridTemplateColumns: 'repeat(3, 1fr)' }}>
                       <div className="ro"><span className="v">{re}</span><span className="k">{pick(lang, 'relative error', 'error relativo')}</span></div>
                       <div className="ro"><span className="v">{corr}</span><span className="k">{pick(lang, 'correlation', 'correlacion')}</span></div>
                       <div className="ro"><span className="v">{uqOn ? rd.metrics.uq_calibration_2sigma : '-'}</span><span className="k">{pick(lang, 'node-UQ (2 sigma)', 'UQ nodo (2 sigma)')}</span></div>

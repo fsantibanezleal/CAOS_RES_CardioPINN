@@ -73,6 +73,20 @@ canvas `strokeStyle` cannot resolve. Fixed with explicit `range` functions over 
 on x, and a `resolveColor` helper. Re-verified: all traces draw, on the live site, at v0.21.001. This is D-000 in
 practice: the build being green is not the same as the view being correct.
 
+## D-009 (RESOLVED, 0.21.003): App tab prose and content did not use the full column width (dead voids)
+Felipe flagged (screenshot `cardia_issue.png`, the How-the-PDE-arises tab) that "some text doesn't use the full
+width", with a dead void beside it. A parallel per-tab audit (one agent per tab, screenshot + code) found 30
+layout defects across ALL 12 tabs in three classes: (1) lone `.measure` paragraphs capped at 70ch leaving ~475px
+dead space to their right (~14 instances, the dominant defect); (2) `dl.def-grid` symbol lists rendering with
+one-word terms scattered far from their definitions and empty trailing cells (disperse/broken look); (3)
+`.hero-rail` height-imbalance voids where a short column left a big dead rectangle beside a tall one (secondary
+content stuffed into a narrow rail). This is D-000 again: I had "verified" the redo without scrutinizing every
+tab, and missed voids on the derivation/target/traditional/pinn tabs. Resolved: App-scoped CSS so tab prose fills
+the column (`.cp-main .measure { max-width:none }`) and def-grids pair term+definition adjacently
+(`max-content minmax(0,1fr)`); JSX moves so secondary content (glossary, StatStrip, brackets) leaves the narrow
+rails for balanced full-width rows below; standalone schematics fill the column. Re-verified by a SECOND parallel
+audit pass over fresh screenshots of all 12 tabs.
+
 ## Where the redo lives
 - Research: `research/app-redesign-2026-07-14/` (00 build plan, 01 SOTA UX, 02 ECGi tabs, 03 flow tabs, 04
   footer/layout).

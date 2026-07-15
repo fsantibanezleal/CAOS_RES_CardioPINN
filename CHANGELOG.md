@@ -3,6 +3,28 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.21.003], 2026-07-15
+
+### Fixed (App tab layout: prose and content did not use the full column width, leaving dead voids)
+A parallel per-tab audit (screenshot + code, one agent per tab) found 30 layout defects across all 12 App tabs,
+in three recurring classes. All are now fixed and re-verified tab-by-tab in a second audit pass; the defect
+registry is `plans/cardiopinn/quality-defects.md` (D-009).
+- **Lone `.measure` prose voids** (the dominant defect, ~14 instances): the shared shell caps `.measure` prose at
+  70ch (~591px), so in the ~1066px workbench column a lone intro/body paragraph left ~475px of dead space to its
+  right, above or below a full-width block. App-scoped `.cp-main .measure { max-width: none }` now lets tab prose
+  fill the column (matching the already-accepted full-width lede and the plain-`<p>` Reconstruction tab).
+- **Disperse `dl.def-grid` symbol lists** (target/PDE/traditional tabs): the shell's auto-fit grid scattered
+  one-word terms far from their definitions and left empty trailing cells. App-scoped
+  `.cp-main .def-grid { grid-template-columns: max-content minmax(0,1fr) }` renders each term next to its
+  definition as a clean glossary that fills the width.
+- **`.hero-rail` height-imbalance voids** (`align-items: start`): a short column left a large dead rectangle
+  beside a tall one, usually because a def-grid / StatStrip / bracket set was stuffed into the narrow rail.
+  Moved that secondary content out of the rails into balanced full-width rows below: 4D-flow PDE (glossary
+  full-width below), Traditional (chart full-width, glossary+brackets in a two-col below), Physics-informed
+  (pipeline full-width, equation+stats in a balanced row); ECGi Traditional (lambda explanation moved beside the
+  L-curve to fill the rail), ECGi Physics-informed readout (3 tiles on one row). Prominent standalone schematics
+  (`.fig-svg.wide`) now fill the column instead of being pinned at 760px.
+
 ## [0.21.002], 2026-07-14
 
 ### Fixed (4D-flow lumen point cloud read sparse/pale on a light background)
