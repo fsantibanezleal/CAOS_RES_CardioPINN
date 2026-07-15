@@ -10,4 +10,4 @@ traces; the static web app READS those traces (it does not run any model in the 
 gated on analytic problems with known answers before any real data is trusted (see real/ + tests/).
 """
 
-__version__ = "0.21.003"  # App layout: kill the .measure prose voids (tab prose fills the column), fix disperse def-grids to adjacent term|definition, move secondary content out of narrow rails to balanced full-width rows
+__version__ = "0.21.004"  # App layout follow-up: Tikhonov closed-form equation no longer clipped in the narrow rail (moved full-width); ECGi PDE schematic caption full-width
