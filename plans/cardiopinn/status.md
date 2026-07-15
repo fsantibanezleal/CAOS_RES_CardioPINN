@@ -1,6 +1,6 @@
 # CardioPINN status
 
-Live: https://cardiopinn.fasl-work.com  ·  Version: 0.21.001  ·  Updated: 2026-07-14
+Live: https://cardiopinn.fasl-work.com  ·  Version: 0.21.002  ·  Updated: 2026-07-14
 
 ## What CardioPINN is
 A bake-and-read research app: the physics is computed offline (GPU) into committed JSON traces, and the web reads
@@ -23,14 +23,14 @@ Benchmark):
 - 0.21.000: App redo. Every tab rebuilt into the interactive kit (see `quality-defects.md` D-001..D-007),
   grounded in `research/app-redesign-2026-07-14/`, tab set unchanged.
 - 0.21.001: fixed every linked uPlot chart rendering blank (D-008), caught on the live deploy.
+- 0.21.002: fixed the 4D-flow lumen point cloud reading sparse/pale on a light background (diverging-midpoint
+  invisible on the page bg); point clouds now render on a fixed mid-slate data viewport, solid in both themes.
 
 ## Verified
 tsc + vite build + content-standards green. Every App tab screenshot-verified in both cases and both themes (viz
 fills its stage, no void, no wall of text, footer 2 lines). Chart traces confirmed drawing by canvas-pixel
-sampling on the live site.
+sampling on the live site; point cloud confirmed solid in both themes on the live site.
 
 ## Open / next (not blocking)
-- 4D-flow lumen point cloud reads a little sparse/pale at the default (relative pressure near zero is white); a
-  denser point size or a speed-field default would read more solid. Cosmetic, not a defect.
 - The confirmed analytic-gate advance is validated on analytic flows only; the real scan has no invasive pressure
   gold standard, so absolute magnitude carries the method uncertainty honestly (stated in the app).
