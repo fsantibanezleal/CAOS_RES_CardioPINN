@@ -10,4 +10,4 @@ traces; the static web app READS those traces (it does not run any model in the 
 gated on analytic problems with known answers before any real data is trusted (see real/ + tests/).
 """
 
-__version__ = "0.21.001"  # fix: UPlotChart scales never ranged (chart built empty, setData did not re-range) + CSS-var stroke unresolved by canvas -> every linked chart drew blank; explicit range fns + resolveColor
+__version__ = "0.21.002"  # point-cloud viewport: fixed mid-slate data canvas so the coolwarm midpoint (light grey) and magma low-end (near-black) stay visible in both themes; +point size

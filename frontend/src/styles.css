@@ -97,6 +97,9 @@ th { color: var(--muted); font-weight: 600; }
 
 .canvas-wrap { position: relative; width: 100%; aspect-ratio: 16 / 10; min-height: 360px; max-height: min(72dvh, 640px); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--bg); }
 .canvas-wrap canvas { touch-action: none; }
+/* point clouds use a fixed neutral mid-slate viewport (theme-independent): the coolwarm midpoint is light grey
+ * and the magma low-end is near-black, so a mid-tone keeps BOTH visible where the page bg would hide one. */
+.canvas-wrap--data { background: #39414f; }
 /* HERO + RAIL grid: the interactive fills the width, a narrow rail carries the linked chart + controls (no void) */
 .hero-rail { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(250px, 0.92fr); gap: 18px; align-items: start; }
 @media (max-width: 900px) { .hero-rail { grid-template-columns: 1fr; } }
