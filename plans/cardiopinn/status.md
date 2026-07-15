@@ -1,0 +1,36 @@
+# CardioPINN status
+
+Live: https://cardiopinn.fasl-work.com  ·  Version: 0.21.001  ·  Updated: 2026-07-14
+
+## What CardioPINN is
+A bake-and-read research app: the physics is computed offline (GPU) into committed JSON traces, and the web reads
+those traces (no model runs in the browser). Two physics domains, each a case workbench with the same six App
+tabs (Reconstruction/Pressure-recovery, The problem, The target, How the PDE arises, Traditional approach,
+Physics-informed proposal), plus the five doc pages (Introduction, Methodology, Implementation, Experiments,
+Benchmark):
+- ECGi: recover heart-surface potentials from body-surface potentials (ill-posed inverse, Laplace), validated on
+  the EDGAR torso-tank + in-situ-dog datasets against the simultaneously measured cage (real gold standard).
+- 4D-flow: recover the aortic relative pressure field from a real 4D-flow MRI velocity cloud via the pressure
+  Poisson equation (incompressible Navier-Stokes source).
+
+## Current state (shipped)
+- 0.19.000: deep, primary-source-verified problem statements.
+- 0.20.000: adversarial beyond-SOTA evaluation of the 4D-flow PINN. One advance CONFIRMED and shipped (analytic
+  autograd source/flux vs a finite-difference source, ~63x lower pressure-drop error on a known answer, gated in
+  `flow4d_denoise.gate_analytic_vs_fd` + `tests/test_flow4d_analytic_source.py`). The other three candidates are
+  honest NULLs (curl-based hard divergence-free, differentiable denoiser-solver coupling, structural UQ), see
+  `research/beyond-sota-pinn-2026-07-14/findings.md`. The App redesign is a UX/quality fix, not a new advance.
+- 0.21.000: App redo. Every tab rebuilt into the interactive kit (see `quality-defects.md` D-001..D-007),
+  grounded in `research/app-redesign-2026-07-14/`, tab set unchanged.
+- 0.21.001: fixed every linked uPlot chart rendering blank (D-008), caught on the live deploy.
+
+## Verified
+tsc + vite build + content-standards green. Every App tab screenshot-verified in both cases and both themes (viz
+fills its stage, no void, no wall of text, footer 2 lines). Chart traces confirmed drawing by canvas-pixel
+sampling on the live site.
+
+## Open / next (not blocking)
+- 4D-flow lumen point cloud reads a little sparse/pale at the default (relative pressure near zero is white); a
+  denser point size or a speed-field default would read more solid. Cosmetic, not a defect.
+- The confirmed analytic-gate advance is validated on analytic flows only; the real scan has no invasive pressure
+  gold standard, so absolute magnitude carries the method uncertainty honestly (stated in the app).
