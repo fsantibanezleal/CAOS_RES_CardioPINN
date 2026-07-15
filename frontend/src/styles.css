@@ -38,6 +38,9 @@
 /* App tab prose fills the content column (the shell's .measure 70ch cap is for single-column doc pages; in the
  * workbench a lone 70ch paragraph leaves a dead void beside it, so match the full-width lede/plain <p> instead). */
 .cp-main .measure { max-width: none; }
+/* Doc pages: the opening lede is capped at 70ch by the shell but the body sections fill the page-body width, so a
+ * lone narrow lede left a void inconsistent with the full-width body. Let the doc-page lede fill to match. */
+.page-body .lede { max-width: none; }
 /* Symbol/definition lists: keep each term next to its definition and fill the width (the shell's .def-grid
  * auto-fit scatters one-word terms far from their definitions and leaves empty trailing cells). */
 .cp-main .def-grid { grid-template-columns: max-content minmax(0, 1fr); column-gap: 18px; row-gap: 10px; align-items: baseline; }

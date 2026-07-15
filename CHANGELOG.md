@@ -3,6 +3,47 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.21.005], 2026-07-15
+
+### Full adversarial revision (content, structure, styles, completeness, robustness)
+A 16-reviewer adversarial audit across every surface (App tabs, 5 doc pages, docs wiki, pipeline, tests) plus a
+verify pass that tried to refute each finding: 61 confirmed of 72. Dossier: `plans/cardiopinn/revision-2026-07-15.md`.
+About 55 are fixed here (the rest, mostly low doc/test residue, are tracked in the dossier).
+
+Content and honesty (the highest-value fixes):
+- The app DISPLAYS the ensemble reconstruction, but the sidebar and Implementation quoted the better Tikhonov
+  metrics, and the "both paced beats reconstruct better than sinus" claim is false for the displayed ensemble on
+  PVP. The ECGi sidebar, the Reconstruction prose, and the Implementation callout now report the ensemble field
+  with the Tikhonov baseline disclosed alongside; the paced claim is corrected (AVP higher, PVP comparable).
+- The "leakage-safe" Experiments page forbade fitting the gain or lambda on the held-out cage, but the pipeline
+  fits BOTH a scalar magnitude gain (first-half cage) and the oracle-best lambda against the cage. The page now
+  discloses this honestly: the recovered spatial PATTERN comes from body-surface data only (correlation is
+  scale-free); two scalars are cage-calibrated and disclosed; fitting the pattern on the cage is the forbidden
+  anti-pattern.
+- The 4D-flow "peak velocity 0.791 m/s" is the divergence-free denoised peak; the app displays a raw measured
+  speed field peaking near 1.6 m/s. Relabeled "denoised peak velocity" with the raw-noise disclosure; Bernoulli
+  4Vmax squared uses the denoised peak. The severe line was a 40 mmHg MEAN-gradient criterion drawn against the
+  4Vmax squared PEAK curve; corrected to the 4.0 m/s peak-velocity criterion (64 mmHg peak gradient).
+- Methodology: reconciled the BEM contradiction (homogeneous BEM gated on spheres, single-layer is the shipped
+  default, inapplicable to EDGAR's open surfaces) and fixed the kernel equation to the real single-layer + gain.
+- Benchmark: lede no longer claims every number is read from an artifact (the finite-difference baseline is the
+  labeled exception); the ECGi callout is beat-specific; Node-UQ is marked a 2-sigma coverage fraction.
+- Introduction: added the parallel Case-B pipeline, softened the Case-B "real reference" overclaim, de-duplicated.
+
+Robustness:
+- App-wide ErrorBoundary; both data fetches now check response.ok, catch, cache-bust (?v=APP_VERSION), and show a
+  loading/error affordance instead of a silent blank tab.
+- "The target" ECGi tab is dataset-aware (electrode/node/beat/frame counts from the trace), so it no longer
+  prints human-tank dimensions for the dog dataset.
+- FieldView3D: real keyboard node-pick (Arrow/Home/End); both 3D viewports unified on the data canvas.
+- PipelineSvg cancels its timers/raf on unmount; Juxtapose releases pointer capture correctly.
+- Pipeline: a fail-loud coords-vs-h unit guard in the 4D-flow bake (the source scales ~1/h^2), and a
+  minimum-frames floor in the ECGi catalogue so a dead lead fails loudly instead of emptying the beat.
+
+Styles / docs / completeness: doc-page ledes now fill their column (were 70ch with a void); a new uPlot framework
+card; corrected the public/ gitignore claim, CI trigger, lane module tree, run-locally guide, reading-the-app
+guide; two malformed citations fixed and unconfirmable ones flagged UNVERIFIED.
+
 ## [0.21.004], 2026-07-15
 
 ### Fixed (layout follow-up, from a second adversarial audit pass)
