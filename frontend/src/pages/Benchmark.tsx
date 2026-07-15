@@ -63,14 +63,14 @@ export function Benchmark() {
                 </div>
                 <div className="overflow-x">
                   <table>
-                    <thead><tr><th>{pick(lang, 'Method', 'Metodo')}</th><th>{pick(lang, 'Relative error', 'Error relativo')}</th><th>{pick(lang, 'Correlation', 'Correlacion')}</th><th>Node-UQ (2σ)</th></tr></thead>
+                    <thead><tr><th>{pick(lang, 'Method', 'Metodo')}</th><th>{pick(lang, 'Relative error', 'Error relativo')}</th><th>{pick(lang, 'Correlation', 'Correlacion')}</th><th>{pick(lang, 'Node-UQ 2σ coverage', 'Cobertura UQ nodo 2σ')}</th></tr></thead>
                     <tbody>{rows.map((r, i) => <tr key={i}><td>{r[0]}</td><td className="mono">{r[1]}</td><td className="mono">{r[2]}</td><td className="mono">{r[3]}</td></tr>)}</tbody>
                   </table>
                 </div>
               </>
             );
           })()}
-          <Callout>{pick(lang, 'A well-tuned Tikhonov is a strong baseline: the graph prior matches it on relative error and shifts correlation only slightly (both are limited by the same single-layer forward). The decisive difference is the calibrated per-node uncertainty the ensemble gives and a deterministic estimate cannot.', 'Un Tikhonov bien ajustado es un baseline fuerte: el prior de grafo lo iguala en error relativo y cambia la correlacion solo ligeramente (ambos limitados por el mismo directo de capa simple). La diferencia decisiva es la incertidumbre por nodo calibrada que da el ensemble y una estimacion determinista no puede.')}</Callout>
+          <Callout>{pick(lang, 'A well-tuned Tikhonov is a strong baseline. The graph prior tracks it closely on some beats but trails on others: on the paced-PVP beat it is about 15% worse on relative error and roughly 0.09 lower on correlation (both are limited by the same single-layer forward). The decisive difference is the calibrated per-node uncertainty the ensemble gives and a deterministic estimate cannot.', 'Un Tikhonov bien ajustado es un baseline fuerte. El prior de grafo lo sigue de cerca en algunos latidos pero queda atras en otros: en el latido PVP estimulado es cerca de 15% peor en error relativo y aproximadamente 0.09 mas bajo en correlacion (ambos limitados por el mismo directo de capa simple). La diferencia decisiva es la incertidumbre por nodo calibrada que da el ensemble y una estimacion determinista no puede.')}</Callout>
           <Refs ids={['ghosh2009', 'cluitmans2018']} label="Refs" />
         </section>
       ),
@@ -124,6 +124,7 @@ export function Benchmark() {
               </table>
             </div>
           )}
+          <p className="muted small">{pick(lang, 'The 14.87 mmHg finite-difference baseline is a documented historical constant from the space-time gate, not a metric in this committed trace; the PINN and Bernoulli rows are read live from it.', 'El baseline de diferencia finita de 14.87 mmHg es una constante historica documentada de la prueba espacio-temporal, no una metrica en este trace comprometido; las filas del PINN y Bernoulli se leen en vivo de el.')}</p>
           <RobustnessSvg lang={lang} />
           <Refs ids={['raissi2020', 'krittian2012']} label="Refs" />
         </section>
@@ -153,8 +154,8 @@ export function Benchmark() {
       <div className="page-head">
         <h1>Benchmark</h1>
         <p className="lede">{pick(lang,
-          'Every number here is read from a committed artifact, never typed in: the classical and learned ECGi reconstructions judged against the same REAL heart-surface potentials, the forward-operator ablation (single-layer vs boundary-element), and the 4D-flow ablations (space-time vs finite-difference, and the noise-robustness curve). The comparisons are fair and the findings, including the null ones, are reported not hidden.',
-          'Cada numero aqui se lee de un artefacto comprometido, nunca se escribe a mano: las reconstrucciones ECGi clasica y aprendida juzgadas contra los mismos potenciales REALES, la ablacion del operador directo (capa simple vs elementos de contorno), y las ablaciones de flujo 4D (espacio-tiempo vs diferencia finita, y la curva de robustez al ruido). Las comparaciones son justas y los hallazgos, incluidos los nulos, se reportan no se ocultan.')}</p>
+          'Nearly every number here is read from a committed artifact, never typed in (the one labelled exception is the historical finite-difference baseline): the classical and learned ECGi reconstructions judged against the same REAL heart-surface potentials, the forward-operator ablation (single-layer vs boundary-element), and the 4D-flow ablations (space-time vs finite-difference, and the noise-robustness curve). The comparisons are fair and the findings, including the null ones, are reported not hidden.',
+          'Casi cada numero aqui se lee de un artefacto comprometido, nunca se escribe a mano (la unica excepcion, etiquetada, es el baseline historico de diferencia finita): las reconstrucciones ECGi clasica y aprendida juzgadas contra los mismos potenciales REALES, la ablacion del operador directo (capa simple vs elementos de contorno), y las ablaciones de flujo 4D (espacio-tiempo vs diferencia finita, y la curva de robustez al ruido). Las comparaciones son justas y los hallazgos, incluidos los nulos, se reportan no se ocultan.')}</p>
       </div>
 
       <Tabs tabs={tabs} ariaLabel={pick(lang, 'Benchmark sections', 'Secciones de benchmark')} />

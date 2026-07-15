@@ -19,9 +19,10 @@ them inside its own served tree, so a prebuild step overlays them:
 
 - `frontend/copy-data.mjs` copies `data/derived/` into `frontend/public/data/` (recursively; traces end up at
   `public/data/<case>/*.json`).
-- `frontend/public/` is a build-time overlay and is gitignored; the canonical copy is always `../data/derived`,
-  never the overlay. This keeps a single source of truth (the committed trace) and avoids a second, drifting
-  copy under `frontend/`.
+- `frontend/public/` itself is a tracked static-assets directory (it holds the `CNAME` for the custom domain);
+  only the overlaid `frontend/public/data/` subtree is gitignored. The canonical copy of the traces is always
+  `../data/derived`, never the overlay. This keeps a single source of truth (the committed trace) and avoids a
+  second, drifting copy under `frontend/`.
 
 The overlay runs as part of `npm run build`, so a fresh clone plus `npm install && npm run build` reproduces
 the exact served bundle from the committed traces. If `data/derived` is missing, `copy-data.mjs` warns and the
@@ -53,7 +54,7 @@ GitHub Pages serving the static bundle.
 ## The gates that run before a deploy
 
 The deploy job runs on merge to `main`, but the merge itself is gated by CI (`.github/workflows/ci.yml`), which
-runs on every push and pull request:
+runs on pushes to `main`/`develop` and on all pull requests (plus manual dispatch):
 
 - `test` job: `ruff` lint, `pytest -q -m "not slow"` (the pure-python contracts and the light analytic gates;
   the slow PINN gate is local-only), and `scripts/check_artifacts.py` (the committed-artifact validator, note

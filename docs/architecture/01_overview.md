@@ -66,7 +66,9 @@ output. Concretely:
 This is why "bake-and-read" is not a slogan but the contract: the number you see in the web is exactly the
 number the committed JSON holds, which is exactly what the offline engine produced. Any prose about ONNX,
 onnxruntime-web, Pyodide, a browser inference session, or a live/replay gate is STALE and does not describe
-this product; those claims were removed in 0.12.001.
+this product: the deployed bundle ships none of these. That wording was dropped from these architecture docs in
+0.12.001; any residue still lingering in code comments or ignore rules is leftover from the earlier design, not
+a live capability.
 
 ## Why two domains at all
 

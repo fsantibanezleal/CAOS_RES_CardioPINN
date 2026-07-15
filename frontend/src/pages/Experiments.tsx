@@ -172,6 +172,7 @@ export function Experiments() {
                 <tr><td>{pick(lang, 'Thoracic-aorta 4D-flow', 'Flujo 4D de aorta toracica')}</td><td>4D-flow</td><td className="small">{pick(lang, 'real Philips MRI (venc 120)', 'MRI Philips real (venc 120)')}</td><td className="small">{pick(lang, 'link-only (gitignored)', 'solo enlace (gitignored)')}</td><td className="good">{pick(lang, 'integrated', 'integrado')}</td></tr>
                 <tr><td>Bordeaux</td><td>ECGi</td><td className="small">EDGAR / CEI</td><td className="small">-</td><td className="muted small">{pick(lang, 'excluded (open sock)', 'excluido (malla abierta)')}</td></tr>
                 <tr><td>Valencia</td><td>ECGi</td><td className="small">EDGAR / CEI</td><td className="small">-</td><td className="muted small">{pick(lang, 'excluded (simulation)', 'excluido (simulacion)')}</td></tr>
+                <tr><td>{pick(lang, 'Ischemia (BEM matrices)', 'Isquemia (matrices BEM)')}</td><td>ECGi</td><td className="small">EDGAR / CEI</td><td className="small">-</td><td className="muted small">{pick(lang, 'excluded (unreadable MAT v7.3 matrix)', 'excluido (matriz MAT v7.3 ilegible)')}</td></tr>
               </tbody>
             </table>
           </div>

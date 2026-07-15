@@ -1,16 +1,20 @@
 # 01, Run CardioPINN locally
 
-This guide takes you from a clean clone to the app running in a browser. CardioPINN has two independent real
-cases in two different physics domains, and they have deliberately different toolchains, so there are TWO
-virtual environments, not one:
+This guide takes you from a clean clone to the app running in a browser. CardioPINN keeps its Python in TWO
+virtual environments, split by LANE (offline bake vs thin runtime), not by physics case:
 
-- the **ECGi case** (recovering heart-surface potentials by quasi-static volume conduction) is pure linear
-  algebra: NumPy and SciPy on the CPU, no deep-learning framework at all. It lives in a light `.venv`.
-- the **4D-flow case** (recovering aortic pressure by incompressible Navier-Stokes) trains PINNs in PyTorch
-  and is meant for a local GPU. It lives in a heavier `.venv-pipeline`.
+- `.venv-pipeline` is the heavy OFFLINE bake lane and the only one that reproduces the physics. It installs
+  the whole `cardiopinnlab` package editable (`pip install -e .`) plus `data-pipeline/requirements.txt`
+  (numpy, scipy, torch, pydicom) and the dev tools. BOTH real cases bake from here: the **ECGi case**
+  (recovering heart-surface potentials by quasi-static volume conduction, pure NumPy/SciPy linear algebra on
+  the CPU, no deep-learning framework) and the **4D-flow case** (recovering aortic pressure by incompressible
+  Navier-Stokes, PINNs in PyTorch, meant for a local NVIDIA GPU).
+- `.venv` is the thin runtime/live lane: the root `requirements.txt` only (numpy, scipy), enough to import the
+  data contracts and run the pure-python tests. It is what ships; it does NOT get the editable package or
+  torch, so it cannot run the bake.
 
-You do NOT need both to work on one case. If you only want the app to render the already-committed results,
-you need neither: the traces are committed under `data/derived/`, so `npm run dev` alone renders everything.
+If you only want the app to render the already-committed results, you need neither environment: the traces are
+committed under `data/derived/`, so `npm run dev` alone renders everything.
 
 ## 0. What actually needs to run
 
@@ -36,51 +40,63 @@ The repo ships the committed derived artifacts (`data/derived/real-ecgi-catalogu
 `data/derived/real-flow4d-pressure/trace.json`), so the app is renderable immediately. The raw datasets are
 NOT in the repo (they carry data-use agreements and are gitignored); you only need them to rebake.
 
-## 2. The light ECGi environment (`.venv`, NumPy/SciPy, CPU)
+## 2. The offline bake environment (`.venv-pipeline`)
 
-The ECGi reconstruction (forward operator, Tikhonov, graph-Laplacian prior, deep-ensemble node UQ) uses only
-NumPy and SciPy. Create the environment and install those two packages:
-
-```bash
-py -3.12 -m venv .venv
-./.venv/Scripts/python.exe -m pip install numpy scipy
-```
-
-Point the loader at your local EDGAR data with `EDGAR_ROOT` (its default is `D:/_Datos/cardiopinn`). The
-catalogue loader (`cardiopinnlab/real/ecgi_catalogue.py`) reads each dataset from a subfolder of that root
-(`edgar/` for the human torso tank, `edgar_maastricht/` for the in-situ dog). A quick smoke test that the
-environment and data path resolve, reconstructing the first case and printing its id:
-
-```bash
-EDGAR_ROOT=/path/to/your/edgar-data \
-  ./.venv/Scripts/python.exe -c \
-  "from cardiopinnlab.real import ecgi_catalogue as C; print(C.bake_catalogue()['cases'][0]['id'])"
-```
-
-This should print `human-tank`. If you do not have the raw EDGAR data, skip this: the committed catalogue is
-already in `data/derived/` and the app will read it.
-
-Run the offline module from the `data-pipeline/` directory (or install the package editable, see below) so
-that `cardiopinnlab` is importable.
-
-## 3. The heavy 4D-flow environment (`.venv-pipeline`, PyTorch, local GPU)
-
-The 4D-flow pressure pipeline (divergence-free velocity PINN denoiser, space-time net for the analytic
-unsteady term, pressure-Poisson sparse solve) uses PyTorch and is designed to bake on a local NVIDIA GPU. Its
-dependencies are pinned in `data-pipeline/requirements.txt` (torch, numpy, scipy, pydicom, nothing else):
+Both cases bake from one environment. Create it and install the offline requirements, the dev tools, and the
+package itself editable (so `cardiopinnlab` is importable from anywhere):
 
 ```bash
 py -3.12 -m venv .venv-pipeline
-./.venv-pipeline/Scripts/python.exe -m pip install -r data-pipeline/requirements.txt
+./.venv-pipeline/Scripts/python.exe -m pip install -r data-pipeline/requirements.txt -r requirements-dev.txt
+./.venv-pipeline/Scripts/python.exe -m pip install -e .
 ```
 
-For the CUDA build of PyTorch, install it first from the PyTorch index, then the rest (the CPU wheel also
-works; the cardiac PINNs are small MLPs that train in minutes):
+This is exactly what `scripts/setup.ps1` / `scripts/setup.sh` do for this lane (see the note at the end of the
+section). For the CUDA build of PyTorch on a local NVIDIA GPU, install it first from the PyTorch index, before
+the rest (the CPU wheel also works; the cardiac PINNs are small MLPs that train in minutes):
 
 ```bash
 ./.venv-pipeline/Scripts/python.exe -m pip install torch --index-url https://download.pytorch.org/whl/cu121
-./.venv-pipeline/Scripts/python.exe -m pip install -r data-pipeline/requirements.txt
+./.venv-pipeline/Scripts/python.exe -m pip install -r data-pipeline/requirements.txt -r requirements-dev.txt
 ```
+
+### The ECGi case (NumPy/SciPy, CPU)
+
+The ECGi reconstruction (forward operator, Tikhonov, graph-Laplacian prior, deep-ensemble node UQ) is pure
+linear algebra, no deep-learning framework. Point the loader at your local EDGAR data with `EDGAR_ROOT` (its
+default is `D:/_Datos/cardiopinn`). The catalogue loader (`cardiopinnlab/real/ecgi_catalogue.py`) reads each
+dataset from a subfolder of that root (`edgar/` for the human torso tank, `edgar_maastricht/` for the in-situ
+dog).
+
+A quick smoke test that the environment resolves and `cardiopinnlab` imports (needs no raw data, just prints
+the first catalogue case id):
+
+```bash
+./.venv-pipeline/Scripts/python.exe -c \
+  "from cardiopinnlab.real import ecgi_catalogue as C; print(C.CASES[0]['id'])"
+```
+
+This prints `human-tank`. To actually reconstruct that first case you need the `edgar/` human torso-tank data
+under `EDGAR_ROOT`:
+
+```bash
+EDGAR_ROOT=/path/to/your/edgar-data \
+  ./.venv-pipeline/Scripts/python.exe -c \
+  "from cardiopinnlab.real import ecgi_catalogue as C; print(C.bake_case_beat(C.CASES[0], 'sinus')['metrics'])"
+```
+
+Note that `C.bake_catalogue()` (used by the full rebake, guide 03) is NOT a single-case test: it reconstructs
+EVERY beat of EVERY dataset and runs the forward comparison, so it requires BOTH `edgar/` and
+`edgar_maastricht/` present. If you have only the human torso-tank data (a common partial EDGAR download), use
+the single-case command above. If you have no raw EDGAR data at all, skip this: the committed catalogue is
+already in `data/derived/` and the app reads it.
+
+## 3. Baking the 4D-flow case (PyTorch, local GPU)
+
+The 4D-flow pressure pipeline (divergence-free velocity PINN denoiser, space-time net for the analytic
+unsteady term, pressure-Poisson sparse solve) runs from the same `.venv-pipeline` created above (torch is
+pinned in `data-pipeline/requirements.txt`; for the CUDA build see the note in section 2). It is designed to
+bake on a local NVIDIA GPU, though the CPU wheel also works.
 
 Point the DICOM loader at your local raw 4D-flow series with `AORTA4D_DIR` (its default is the local scan
 path baked into `flow4d_bake._root()`), then run the bake, which decodes the velocity, corrects phase-wrap
@@ -96,9 +112,12 @@ pressure range, Bernoulli reference, lumen voxels). Full rebake details are in g
 
 ### A note on the setup scripts
 
-`scripts/setup.ps1` / `scripts/setup.sh` create both environments and install `requirements-dev.txt` and the
-editable package for you (idempotent, no global installs). They are the archetype-standard entry point; the
-explicit commands above are what they run under the hood, shown so you understand the two lanes.
+`scripts/setup.ps1` / `scripts/setup.sh` create BOTH environments for you (idempotent, no global installs).
+Into `.venv-pipeline` they install `data-pipeline/requirements.txt`, `requirements-dev.txt`, and the editable
+package (the offline bake lane, exactly the section-2 commands). Into `.venv` they install only the root
+`requirements.txt` (the thin runtime/tests lane, no editable package and no torch). They are the
+archetype-standard entry point; run them instead of the manual commands unless you want to understand the two
+lanes by hand.
 
 ## 4. The frontend (Vite + React + three.js)
 

@@ -58,7 +58,8 @@ export function Juxtapose({
   const onPointerDown = useCallback(
     (e: React.PointerEvent): void => {
       draggingRef.current = true;
-      (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+      // capture on the root, the same element whose pointerup/cancel handlers release it
+      rootRef.current?.setPointerCapture?.(e.pointerId);
       setFromClientX(e.clientX);
     },
     [setFromClientX],
@@ -74,7 +75,8 @@ export function Juxtapose({
 
   const onPointerUp = useCallback((e: React.PointerEvent): void => {
     draggingRef.current = false;
-    (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+    // release on the root, the same element that captured in onPointerDown
+    rootRef.current?.releasePointerCapture?.(e.pointerId);
   }, []);
 
   const onKeyDown = useCallback((e: React.KeyboardEvent): void => {

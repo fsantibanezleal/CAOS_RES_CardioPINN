@@ -1,11 +1,13 @@
 // The interactive 3D field host used by every 3D tab (ECGi heart mesh + 4D-flow lumen cloud). Orbit + zoom
-// (OrbitControls), CLICK/keyboard PICK a node (raycast -> nearest vertex -> onPick), a pinned picked-node
-// marker + an argmax marker, a perceptually-uniform colormap legend, a value readout, and an sr-summary text
-// (canvas aria-hidden). Colours come from the shared colormap kit; the field is signed (diverging) or unsigned
-// (sequential). This replaces the static heart/cloud with a real, inspectable view (interactive-viz-rubric).
+// (OrbitControls). PICK a node by mouse click (raycast -> nearest vertex -> onPick); the viewport is also
+// keyboard-focusable and Arrow/Home/End keys step the picked node index (onPick), so the pick works without a
+// mouse. A pinned picked-node marker + an argmax marker, a perceptually-uniform colormap legend, a value
+// readout, and an sr-summary text (the WebGL canvas itself is aria-hidden, so the sr-summary describes it).
+// Colours come from the shared colormap kit; the field is signed (diverging) or unsigned (sequential). This
+// replaces the static heart/cloud with a real, inspectable view (interactive-viz-rubric).
 import { OrbitControls } from '@react-three/drei';
 import { Canvas, type ThreeEvent } from '@react-three/fiber';
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { div as _div, seq as _seq, divCss, seqCss } from './colormap';
 
@@ -107,10 +109,30 @@ export function FieldView3D(props: FieldView3DProps) {
     : `linear-gradient(90deg, ${seqCss(0)}, ${seqCss(0.5)}, ${seqCss(1)})`;
   const fmt = (x: number) => Math.abs(x) >= 100 ? x.toFixed(0) : x.toFixed(2);
 
+  // Keyboard pick: the WebGL canvas is aria-hidden, so the wrapper is focusable and Arrow/Home/End step the
+  // picked node index and call onPick, giving keyboard-only users the same node selection as a mouse click.
+  const nNodes = vertices.length;
+  const stepPick = (delta: number) => {
+    if (nNodes === 0) return;
+    const cur = pickedNode == null ? -1 : pickedNode;
+    const next = Math.min(nNodes - 1, Math.max(0, cur + delta));
+    if (next !== pickedNode) onPick(next);
+  };
+  const onViewportKey = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': e.preventDefault(); stepPick(1); break;
+      case 'ArrowLeft': case 'ArrowUp': e.preventDefault(); stepPick(-1); break;
+      case 'Home': if (nNodes) { e.preventDefault(); onPick(0); } break;
+      case 'End': if (nNodes) { e.preventDefault(); onPick(nNodes - 1); } break;
+    }
+  };
+
   return (
-    // point clouds render on a fixed neutral-dark viewport: the diverging colormap's midpoint is light grey,
-    // which would vanish on a light page background, so a data canvas keeps every point visible in both themes.
-    <div className={`canvas-wrap${renderPoints ? ' canvas-wrap--data' : ''}`}>
+    // Both 3D viewports (heart mesh and lumen point cloud) render on a fixed neutral-dark data canvas: the
+    // diverging colormap's midpoint is light grey, so a theme-following bg would hide it on a light page and
+    // leave the two sibling views mismatched; the fixed background keeps every node visible and the mesh and
+    // cloud viewports matched in both light and dark themes.
+    <div className="canvas-wrap canvas-wrap--data" tabIndex={0} onKeyDown={onViewportKey} aria-label={legendLabel}>
       <Canvas camera={{ position: camera, fov: 42, up: [0, 0, 1], near: 0.1, far: bound * 20 }}
         onCreated={({ raycaster }) => { if (renderPoints) raycaster.params.Points.threshold = Math.max(0.6, bound * 0.02); }} aria-hidden="true">
         <ambientLight intensity={0.75} />
