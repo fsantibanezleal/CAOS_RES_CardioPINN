@@ -9,6 +9,7 @@ import { HoverMathEq } from '../kits/HoverMathEq';
 import { Juxtapose } from '../kits/Juxtapose';
 import { PipelineSvg } from '../kits/PipelineSvg';
 import { useLang, pick } from '../store';
+import { APP_VERSION } from '../lib/version';
 
 // robust range (2nd-98th percentile); relative pressure is signed (diverging), speed is magnitude (sequential)
 function lumenStats(vals: number[]): { lo: number; hi: number } {
@@ -92,9 +93,17 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
   const [vmaxT, setVmaxT] = useState(0.79);                         // Tab 5 Bernoulli explorable (anchored to this scan)
   const [v1T, setV1T] = useState(1.0);                             // Tab 5 inflow velocity
   const [pipeSel, setPipeSel] = useState<string | null>(null);     // Tab 6 pipeline node
+  const [loadError, setLoadError] = useState<string | null>(null);
   const raf = useRef<number | null>(null);
 
-  useEffect(() => { fetch(`${BASE}data/real-flow4d-pressure/trace.json`).then((r) => r.json()).then(setTr).catch(() => setTr(null)); }, []);
+  useEffect(() => {
+    let alive = true;
+    fetch(`${BASE}data/real-flow4d-pressure/trace.json?v=${APP_VERSION}`)
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status} loading the 4D-flow trace`); return r.json(); })
+      .then((d) => { if (alive) setTr(d); })
+      .catch((e) => { if (alive) setLoadError(String(e && e.message ? e.message : e)); });
+    return () => { alive = false; };
+  }, []);
   useEffect(() => { if (tr) setFrame(tr.peak_frame); }, [tr]);
 
   const stopPlay = () => { if (raf.current) { cancelAnimationFrame(raf.current); raf.current = null; } setPlaying(false); };
@@ -461,6 +470,21 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
       ),
     },
   ];
+
+  if (loadError || !tr) {
+    return (
+      <div className="cardiopinn-layout prose">
+        <div className="cp-main" style={{ gridColumn: '1 / -1' }}>
+          <div className="page-head"><h1>{pick(lang, 'Real 4D-flow: recovering the aortic pressure field', 'Flujo 4D real: recuperar el campo de presion aortica')}</h1></div>
+          <div className="panel" role="status" style={{ marginTop: 16 }}>
+            {loadError
+              ? pick(lang, `The 4D-flow trace could not be loaded (${loadError}). If you just deployed, hard-refresh once; the web reads a committed JSON trace.`, `No se pudo cargar el trace de flujo 4D (${loadError}). Si acabas de desplegar, recarga forzado una vez; la web lee un trace JSON versionado.`)
+              : pick(lang, 'Loading the 4D-flow trace...', 'Cargando el trace de flujo 4D...')}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="cardiopinn-layout prose">
