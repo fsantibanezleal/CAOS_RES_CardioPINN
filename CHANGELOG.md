@@ -3,6 +3,25 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.21.001], 2026-07-14
+
+### Fixed (every linked uPlot chart rendered blank)
+Screenshot verification of the live deploy caught that the `UPlotChart` traces (recovered-vs-measured over the
+beat, speed-over-cycle, the Bernoulli parabola) drew nothing. Two shared-kit bugs, both now fixed in
+`frontend/src/kits/UPlotChart.tsx`:
+- **Scales never ranged.** The chart is built once (effect deps exclude `data`) and later fed via `setData`.
+  When the first build raced ahead of the async trace load it constructed with empty data (null x-scale), and
+  `setData` did not re-range it, so the x-scale stayed `null` and no point could be positioned. Fixed with
+  explicit `range` functions that read the live data extent (`xExtent`/`yExtent` from a `dataRef`), plus
+  `time: false` on x (the values are elapsed ms, not timestamps), so the scales are always valid regardless of
+  build/load order.
+- **CSS-var strokes.** Series strokes were passed as `var(--accent)`; a canvas `strokeStyle` cannot resolve a
+  CSS variable, so even a positioned line was invisible. A `resolveColor` helper resolves `var(--x)` to a
+  concrete colour at build time (and re-resolves on the theme-change rebuild).
+Verified by sampling the chart canvas pixels: recovered-vs-measured (ECGi), speed-over-cycle and the Bernoulli
+parabola (4D-flow) now all draw. The `dataRef`/`seriesRef` also stop a theme-change rebuild from reusing a
+stale-closure (empty) data array.
+
 ## [0.21.000], 2026-07-14
 
 ### Changed (App redo: every tab rebuilt to be interactive, dynamic and dense, per ADR-0017 and the interactive-visualization rubric)

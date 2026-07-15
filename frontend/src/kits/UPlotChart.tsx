@@ -14,6 +14,27 @@ function cssVar(name: string, fallback: string): string {
   const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   return v || fallback;
 }
+// canvas strokeStyle cannot resolve `var(--x)`; resolve it to a concrete colour at build time.
+function resolveColor(c: string): string {
+  const m = /^var\((--[\w-]+)\)$/.exec((c || '').trim());
+  return m ? cssVar(m[1], '#888') : c;
+}
+// explicit data extents so the scales always range to the data (uPlot's auto-range can leave a null
+// scale when the chart is first built with empty data and only later fed via setData).
+function xExtent(data: (number[] | Float64Array)[]): [number, number] {
+  const xs = data[0]; if (!xs || xs.length === 0) return [0, 1];
+  return [xs[0] as number, xs[xs.length - 1] as number];
+}
+function yExtent(data: (number[] | Float64Array)[]): [number, number] {
+  let mn = Infinity, mx = -Infinity;
+  for (let s = 1; s < data.length; s++) {
+    const arr = data[s]; if (!arr) continue;
+    for (let i = 0; i < arr.length; i++) { const v = arr[i] as number; if (Number.isFinite(v)) { if (v < mn) mn = v; if (v > mx) mx = v; } }
+  }
+  if (!isFinite(mn) || !isFinite(mx)) return [0, 1];
+  const pad = (mx - mn) * 0.08 || Math.abs(mx) * 0.1 || 1;
+  return [mn - pad, mx + pad];
+}
 
 export function UPlotChart({
   data, series, xLabel, yLabel, height = 200, cursorX = null, markers = [], identity = false,
@@ -30,6 +51,9 @@ export function UPlotChart({
   // keep the latest overlay props for the draw hook without rebuilding the chart
   const overlay = useRef({ cursorX, markers, identity });
   overlay.current = { cursorX, markers, identity };
+  // keep the latest data + series so a rebuild (theme change, resize-driven) never uses a stale closure
+  const dataRef = useRef(data); dataRef.current = data;
+  const seriesRef = useRef(series); seriesRef.current = series;
 
   useEffect(() => {
     const host = hostRef.current; if (!host) return;
@@ -45,15 +69,18 @@ export function UPlotChart({
         width: host.clientWidth || 320, height,
         cursor: { drag: { x: true, y: false }, focus: { prox: 24 } },
         legend: { show: false },
-        scales: { x: logX ? { distr: 3 } : {} },
+        scales: {
+          x: { time: false, range: () => xExtent(dataRef.current), ...(logX ? { distr: 3 } : {}) },
+          y: { range: () => yExtent(dataRef.current) },
+        },
         axes: [
           { ...ax, label: xLabel, labelSize: xLabel ? 22 : 8, labelFont: '11px ui-sans-serif, system-ui', values: undefined },
           { ...ax, label: yLabel, labelSize: yLabel ? 30 : 8, labelFont: '11px ui-sans-serif, system-ui', size: 46 },
         ],
         series: [
           { label: xLabel || 'x' },
-          ...series.map((s) => ({ label: s.label, stroke: s.stroke, width: s.width ?? 1.8,
-            fill: s.fill, dash: s.dash, points: { show: false } })),
+          ...seriesRef.current.map((s) => ({ label: s.label, stroke: resolveColor(s.stroke), width: s.width ?? 1.8,
+            fill: s.fill ? resolveColor(s.fill) : undefined, dash: s.dash, points: { show: false } })),
         ],
         hooks: {
           setCursor: [(up) => { if (onHover) { const i = up.cursor.idx; onHover(i == null ? null : (up.data[0][i] as number)); } }],
@@ -87,7 +114,7 @@ export function UPlotChart({
           }],
         },
       };
-      u = new uPlot(opts, data as uPlot.AlignedData, host);
+      u = new uPlot(opts, dataRef.current as uPlot.AlignedData, host);
       uref.current = u;
       if (onClickX) u.over.addEventListener('click', () => { const i = u!.cursor.idx; if (i != null) onClickX(u!.data[0][i] as number); });
     };
