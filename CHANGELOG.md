@@ -3,6 +3,22 @@
 All notable changes to CardioPINN. Format: `X.XX.XXX` (display), see `cardiopinnlab.__version__`. Keep `0.x`
 while cases are synthetic / in-silico-validated and the at-bar review is open. Tag every release.
 
+## [0.21.006], 2026-07-15
+
+### Positioning: complement, not replacement
+- Benchmark callout reworded from a defensive "trails on others" to the actual positioning. The product is
+  not a bid to replace a well-tuned Tikhonov, and on point accuracy it does not (classical wins on every
+  beat; the learned point estimate is identical to the graph-regularized one). What it adds is the calibrated
+  per-node uncertainty a deterministic estimate structurally cannot give; its place is complementary, where
+  information is partial. This closes an external "no win vs classical" misread without changing a number.
+  Screenshot-verified in light and dark.
+- `research/beyond-sota-pinn-2026-07-14/findings.md`: the P3 finding shipped as a literal `<PENDING>`
+  placeholder; the result existed all along in `p3_tr_results.json`. Transcribed: analytic autograd dv/dt
+  holds scale ~1.0 and corr > 0.99 down to ~6 frames/cycle while 3-frame finite differences decay by the sinc
+  aliasing law (0.76 at 6 frames, collapsing at 4), the temporal analog of the P5 spatial win.
+- Logged D-010: horizontal overflow at narrow viewports (shell header on every tab; uPlot escaping its grid
+  track on the 4D-flow problem tab). Not yet fixed; the shell-header half is a shared-package issue.
+
 ## [0.21.005], 2026-07-15
 
 ### Full adversarial revision (content, structure, styles, completeness, robustness)
