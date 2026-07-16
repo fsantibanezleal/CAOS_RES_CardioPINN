@@ -64,7 +64,24 @@ REAL, ambiguous lumen segmentation, which cannot be tested without the raw scan.
 shipped advance. `advance = false`. NOT shipped (the calibration discipline is documented for a future
 real-scan UQ pass).
 
-## P3 - <PENDING round-2 result (robust scale/corr metric): analytic dv/dt vs 3-frame FD as temporal resolution degrades>
+## P3 - CONFIRMED (secondary, the temporal analog of P5): analytic dv/dt vs 3-frame FD as temporal resolution degrades
+
+Transcribed from `p3_tr_results.json` (the round-2 robust scale/correlation metric; this header was left as a
+`<PENDING>` placeholder and is now filled from the committed result). On a known-answer analytic flow, the
+unsteady term dv/dt is estimated two ways as the frame count per cycle nT is reduced (dt grows): a 3-frame
+finite difference, and the space-time network's analytic autograd derivative.
+
+The finite difference loses amplitude exactly as the sinc aliasing law predicts (`fd_scale` tracks
+`fd_sinc_predicted` to 3 digits): scale 0.98 at nT=20, 0.87 at nT=8, 0.76 at nT=6, 0.64 at nT=5, collapsing
+to 0.21 with `corr = NaN` at nT=4. The analytic derivative holds scale ~1.0 and correlation > 0.99 down to
+nT=6, degrading only at nT=5 (corr 0.89) and nT=4 (corr 0.51). Under 5% velocity noise the gap widens: FD
+correlation is already 0.895 at nT=20 while the analytic stays > 0.99.
+
+Honest bound: this is not magic below the Nyquist floor. At nT<=5 both degrade; the analytic simply holds one
+to two frame-steps longer, where FD has already lost 24%+ of the amplitude. That regime (coarse temporal
+sampling) is exactly where a real 4D-flow scan sits, which is why it matters. `advance = true` as a METHOD
+property on exact ground truth, same status as P5; scoped to analytic flows (a real scan has no temporal
+ground truth for dv/dt). This does NOT claim a clinical result and does not re-bake `trace.json`.
 
 ## Honest scope
 
