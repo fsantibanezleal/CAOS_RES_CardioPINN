@@ -94,3 +94,32 @@ audit pass over fresh screenshots of all 12 tabs.
   Juxtapose, PipelineSvg, SmallMultipleStrip, colormap).
 - Pages: `frontend/src/pages/RealEcgi.tsx`, `frontend/src/pages/Flow4d.tsx`.
 - Shipped: 0.21.000 (redo) and 0.21.001 (chart fix); live at cardiopinn.fasl-work.com.
+
+## D-010 (OPEN, found 2026-07-15): the page scrolls horizontally at a narrow window
+
+Found while capturing the diffusion carousel off the LIVE app at a 900px viewport (v0.21.005). Two distinct
+horizontal overflows, measured with `document.documentElement.scrollWidth` vs `innerWidth`:
+
+1. **Every tab, both cases: scrollWidth 1008 at a 900px viewport.** The overflowing elements are the shared
+   shell's header (`header-actions`, `header-sep`, `icon-btn`), so any window narrower than about 1010px gets
+   a horizontal scrollbar on every page. This one lives in `@fasl-work/caos-app-shell`, not in this repo, so
+   it is not CardioPINN's to patch unilaterally: it affects every CAOS product on the shell. Report it to the
+   shell package and fix it there.
+2. **4D-flow "The problem" only: scrollWidth 1458 (measured as high as 1850).** The uPlot chart escapes its
+   grid track: `.hero-rail` measures 848px while the `.uplot-host` inside it measures 1824px. A grid item
+   defaults to `min-width: auto`, so it will not shrink below its content's min-content width, and uPlot's
+   canvas carries a large intrinsic width, so the item overflows the track instead of the track capping it.
+   The standard fix is `min-width: 0` on the grid children (`.hero-rail > *`). At 1440px the same panel is
+   fine (host 665px, no page overflow), which is why the desktop screenshot pass never caught it.
+
+Consequence for the carousel: the Bernoulli chart had to be captured at 1440px, since at 900px it renders
+cut. See `_CAOS_MANAGE/difusion/cardiopinn/media/capture-carousel-assets.mjs`.
+
+Related observation, NOT yet confirmed as a defect: in the 4D-flow speed field the legend range reads
+0.03..1.01 m/s while a picked point reports v 1.44 m/s. That is consistent with a robust/percentile colour
+range clipping the outliers (and with raw speed being noisier than the 0.791 m/s denoised peak), but the
+viewer is not told the range is clipped. Worth checking the range computation in `FieldView3D`/`colormap`
+before deciding.
+
+This is D-000's lesson again in a new dimension: the verification passes all ran at desktop widths, so a
+whole viewport class went unexercised.
