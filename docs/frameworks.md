@@ -7,7 +7,7 @@ hand-rolled toy substitutes for a real engine, and nothing is listed here that t
 
 ## The architecture the cards describe: bake-and-read, real-data-only
 
-Every result is computed OFFLINE on a local machine and committed as a JSON trace; the static web app READS
+Every result is computed offline on a local machine and committed as a JSON trace; the static web app READS
 those traces. No model runs in the browser. There is no ONNX / onnxruntime-web / Pyodide lane. The two physics
 cases split cleanly across the stack:
 

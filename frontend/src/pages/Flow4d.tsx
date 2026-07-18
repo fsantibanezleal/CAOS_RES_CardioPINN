@@ -65,7 +65,7 @@ function PpeSvg({ lang }: { lang: 'en' | 'es' }) {
         <text x="597" y="84" textAnchor="middle" fill="var(--good)" fontSize="10">{pick(lang, 'relative pressure p(x)', 'presion relativa p(x)')}</text>
         <defs><marker id="fa" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="var(--accent-2)" /></marker></defs>
       </svg>
-      <div className="fig-cap">{pick(lang, 'From the measured velocity: a physics-informed net denoises it under incompressibility, then the divergence of Navier-Stokes gives a Poisson problem whose solution is the relative pressure.', 'Desde la velocidad medida: una red informada por fisica la limpia bajo incompresibilidad, luego la divergencia de Navier-Stokes da un problema de Poisson cuya solucion es la presion relativa.')}</div>
+      <div className="fig-cap">{pick(lang, 'From the measured velocity: a physics-informed net denoises it under incompressibility, then the divergence of Navier-Stokes gives a Poisson problem whose solution is the relative pressure.', 'Desde la velocidad medida: una red informada por física la limpia bajo incompresibilidad, luego la divergencia de Navier-Stokes da un problema de Poisson cuya solucion es la presion relativa.')}</div>
     </div>
   );
 }
@@ -188,11 +188,11 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
           })()}
           <p className="measure" style={{ marginTop: 12 }}>{pick(lang,
             'The recovered pressure spans about one mmHg across the segment, small and physiological for this unobstructed aorta, and the same order as the clinical Bernoulli estimate from the same scan, while also revealing where the pressure varies (which the single Bernoulli number cannot). The unsteady acceleration is differentiated exactly in time by a space-time network trained over the whole cardiac cycle, not a three-frame finite difference, and phase-wrap aliasing is corrected before the reconstruction.',
-            'La presion recuperada abarca cerca de un mmHg en el segmento, pequena y fisiologica para esta aorta sin obstruccion, y del mismo orden que la estimacion clinica de Bernoulli del mismo escaneo, revelando ademas donde varia la presion (lo que el unico numero de Bernoulli no puede). La aceleracion no estacionaria se deriva exactamente en el tiempo con una red espacio-temporal entrenada sobre todo el ciclo cardiaco, no una diferencia finita de tres cuadros, y el pliegue de fase se corrige antes de la reconstruccion.')}</p>
+            'La presion recuperada abarca cerca de un mmHg en el segmento, pequeña y fisiologica para esta aorta sin obstruccion, y del mismo orden que la estimación clinica de Bernoulli del mismo escaneo, revelando además donde varia la presion (lo que el unico número de Bernoulli no puede). La aceleración no estacionaria se deriva exactamente en el tiempo con una red espacio-temporal entrenada sobre todo el ciclo cardiaco, no una diferencia finita de tres cuadros, y el pliegue de fase se corrige antes de la reconstrucción.')}</p>
           <Callout>
             {pick(lang,
               'Robustness, and its limit. A deep ensemble that perturbs the measured velocity with realistic phase-contrast noise (5% of the venc) and re-runs the whole pipeline moves the recovered pressure by under 0.01 mmHg: the divergence-free denoiser makes the pressure essentially insensitive to velocity measurement noise. That is a strength, but it also means the dominant uncertainty is NOT measurement noise and cannot be captured by such an ensemble: it is the absent invasive gold standard, the lumen segmentation, and the unsteady-term approximation. So the absolute magnitude carries the method uncertainty honestly; the validated claims are the exact analytic gate, the physiological range, the noise-robustness, and the Bernoulli bracket. Data: a real thoracic-aorta 4D-flow MRI (Philips, venc 120 cm/s), used under its data agreement, raw DICOMs not redistributed. Not clinically deployed.',
-              'Robustez, y su limite. Un ensemble profundo que perturba la velocidad medida con ruido de contraste de fase realista (5% del venc) y reejecuta todo el pipeline mueve la presion recuperada en menos de 0.01 mmHg: el suavizador sin divergencia hace la presion esencialmente insensible al ruido de medicion de velocidad. Eso es una fortaleza, pero tambien significa que la incertidumbre dominante NO es el ruido de medicion y no puede capturarse con tal ensemble: es el patron de oro invasivo ausente, la segmentacion del lumen y la aproximacion del termino no estacionario. Asi que la magnitud absoluta lleva la incertidumbre del metodo con honestidad; las afirmaciones validadas son la prueba analitica exacta, el rango fisiologico, la robustez al ruido y el encuadre de Bernoulli. Datos: una resonancia de flujo 4D real de aorta toracica (Philips, venc 120 cm/s), usada bajo su acuerdo, DICOM crudos no redistribuidos. No desplegado clinicamente.')}
+              'Robustez, y su limite. Un ensemble profundo que perturba la velocidad medida con ruido de contraste de fase realista (5% del venc) y reejecuta todo el pipeline mueve la presion recuperada en menos de 0.01 mmHg: el suavizador sin divergencia hace la presion esencialmente insensible al ruido de medicion de velocidad. Eso es una fortaleza, pero también significa que la incertidumbre dominante NO es el ruido de medicion y no puede capturarse con tal ensemble: es el patron de oro invasivo ausente, la segmentación del lumen y la aproximación del termino no estacionario. Asi que la magnitud absoluta lleva la incertidumbre del método con honestidad; las afirmaciones validadas son la prueba analitica exacta, el rango fisiologico, la robustez al ruido y el encuadre de Bernoulli. Datos: una resonancia de flujo 4D real de aorta toracica (Philips, venc 120 cm/s), usada bajo su acuerdo, DICOM crudos no redistribuidos. No desplegado clinicamente.')}
           </Callout>
           <Refs ids={['raissi2020', 'krittian2012']} label="Refs" />
         </section>
@@ -205,12 +205,12 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
           <h2>{pick(lang, 'Grading a narrowing without a catheter', 'Graduar un estrechamiento sin cateter')}</h2>
           <p className="measure">{pick(lang,
             'When the aorta narrows (at the valve, aortic stenosis; or along the arch, coarctation), the pressure drop across it is the number the treatment decision turns on. The guideline thresholds are hard numbers, not soft signals.',
-            'Cuando la aorta se estrecha (en la valvula, estenosis aortica; o a lo largo del arco, coartacion), la caida de presion a traves de ella es el numero del que depende la decision de tratamiento. Los umbrales de las guias son numeros duros, no senales blandas.')}</p>
+            'Cuando la aorta se estrecha (en la valvula, estenosis aortica; o a lo largo del arco, coartacion), la caida de presion a traves de ella es el número del que depende la decision de tratamiento. Los umbrales de las guias son números duros, no señales blandas.')}</p>
           <StatStrip tiles={[
             { value: '4.0 m/s', label: pick(lang, 'severe aortic stenosis: peak jet velocity (with mean gradient >= 40 mmHg and valve area <= 1.0 cm2)', 'estenosis aortica grave: velocidad pico del chorro (con gradiente medio >= 40 mmHg y area valvular <= 1.0 cm2)'), source: 'otto2020vhd / vahanian2021esc' },
             { value: '20 mmHg', label: pick(lang, 'coarctation repair: Class I peak-to-peak catheter gradient', 'reparacion de coartacion: gradiente Clase I pico a pico por cateter'), source: 'stout2018achd' },
             { value: '12.4% / 3.4%', label: pick(lang, 'aortic stenosis prevalence past age 75 (any degree / severe)', 'prevalencia de estenosis aortica tras los 75 (cualquier grado / grave)'), source: 'osnabrugge2013' },
-            { value: '~0.4 mmHg', label: pick(lang, 'physics-based pressure vs an FSI ground truth at peak systole', 'presion basada en fisica vs una verdad FSI en sistole pico'), source: 'saitta2019' },
+            { value: '~0.4 mmHg', label: pick(lang, 'physics-based pressure vs an FSI ground truth at peak systole', 'presion basada en física vs una verdad FSI en sistole pico'), source: 'saitta2019' },
           ]} />
           <div className="hero-rail" style={{ marginTop: 16 }}>
             <div>
@@ -233,7 +233,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
                 ariaLabel={pick(lang, `Simplified Bernoulli 4 Vmax squared curve; at Vmax ${vmaxP.toFixed(2)} m/s the peak gradient is ${(4 * vmaxP * vmaxP).toFixed(1)} mmHg, severe peak-velocity threshold 4.0 m/s (64 mmHg peak gradient)`, `Curva de Bernoulli simplificado 4 Vmax al cuadrado; en Vmax ${vmaxP.toFixed(2)} m/s el gradiente pico es ${(4 * vmaxP * vmaxP).toFixed(1)} mmHg, umbral grave de velocidad pico 4.0 m/s (64 mmHg de gradiente pico)`)} />
               <p className="sr-summary">{pick(lang,
                 'The whole gradient is read off a single peak velocity through 4 Vmax squared. One number can cross the severe threshold on its own, blind to inflow velocity, viscosity, unsteady acceleration and pressure recovery.',
-                'Todo el gradiente se lee de una sola velocidad pico con 4 Vmax al cuadrado. Un numero puede cruzar el umbral grave por si solo, ciego a la velocidad de entrada, la viscosidad, la aceleracion no estacionaria y la recuperacion de presion.')}</p>
+                'Todo el gradiente se lee de una sola velocidad pico con 4 Vmax al cuadrado. Un número puede cruzar el umbral grave por si solo, ciego a la velocidad de entrada, la viscosidad, la aceleración no estacionaria y la recuperacion de presion.')}</p>
             </div>
             <div className="hero-rail-side">
               <ClinicalStepper
@@ -241,15 +241,15 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
                 steps={[
                   { title: pick(lang, 'The aorta narrows', 'La aorta se estrecha'), body: pick(lang, 'A throat forms at the valve (aortic stenosis) or along the arch (coarctation), and blood accelerates through it.', 'Se forma un estrechamiento en la valvula (estenosis aortica) o a lo largo del arco (coartacion), y la sangre se acelera a traves de el.') },
                   { title: pick(lang, 'The pressure drop decides treatment', 'La caida de presion decide el tratamiento'), body: pick(lang, 'The gradient across the narrowing is the quantity that sends a patient to valve replacement or a stent.', 'El gradiente a traves del estrechamiento es la cantidad que envia a un paciente a un recambio valvular o a un stent.') },
-                  { title: pick(lang, 'The reference is invasive', 'La referencia es invasiva'), body: pick(lang, 'The truth is a pressure wire threaded across the narrowing at catheterization. The routine substitute reads the whole gradient off one Doppler peak velocity through 4 Vmax squared, which overestimated a validated case by 66 mmHg (about 80%) at moderate stenosis with a small aorta (Baumgartner 1999).', 'La verdad es un cable de presion pasado a traves del estrechamiento en el cateterismo. El sustituto de rutina lee todo el gradiente de una sola velocidad pico Doppler con 4 Vmax al cuadrado, que sobreestimo un caso validado en 66 mmHg (cerca del 80%) con estenosis moderada y aorta pequena (Baumgartner 1999).') },
-                  { title: pick(lang, '4D-flow plus Navier-Stokes', '4D-flow mas Navier-Stokes'), body: pick(lang, '4D-flow measures the full 3D velocity non-invasively; Navier-Stokes ties that velocity to a spatially resolved pressure field this scan recovers, one that sees the proximal velocity and the spatial acceleration a single Doppler number cannot.', 'El 4D-flow mide la velocidad 3D completa de forma no invasiva; Navier-Stokes liga esa velocidad a un campo de presion espacialmente resuelto que este escaneo recupera, uno que ve la velocidad proximal y la aceleracion espacial que un solo numero Doppler no puede.') },
+                  { title: pick(lang, 'The reference is invasive', 'La referencia es invasiva'), body: pick(lang, 'The truth is a pressure wire threaded across the narrowing at catheterization. The routine substitute reads the whole gradient off one Doppler peak velocity through 4 Vmax squared, which overestimated a validated case by 66 mmHg (about 80%) at moderate stenosis with a small aorta (Baumgartner 1999).', 'La verdad es un cable de presion pasado a traves del estrechamiento en el cateterismo. El sustituto de rutina lee todo el gradiente de una sola velocidad pico Doppler con 4 Vmax al cuadrado, que sobreestimo un caso validado en 66 mmHg (cerca del 80%) con estenosis moderada y aorta pequeña (Baumgartner 1999).') },
+                  { title: pick(lang, '4D-flow plus Navier-Stokes', '4D-flow mas Navier-Stokes'), body: pick(lang, '4D-flow measures the full 3D velocity non-invasively; Navier-Stokes ties that velocity to a spatially resolved pressure field this scan recovers, one that sees the proximal velocity and the spatial acceleration a single Doppler number cannot.', 'El 4D-flow mide la velocidad 3D completa de forma no invasiva; Navier-Stokes liga esa velocidad a un campo de presion espacialmente resuelto que este escaneo recupera, uno que ve la velocidad proximal y la aceleración espacial que un solo número Doppler no puede.') },
                 ]} />
             </div>
           </div>
           <Callout>
             {pick(lang,
               'This is a genuinely different physics from the ECG-imaging case: there the governing equation is quasi-static volume conduction (a Laplace problem); here it is incompressible Navier-Stokes (fluid dynamics). Both are inverse problems, recovering an unmeasurable field from a measurable one on real data. The aorta in this real scan is unobstructed, so the recovered gradient is correctly small; the point demonstrated here is the physics engine that would resolve where and how much pressure is lost in a stenosed or coarcted aorta.',
-              'Esta es una fisica genuinamente distinta al caso de imagen de ECG: alli la ecuacion gobernante es la conduccion de volumen cuasi-estatica (un problema de Laplace); aqui es Navier-Stokes incompresible (dinamica de fluidos). Ambos son problemas inversos, recuperando un campo no medible desde uno medible sobre datos reales. La aorta en este escaneo real esta sin obstruccion, asi que el gradiente recuperado es correctamente pequeno; lo que se demuestra aqui es el motor fisico que resolveria donde y cuanta presion se pierde en una aorta con estenosis o coartacion.')}
+              'Esta es una física genuinamente distinta al caso de imagen de ECG: allí la ecuacion gobernante es la conduccion de volumen cuasi-estatica (un problema de Laplace); aquí es Navier-Stokes incompresible (dinamica de fluidos). Ambos son problemas inversos, recuperando un campo no medible desde uno medible sobre datos reales. La aorta en este escaneo real esta sin obstruccion, así que el gradiente recuperado es correctamente pequeño; lo que se demuestra aquí es el motor físico que resolveria donde y cuanta presion se pierde en una aorta con estenosis o coartacion.')}
           </Callout>
           <Refs ids={['otto2020vhd', 'stout2018achd', 'baumgartner1999', 'osnabrugge2013', 'saitta2019']} label="Refs" />
         </section>
@@ -262,7 +262,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
           <h2>{pick(lang, 'What we measure, and what we recover', 'Que medimos y que recuperamos')}</h2>
           <p className="measure">{pick(lang,
             'The scanner records the three-component blood velocity, observable, per voxel and per frame. Pressure never appears in the scan; it is the hidden field we recover. Drag the divider: left is what the scanner sees (speed), right is what it cannot (relative pressure). Pick a point to mark the same location on both sides.',
-            'El escaner registra la velocidad sanguinea de tres componentes, observable, por voxel y por cuadro. La presion nunca aparece en el escaneo; es el campo oculto que recuperamos. Arrastra el divisor: la izquierda es lo que ve el escaner (rapidez), la derecha lo que no puede ver (presion relativa). Elige un punto para marcar la misma ubicacion en ambos lados.')}</p>
+            'El escaner registra la velocidad sanguinea de tres componentes, observable, por voxel y por cuadro. La presion nunca aparece en el escaneo; es el campo oculto que recuperamos. Arrastra el divisor: la izquierda es lo que ve el escaner (rapidez), la derecha lo que no puede ver (presion relativa). Seleccionar un punto para marcar la misma ubicacion en ambos lados.')}</p>
           {(() => {
             const sVals = tr.speed_ms_peak;
             const pVals = tr.pressure_mmHg;
@@ -294,7 +294,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
                   <dl className="def-grid">
                     <dt>{'v(x,t)'}</dt><dd>{pick(lang, 'measured blood velocity (m/s), 3 components per voxel over the beat', 'velocidad sanguinea medida (m/s), 3 componentes por voxel durante el latido')}</dd>
                     <dt>{'p(x,t)'}</dt><dd>{pick(lang, 'relative pressure to recover (mmHg); only differences are physical', 'presion relativa a recuperar (mmHg); solo las diferencias son fisicas')}</dd>
-                    <dt>venc</dt><dd>{pick(lang, 'velocity-encoding limit of the scan (120 cm/s here); speeds above it alias', 'limite de codificacion de velocidad del escaneo (120 cm/s aqui); las velocidades por encima se pliegan')}</dd>
+                    <dt>venc</dt><dd>{pick(lang, 'velocity-encoding limit of the scan (120 cm/s here); speeds above it alias', 'limite de codificacion de velocidad del escaneo (120 cm/s aquí); las velocidades por encima se pliegan')}</dd>
                   </dl>
                 </div>
               </div>
@@ -303,7 +303,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
           <Callout>
             {pick(lang,
               'There is no non-invasive pressure gold standard, that absence is exactly why the method exists. The honest validation is threefold: the pressure engine recovers a known analytic pressure exactly (next tabs), the real-scan map is physiological (single to low double-digit mmHg, not thousands), and it brackets the routine clinical Bernoulli estimate.',
-              'No hay patron de oro de presion no invasivo, esa ausencia es justo por lo que existe el metodo. La validacion honesta es triple: el motor de presion recupera exactamente una presion analitica conocida (siguientes pestanas), el mapa del escaneo real es fisiologico (de un digito a doble digito bajo en mmHg, no miles), y encuadra la estimacion clinica de Bernoulli de rutina.')}
+              'No hay patron de oro de presion no invasivo, esa ausencia es justo por lo que existe el método. La validación honesta es triple: el motor de presion recupera exactamente una presion analitica conocida (siguientes pestanas), el mapa del escaneo real es fisiologico (de un digito a doble digito bajo en mmHg, no miles), y encuadra la estimación clinica de Bernoulli de rutina.')}
           </Callout>
           <Refs ids={['krittian2012']} label="Refs" />
         </section>
@@ -316,7 +316,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
           <h2>{pick(lang, 'How the governing equation arises', 'Como surge la ecuacion gobernante')}</h2>
           <p className="measure">{pick(lang,
             'Blood in a large artery is an incompressible Newtonian fluid, so it obeys the incompressible Navier-Stokes equations. Step through the derivation: taking the divergence of the momentum balance turns it into a well-posed Poisson equation for pressure, built entirely from the measured velocity.',
-            'La sangre en una arteria grande es un fluido newtoniano incompresible, asi que obedece las ecuaciones de Navier-Stokes incompresibles. Recorre la derivacion: tomar la divergencia del balance de momento la convierte en una ecuacion de Poisson bien planteada para la presion, construida enteramente desde la velocidad medida.')}</p>
+            'La sangre en una arteria grande es un fluido newtoniano incompresible, así que obedece las ecuaciones de Navier-Stokes incompresibles. Recorre la derivacion: tomar la divergencia del balance de momento la convierte en una ecuacion de Poisson bien planteada para la presion, construida enteramente desde la velocidad medida.')}</p>
           <div className="hero-rail">
             <DerivationStepper
               ariaLabel={pick(lang, 'Navier-Stokes to pressure-Poisson derivation', 'Derivacion Navier-Stokes a Poisson de presion')}
@@ -324,10 +324,10 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
               stepLabel={(c, t) => pick(lang, `step ${c} of ${t}`, `paso ${c} de ${t}`)}
               steps={[
                 { tex: String.raw`\rho,\ \mu = \text{const}, \qquad \nabla\cdot\mathbf{v}=0`, caption: pick(lang, 'Incompressible Newtonian fluid: constant density and viscosity, and a divergence-free velocity.', 'Fluido newtoniano incompresible: densidad y viscosidad constantes, y una velocidad de divergencia cero.') },
-                { tex: String.raw`\rho\Big(\partial_t \mathbf{v} + (\mathbf{v}\cdot\nabla)\mathbf{v}\Big) = -\nabla p + \mu\nabla^2\mathbf{v}`, caption: pick(lang, 'Momentum balance ties the pressure gradient to the fluid acceleration and viscous friction.', 'El balance de momento liga el gradiente de presion a la aceleracion del fluido y la friccion viscosa.') },
+                { tex: String.raw`\rho\Big(\partial_t \mathbf{v} + (\mathbf{v}\cdot\nabla)\mathbf{v}\Big) = -\nabla p + \mu\nabla^2\mathbf{v}`, caption: pick(lang, 'Momentum balance ties the pressure gradient to the fluid acceleration and viscous friction.', 'El balance de momento liga el gradiente de presion a la aceleración del fluido y la friccion viscosa.') },
                 { tex: String.raw`\nabla\cdot(\partial_t\mathbf{v})=0, \qquad \nabla\cdot(\nabla^2\mathbf{v})=0`, caption: pick(lang, 'Take the divergence of the momentum equation; incompressibility kills the unsteady and viscous divergences. Predict what survives.', 'Toma la divergencia de la ecuacion de momento; la incompresibilidad anula las divergencias no estacionaria y viscosa. Predice que sobrevive.') },
                 { tex: String.raw`\nabla^2 p = -\rho\,\nabla\cdot\big[(\mathbf{v}\cdot\nabla)\mathbf{v}\big] \equiv S(\mathbf{v})`, caption: pick(lang, 'What survives is a well-posed elliptic Poisson equation whose source is built from the measured velocity, unlike a naive inversion.', 'Lo que sobrevive es una ecuacion de Poisson eliptica bien planteada cuya fuente se construye desde la velocidad medida, a diferencia de una inversion ingenua.') },
-                { tex: String.raw`S(\mathbf{v}) = -\rho\sum_{i,j}\frac{\partial v_i}{\partial x_j}\frac{\partial v_j}{\partial x_i}`, caption: pick(lang, 'The source is quadratic in the velocity gradients, so noise in v is amplified, which motivates the divergence-free denoising in the next tab.', 'La fuente es cuadratica en los gradientes de velocidad, asi que el ruido en v se amplifica, lo que motiva el suavizado sin divergencia de la siguiente pestana.') },
+                { tex: String.raw`S(\mathbf{v}) = -\rho\sum_{i,j}\frac{\partial v_i}{\partial x_j}\frac{\partial v_j}{\partial x_i}`, caption: pick(lang, 'The source is quadratic in the velocity gradients, so noise in v is amplified, which motivates the divergence-free denoising in the next tab.', 'La fuente es cuadratica en los gradientes de velocidad, así que el ruido en v se amplifica, lo que motiva el suavizado sin divergencia de la siguiente pestana.') },
                 { tex: String.raw`\partial_n p = \mathbf{b}(\mathbf{v})\cdot\mathbf{n} \quad \text{on the vessel wall}`, caption: pick(lang, 'The wall boundary flux is set by the momentum equation at the vessel wall (a Neumann condition).', 'El flujo de frontera en la pared lo fija la ecuacion de momento en la pared del vaso (una condicion Neumann).') },
               ]} />
             <div className="hero-rail-side">
@@ -366,7 +366,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
               { tex: String.raw`V_{\max}`, meaning: pick(lang, 'the single peak jet velocity (m/s); the only input this reads', 'la unica velocidad pico del chorro (m/s); la unica entrada que lee') },
               { tex: '4', meaning: pick(lang, 'the constant that folds in blood density and unit conversion to mmHg', 'la constante que incorpora la densidad de la sangre y la conversion a mmHg') },
             ]}
-            caption={pick(lang, 'The whole gradient is read off one peak velocity: fast, ubiquitous, and blind to everything the peak velocity does not capture.', 'Todo el gradiente se lee de una sola velocidad pico: rapido, ubicuo, y ciego a todo lo que la velocidad pico no captura.')} />
+            caption={pick(lang, 'The whole gradient is read off one peak velocity: fast, ubiquitous, and blind to everything the peak velocity does not capture.', 'Todo el gradiente se lee de una sola velocidad pico: rápido, ubicuo, y ciego a todo lo que la velocidad pico no captura.')} />
           <div className="viz-stack">
               <div className="viz-controls">
                 <label className="muted small" style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
@@ -402,41 +402,41 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
               <dl className="def-grid">
                 <dt>{pick(lang, 'inflow velocity', 'velocidad de entrada')}</dt><dd>{pick(lang, 'overstates the gradient once the inflow V1 exceeds about 1.5 m/s', 'sobreestima el gradiente cuando la velocidad de entrada V1 supera cerca de 1.5 m/s')}</dd>
                 <dt>{pick(lang, 'viscous friction', 'friccion viscosa')}</dt><dd>{pick(lang, 'irreversible loss the convective term ignores', 'perdida irreversible que el termino convectivo ignora')}</dd>
-                <dt>{pick(lang, 'unsteady acceleration', 'aceleracion no estacionaria')}</dt><dd>{pick(lang, 'the dv/dt term lost at coarse temporal resolution (Hardy 2025)', 'el termino dv/dt perdido a resolucion temporal gruesa (Hardy 2025)')}</dd>
-                <dt>{pick(lang, 'pressure recovery', 'recuperacion de presion')}</dt><dd>{pick(lang, 'Doppler overestimates the net catheter gradient, worst in a small aorta', 'el Doppler sobreestima el gradiente neto por cateter, peor en una aorta pequena')}</dd>
+                <dt>{pick(lang, 'unsteady acceleration', 'aceleración no estacionaria')}</dt><dd>{pick(lang, 'the dv/dt term lost at coarse temporal resolution (Hardy 2025)', 'el termino dv/dt perdido a resolucion temporal gruesa (Hardy 2025)')}</dd>
+                <dt>{pick(lang, 'pressure recovery', 'recuperacion de presion')}</dt><dd>{pick(lang, 'Doppler overestimates the net catheter gradient, worst in a small aorta', 'el Doppler sobreestima el gradiente neto por cateter, peor en una aorta pequeña')}</dd>
               </dl>
             </div>
             <div>
-              <span className="cp-side-label">{pick(lang, 'On this scan, Bernoulli vs the physics map', 'En este escaneo, Bernoulli vs el mapa fisico')}</span>
+              <span className="cp-side-label">{pick(lang, 'On this scan, Bernoulli vs the physics map', 'En este escaneo, Bernoulli vs el mapa físico')}</span>
               <BracketBar label={pick(lang, 'Bernoulli 4Vmax^2', 'Bernoulli 4Vmax^2')} value={tr.metrics.bernoulli_mmHg} unit="mmHg" max={3} color="var(--accent-2)" />
               <BracketBar label={pick(lang, 'PPE pressure span', 'rango de presion PPE')} value={tr.metrics.ppe_pressure_drop_mmHg} unit="mmHg" max={3} color="var(--good)" />
-              <p className="muted small" style={{ margin: 0 }}>{pick(lang, 'Same order of magnitude on this clean aorta: the denoised peak (0.79 m/s) gives 4Vmax squared = 2.5 mmHg vs the physics-map span 0.79 mmHg; they bracket each other.', 'Mismo orden de magnitud en esta aorta limpia: la velocidad pico suavizada (0.79 m/s) da 4Vmax al cuadrado = 2.5 mmHg vs el rango del mapa fisico 0.79 mmHg; se encuadran mutuamente.')}</p>
+              <p className="muted small" style={{ margin: 0 }}>{pick(lang, 'Same order of magnitude on this clean aorta: the denoised peak (0.79 m/s) gives 4Vmax squared = 2.5 mmHg vs the physics-map span 0.79 mmHg; they bracket each other.', 'Mismo orden de magnitud en esta aorta limpia: la velocidad pico suavizada (0.79 m/s) da 4Vmax al cuadrado = 2.5 mmHg vs el rango del mapa físico 0.79 mmHg; se encuadran mutuamente.')}</p>
             </div>
           </div>
           <Callout>
             {pick(lang,
               'On this real scan the peak velocity is about 0.79 m/s, so simplified Bernoulli reads about 2.5 mmHg. We keep this as the reference the physics-based map is bracketed against, not as a straw man: for a clean unobstructed aorta a small gradient is exactly right. Its value as a comparison grows in the stenosed regime, where the discarded terms are exactly what separates the Doppler estimate from the invasive truth.',
-              'En este escaneo real la velocidad pico es de unos 0.79 m/s, asi que Bernoulli simplificado da unos 2.5 mmHg. Lo mantenemos como la referencia contra la que se encuadra el mapa basado en fisica, no como un espantapajaros: para una aorta limpia sin obstruccion un gradiente pequeno es justo lo correcto. Su valor como comparacion crece en el regimen con estenosis, donde los terminos descartados son justo lo que separa la estimacion Doppler de la verdad invasiva.')}
+              'En este escaneo real la velocidad pico es de unos 0.79 m/s, así que Bernoulli simplificado da unos 2.5 mmHg. Lo mantenemos como la referencia contra la que se encuadra el mapa basado en física, no como un espantapajaros: para una aorta limpia sin obstruccion un gradiente pequeño es justo lo correcto. Su valor como comparación crece en el régimen con estenosis, donde los terminos descartados son justo lo que separa la estimación Doppler de la verdad invasiva.')}
           </Callout>
           <Refs ids={['baumgartner1999', 'otto2020vhd', 'krittian2012']} label="Refs" />
         </section>
       ),
     },
     {
-      id: 'pinn', label: pick(lang, 'Physics-informed proposal', 'Propuesta informada por fisica'),
+      id: 'pinn', label: pick(lang, 'Physics-informed proposal', 'Propuesta informada por física'),
       content: tr && (
         <section>
-          <h2>{pick(lang, 'Where and how the physics-informed method helps', 'Donde y como ayuda el metodo informado por fisica')}</h2>
+          <h2>{pick(lang, 'Where and how the physics-informed method helps', 'Donde y como ayuda el método informado por física')}</h2>
           <p className="measure">{pick(lang,
             'The pressure-Poisson source is quadratic in velocity gradients, so raw noise (which violates incompressibility) is amplified into a non-physiological pressure. The pipeline separates a well-posed velocity denoising from the elliptic pressure solve. Hover or click a stage to inspect it.',
-            'La fuente de la Poisson de presion es cuadratica en los gradientes de velocidad, asi que el ruido crudo (que viola la incompresibilidad) se amplifica en una presion no fisiologica. El pipeline separa un suavizado de velocidad bien planteado de la resolucion eliptica de presion. Pasa el cursor o haz clic en una etapa para inspeccionarla.')}</p>
+            'La fuente de la Poisson de presion es cuadratica en los gradientes de velocidad, así que el ruido crudo (que viola la incompresibilidad) se amplifica en una presion no fisiologica. El pipeline separa un suavizado de velocidad bien planteado de la resolucion eliptica de presion. Al pasar el cursor o haz clic en una etapa para inspeccionarla.')}</p>
           <PipelineSvg animate onSelect={(id) => setPipeSel((s) => (s === id ? null : id))} selected={pipeSel}
               playLabel={pick(lang, 'Play flow', 'Reproducir flujo')}
-              captionEmpty={pick(lang, 'Hover or focus a stage to inspect it.', 'Pasa el cursor o enfoca una etapa para inspeccionarla.')}
-              ariaLabel={pick(lang, 'Physics-informed pressure pipeline', 'Pipeline de presion informado por fisica')}
+              captionEmpty={pick(lang, 'Hover or focus a stage to inspect it.', 'Al pasar el cursor o enfoca una etapa para inspeccionarla.')}
+              ariaLabel={pick(lang, 'Physics-informed pressure pipeline', 'Pipeline de presion informado por física')}
               stages={[
                 { id: 'v', kind: 'in', label: pick(lang, 'measured v', 'v medida'), sub: pick(lang, 'noisy, div v != 0', 'ruidosa, div v != 0'), detail: pick(lang, 'the raw 4D-flow velocity violates incompressibility; feeding it straight into the quadratic source amplifies noise.', 'la velocidad 4D-flow cruda viola la incompresibilidad; alimentarla directo a la fuente cuadratica amplifica el ruido.') },
-                { id: 'denoise', kind: 'proc', label: pick(lang, 'div-free denoise', 'denoise sin divergencia'), sub: 'min data + lambda||div v||^2', detail: pick(lang, 'velocity is strongly data-constrained so this step is well-posed; a plain momentum-residual net is gauge-free and cannot recover pressure at all.', 'la velocidad esta fuertemente restringida por los datos, asi que este paso esta bien planteado; una red de residuo de momento simple no tiene calibre y no puede recuperar la presion.') },
+                { id: 'denoise', kind: 'proc', label: pick(lang, 'div-free denoise', 'denoise sin divergencia'), sub: 'min data + lambda||div v||^2', detail: pick(lang, 'velocity is strongly data-constrained so this step is well-posed; a plain momentum-residual net is gauge-free and cannot recover pressure at all.', 'la velocidad esta fuertemente restringida por los datos, así que este paso esta bien planteado; una red de residuo de momento simple no tiene calibre y no puede recuperar la presion.') },
                 { id: 'source', kind: 'proc', label: pick(lang, 'analytic source', 'fuente analitica'), sub: 'S(v) + Neumann flux', detail: pick(lang, 'analytic derivatives at the wall remove the boundary artifacts that finite differences at the lumen edge would create.', 'las derivadas analiticas en la pared eliminan los artefactos de frontera que las diferencias finitas en el borde del lumen crearian.') },
                 { id: 'solve', kind: 'proc', label: pick(lang, 'Poisson solve', 'resolver Poisson'), sub: 'lap p = S(v)', detail: pick(lang, 'a sparse direct elliptic solve; well-posed, unlike a naive inversion of the transfer.', 'una resolucion eliptica directa dispersa; bien planteada, a diferencia de una inversion ingenua.') },
                 { id: 'p', kind: 'out', label: pick(lang, 'relative pressure', 'presion relativa'), sub: 'p(x)', detail: pick(lang, 'the recovered field, physiological on the real scan and gated on an analytic case first.', 'el campo recuperado, fisiologico en el escaneo real y validado antes en un caso analitico.') },
@@ -462,15 +462,15 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
             {' '}<Cite id="raissi2020" /> <Cite id="raissi2019" /></p>
           <div className="chip-wrap">
             <span className="chip" title={pick(lang, 'pressure-Poisson by finite elements over the segmented lumen', 'Poisson de presion por elementos finitos sobre el lumen segmentado')}>PPE (Ebbers 2001; Krittian 2012)</span>
-            <span className="chip" title={pick(lang, 'work-energy relative pressure, sidesteps the noise-sensitive gradient product', 'presion relativa por trabajo-energia, evita el producto de gradientes sensible al ruido')}>WERP / vWERP (Donati 2015; Marlevi 2019)</span>
-            <span className="chip" title={pick(lang, 'physics as a training regularizer, one inverse problem', 'fisica como regularizador de entrenamiento, un solo problema inverso')}>PINN (Kissas 2020; Fathi 2020)</span>
-            <span className="chip" title={pick(lang, 'divergence-free interpolation, the solenoidal projection made analytic', 'interpolacion sin divergencia, la proyeccion solenoidal hecha analitica')}>solenoidal projection (Ong 2015)</span>
+            <span className="chip" title={pick(lang, 'work-energy relative pressure, sidesteps the noise-sensitive gradient product', 'presion relativa por trabajo-energía, evita el producto de gradientes sensible al ruido')}>WERP / vWERP (Donati 2015; Marlevi 2019)</span>
+            <span className="chip" title={pick(lang, 'physics as a training regularizer, one inverse problem', 'física como regularizador de entrenamiento, un solo problema inverso')}>PINN (Kissas 2020; Fathi 2020)</span>
+            <span className="chip" title={pick(lang, 'divergence-free interpolation, the solenoidal projection made analytic', 'interpolación sin divergencia, la proyeccion solenoidal hecha analitica')}>solenoidal projection (Ong 2015)</span>
             <span className="chip" title={pick(lang, 'no single estimator wins; all underestimate the transient peak at coarse temporal resolution', 'ningun estimador gana; todos subestiman el pico transitorio a resolucion temporal gruesa')}>head-to-head (Hardy 2025)</span>
           </div>
           <Callout>
             {pick(lang,
               'The engine is gated before any real data is trusted: on an analytic converging-duct flow whose exact pressure drop is known, the pressure-Poisson solve recovers it to within 1 percent (correlation 1.00, 4.74 vs 4.73 mmHg). Only after passing that gate is it applied to the real scan.',
-              'El motor se somete a una prueba antes de confiar en cualquier dato real: sobre un flujo analitico de ducto convergente cuya caida de presion exacta se conoce, la resolucion de Poisson de presion la recupera con menos de 1 por ciento de error (correlacion 1.00, 4.74 vs 4.73 mmHg). Solo tras pasar esa prueba se aplica al escaneo real.')}
+              'El motor se somete a una prueba antes de confiar en cualquier dato real: sobre un flujo analitico de ducto convergente cuya caida de presion exacta se conoce, la resolucion de Poisson de presion la recupera con menos de 1 por ciento de error (correlación 1.00, 4.74 vs 4.73 mmHg). Solo tras pasar esa prueba se aplica al escaneo real.')}
           </Callout>
           <Refs ids={['ebbers2001', 'krittian2012', 'donati2015', 'marlevi2019', 'hardy2025', 'kissas2020', 'fathi2020', 'ong2015', 'raissi2020']} label="Refs" />
         </section>
@@ -520,7 +520,7 @@ export function Flow4d({ selector }: { selector?: ReactNode }) {
             </div>
             <div className="cp-side-foot">{pick(lang,
               'Real thoracic-aorta 4D-flow MRI: the aortic pressure field recovered from the measured velocity by incompressible Navier-Stokes. Peak velocity is read from the divergence-free denoised field (the raw measured speed field, shown by the Speed toggle, carries phase-contrast noise up to about 1.6 m/s); Bernoulli 4Vmax squared here uses that denoised peak. The field toggle, phase scrubber and point-pick live in the Pressure recovery tab.',
-              'Resonancia real de aorta toracica 4D-flow: el campo de presion aortica recuperado de la velocidad medida por Navier-Stokes incompresible. La velocidad pico se lee del campo suavizado sin divergencia (el campo de rapidez medida cruda, que muestra el conmutador Rapidez, lleva ruido de contraste de fase hasta cerca de 1.6 m/s); el Bernoulli 4Vmax cuadrado aqui usa esa velocidad pico suavizada. El campo, la fase y la seleccion de punto estan en la pestana Recuperacion de presion.')}</div>
+              'Resonancia real de aorta toracica 4D-flow: el campo de presion aortica recuperado de la velocidad medida por Navier-Stokes incompresible. La velocidad pico se lee del campo suavizado sin divergencia (el campo de rapidez medida cruda, que muestra el conmutador Rapidez, lleva ruido de contraste de fase hasta cerca de 1.6 m/s); el Bernoulli 4Vmax cuadrado aquí usa esa velocidad pico suavizada. El campo, la fase y la seleccion de punto estan en la pestana Recuperacion de presion.')}</div>
           </>
         )}
         </div>

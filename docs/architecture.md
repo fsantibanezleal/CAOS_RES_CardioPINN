@@ -1,6 +1,6 @@
 # Architecture
 
-CardioPINN is a REAL-DATA-ONLY, BAKE-AND-READ product. Every result is computed OFFLINE by the Python
+CardioPINN is a REAL-DATA-ONLY, BAKE-AND-READ product. Every result is computed offline by the Python
 pipeline and committed as a compact JSON trace; the static web app only READS those traces. No model runs in
 the browser. There is no ONNX / onnxruntime-web lane, no Pyodide, no live recompute, and no replay gate. A
 deploy is a frozen frontend build over a frozen artifact.

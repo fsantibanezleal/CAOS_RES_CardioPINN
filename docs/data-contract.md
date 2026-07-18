@@ -1,6 +1,6 @@
 # Data contract
 
-CardioPINN is a REAL-DATA-ONLY, BAKE-AND-READ product. Every result is computed OFFLINE by the Python
+CardioPINN is a REAL-DATA-ONLY, BAKE-AND-READ product. Every result is computed offline by the Python
 pipeline (`data-pipeline/cardiopinnlab/`) and committed to disk as a compact JSON trace. The static web app
 READS those traces and nothing else: no model runs in the browser, there is no ONNX / onnxruntime-web /
 Pyodide lane, no WebGPU inference. The trust boundary therefore has exactly two documented contracts, and this

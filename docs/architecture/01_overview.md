@@ -48,7 +48,7 @@ carries the method's uncertainty. This lane trains small PINNs on a local GPU wi
 
 ## The bake-and-read principle
 
-The product has a single, strict architectural rule: the physics runs OFFLINE and the web only READS its
+The product has a single, strict architectural rule: the physics runs offline and the web only READS its
 output. Concretely:
 
 1. The Python pipeline (`data-pipeline/cardiopinnlab/`) loads the raw data from a local, gitignored path,
