@@ -4,7 +4,7 @@
 
 PyTorch is the automatic-differentiation and neural-network framework. CardioPINN pins `torch>=2.5` in
 `data-pipeline/requirements.txt` and uses it for exactly one thing: the physics-informed neural networks that
-denoise the real 4D-flow velocity field (Case B). The training runs OFFLINE on a local NVIDIA GPU (the CPU
+denoise the real 4D-flow velocity field (Case B). The training runs offline on a local NVIDIA GPU (the CPU
 wheel also works; these are small MLPs that train in minutes), and the recovered fields are baked into the
 committed trace. No PyTorch runs in the browser, and there is no ONNX export lane; the web reads JSON.
 

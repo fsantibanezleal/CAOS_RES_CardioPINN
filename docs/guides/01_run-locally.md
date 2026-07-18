@@ -3,7 +3,7 @@
 This guide takes you from a clean clone to the app running in a browser. CardioPINN keeps its Python in TWO
 virtual environments, split by LANE (offline bake vs thin runtime), not by physics case:
 
-- `.venv-pipeline` is the heavy OFFLINE bake lane and the only one that reproduces the physics. It installs
+- `.venv-pipeline` is the heavy offline bake lane and the only one that reproduces the physics. It installs
   the whole `cardiopinnlab` package editable (`pip install -e .`) plus `data-pipeline/requirements.txt`
   (numpy, scipy, torch, pydicom) and the dev tools. BOTH real cases bake from here: the **ECGi case**
   (recovering heart-surface potentials by quasi-static volume conduction, pure NumPy/SciPy linear algebra on
@@ -18,7 +18,7 @@ committed under `data/derived/`, so `npm run dev` alone renders everything.
 
 ## 0. What actually needs to run
 
-The product is BAKE-AND-READ. The heavy physics runs OFFLINE on your machine and writes a compact JSON trace;
+The product is BAKE-AND-READ. The heavy physics runs offline on your machine and writes a compact JSON trace;
 the static web only reads it. Nothing trains or infers in the browser. So the environments below are only
 needed when you want to REBAKE an artifact (see guide 03) or explore the engine. To just view the site, jump
 to section 4.
