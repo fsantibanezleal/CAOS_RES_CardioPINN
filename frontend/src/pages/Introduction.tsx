@@ -4,7 +4,7 @@ import { useLang, pick } from '../store';
 function PipelineSvg({ lang }: { lang: 'en' | 'es' }) {
   const ecgi: [string, string][] = [
     ['body-surface', pick(lang, 'measured', 'medido')],
-    ['forward A', pick(lang, 'real geometry', 'geometria real')],
+    ['forward A', pick(lang, 'real geometry', 'geometría real')],
     ['regularize + prior', pick(lang, 'Tikhonov + mesh', 'Tikhonov + malla')],
     ['ensemble', pick(lang, 'per-node UQ', 'UQ por nodo')],
     ['validate', pick(lang, 'vs real cage', 'vs jaula real')],
@@ -33,7 +33,7 @@ function PipelineSvg({ lang }: { lang: 'en' | 'es' }) {
         {row(flow, 100)}
         <defs><marker id="pa" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="var(--accent-2)" /></marker></defs>
       </svg>
-      <div className="fig-cap">{pick(lang, 'Two real cases, two physics: (A) real body-surface data -> forward operator on real geometry -> regularized inverse with a surface prior -> ensemble uncertainty -> validation against the real measured heart cage; (B) real 4D-flow velocity -> divergence-free PINN denoiser -> analytic space-time unsteady term -> pressure-Poisson solve -> physiological pressure bracketing the clinical Bernoulli estimate.', 'Dos casos reales, dos fisicas: (A) datos reales de superficie corporal -> operador directo sobre geometria real -> inverso regularizado con prior de superficie -> incertidumbre por ensemble -> validacion contra la jaula cardiaca real; (B) velocidad real de flujo 4D -> PINN sin divergencia -> termino no estacionario analitico espacio-temporal -> resolucion de Poisson de presion -> presion fisiologica que encuadra la estimacion clinica de Bernoulli.')}</div>
+      <div className="fig-cap">{pick(lang, 'Two real cases, two physics: (A) real body-surface data -> forward operator on real geometry -> regularized inverse with a surface prior -> ensemble uncertainty -> validation against the real measured heart cage; (B) real 4D-flow velocity -> divergence-free PINN denoiser -> analytic space-time unsteady term -> pressure-Poisson solve -> physiological pressure bracketing the clinical Bernoulli estimate.', 'Dos casos reales, dos fisicas: (A) datos reales de superficie corporal -> operador directo sobre geometría real -> inverso regularizado con prior de superficie -> incertidumbre por ensemble -> validación contra la jaula cardiaca real; (B) velocidad real de flujo 4D -> PINN sin divergencia -> termino no estacionario analitico espacio-temporal -> resolucion de Poisson de presion -> presion fisiologica que encuadra la estimación clinica de Bernoulli.')}</div>
     </div>
   );
 }
@@ -47,11 +47,11 @@ export function Introduction() {
         <p className="lede">
           {pick(lang,
             'An applied framework for physics-informed reconstruction of cardiac quantities that cannot be measured directly, from data that can. It spans two real cases in two different physics domains: recovering heart-surface potentials from a body-surface recording by volume conduction, ',
-            'Un marco aplicado para la reconstruccion informada por fisica de cantidades cardiacas que no se pueden medir directamente, a partir de datos que si. Abarca dos casos reales en dos dominios fisicos distintos: recuperar potenciales de superficie cardiaca desde un registro de superficie corporal por conduccion de volumen, ')}
+            'Un marco aplicado para la reconstrucción informada por física de cantidades cardiacas que no se pueden medir directamente, a partir de datos que si. Abarca dos casos reales en dos dominios físicos distintos: recuperar potenciales de superficie cardiaca desde un registro de superficie corporal por conduccion de volumen, ')}
           <InlineMath tex={String.raw`\phi_{\text{body}}=A\,\phi_{\text{heart}}`} />
           {pick(lang, ', and recovering the aortic pressure field from a 4D-flow scan by incompressible Navier-Stokes, ', ', y recuperar el campo de presion aortica desde un escaneo de flujo 4D por Navier-Stokes incompresible, ')}
           <InlineMath tex={String.raw`\nabla^2 p = S(\mathbf{v})`} />
-          {pick(lang, '. Case A is fit to a real measured signal and validated against a real heart-surface gold standard; Case B is fit to a real 4D-flow scan and checked against an analytic gate, the physiological pressure range, and the clinical Bernoulli estimate it brackets.', '. El caso A se ajusta a una senal real medida y se valida contra un patron de oro real de superficie cardiaca; el caso B se ajusta a un escaneo real de flujo 4D y se contrasta contra una prueba analitica, el rango de presion fisiologico y la estimacion clinica de Bernoulli que encuadra.')}
+          {pick(lang, '. Case A is fit to a real measured signal and validated against a real heart-surface gold standard; Case B is fit to a real 4D-flow scan and checked against an analytic gate, the physiological pressure range, and the clinical Bernoulli estimate it brackets.', '. El caso A se ajusta a una señal real medida y se valida contra un patron de oro real de superficie cardiaca; el caso B se ajusta a un escaneo real de flujo 4D y se contrasta contra una prueba analitica, el rango de presion fisiologico y la estimación clinica de Bernoulli que encuadra.')}
         </p>
       </div>
 
@@ -61,15 +61,15 @@ export function Introduction() {
         <h2>{pick(lang, '1. The clinical problem', '1. El problema clinico')}</h2>
         <p>{pick(lang,
           'Cardiac arrhythmias (atrial fibrillation, ventricular tachycardia) are disorders of the heart’s electrical activation and a major cause of stroke and sudden death. The definitive treatment, catheter ablation, destroys the small region of tissue where the abnormal activity originates, so it depends entirely on localizing that origin. The routine 12-lead ECG cannot localize it; it is a projection of the whole heart onto a few leads. Electrocardiographic imaging (ECGi) reconstructs the full electrical map on the heart surface, non-invasively, from a body-surface electrode vest plus the patient’s torso geometry.',
-          'Las arritmias cardiacas (fibrilacion auricular, taquicardia ventricular) son trastornos de la activacion electrica del corazon y una causa mayor de accidente cerebrovascular y muerte subita. El tratamiento definitivo, la ablacion con cateter, destruye la pequena region de tejido donde se origina la actividad anormal, asi que depende por completo de localizar ese origen. El ECG de rutina de 12 derivaciones no puede localizarlo. La imagen electrocardiografica (ECGi) reconstruye el mapa electrico completo en la superficie del corazon, de forma no invasiva.')}</p>
+          'Las arritmias cardiacas (fibrilacion auricular, taquicardia ventricular) son trastornos de la activacion electrica del corazon y una causa mayor de accidente cerebrovascular y muerte subita. El tratamiento definitivo, la ablacion con cateter, destruye la pequeña region de tejido donde se origina la actividad anormal, así que depende por completo de localizar ese origen. El ECG de rutina de 12 derivaciones no puede localizarlo. La imagen electrocardiografica (ECGi) reconstruye el mapa eléctrico completo en la superficie del corazon, de forma no invasiva.')}</p>
         <Refs ids={['ramanathan2004', 'rudy1988']} label="Refs" />
       </section>
 
       <section>
-        <h2>{pick(lang, '2. The physics that links heart to body', '2. La fisica que enlaza corazon y cuerpo')}</h2>
+        <h2>{pick(lang, '2. The physics that links heart to body', '2. La física que enlaza corazon y cuerpo')}</h2>
         <p>{pick(lang,
           'The torso is a passive volume conductor: the heart is the source, and body tissue conducts the currents to the skin. At heartbeat frequencies the quasi-static approximation holds, so the extracellular potential is harmonic and the map from heart-surface to body-surface potentials is a single linear operator determined by the geometry and tissue conductivities. That operator is severely ill-conditioned, which is the entire difficulty of the inverse.',
-          'El torso es un conductor de volumen pasivo: el corazon es la fuente, y el tejido conduce las corrientes a la piel. A frecuencias del latido vale la aproximacion cuasi-estatica, asi que el potencial extracelular es armonico y el mapa de superficie cardiaca a superficie corporal es un solo operador lineal determinado por la geometria y las conductividades. Ese operador esta severamente mal condicionado, que es toda la dificultad del inverso.')}</p>
+          'El torso es un conductor de volumen pasivo: el corazon es la fuente, y el tejido conduce las corrientes a la piel. A frecuencias del latido vale la aproximación cuasi-estatica, así que el potencial extracelular es armonico y el mapa de superficie cardiaca a superficie corporal es un solo operador lineal determinado por la geometría y las conductividades. Ese operador esta severamente mal condicionado, que es toda la dificultad del inverso.')}</p>
         <Refs ids={['barr1977', 'bear2018']} label="Refs" />
       </section>
 
@@ -81,7 +81,7 @@ export function Introduction() {
         <Equation tex={String.raw`\text{A: }\;\nabla\cdot(\sigma\nabla\phi)=0 \text{ in } \Omega,\;\; \phi=\phi_{\text{heart}} \text{ on } \Gamma_H,\;\; \sigma\partial_n\phi=0 \text{ on } \Gamma_B \;\Rightarrow\; \phi_{\text{body}}=A\,\phi_{\text{heart}}`}
           caption={pick(lang, 'Case A: quasi-static volume conduction reduces to a linear forward operator A between the two surfaces.', 'Caso A: la conduccion de volumen cuasi-estatica se reduce a un operador directo lineal A entre las dos superficies.')} />
         <Equation tex={String.raw`\text{B: }\;\rho(\partial_t\mathbf{v}+(\mathbf{v}\cdot\nabla)\mathbf{v})=-\nabla p+\mu\nabla^2\mathbf{v},\;\; \nabla\cdot\mathbf{v}=0`}
-          caption={pick(lang, 'Case B: incompressible Navier-Stokes relates the pressure gradient to the fluid acceleration and viscous friction.', 'Caso B: Navier-Stokes incompresible relaciona el gradiente de presion con la aceleracion del fluido y la friccion viscosa.')} />
+          caption={pick(lang, 'Case B: incompressible Navier-Stokes relates the pressure gradient to the fluid acceleration and viscous friction.', 'Caso B: Navier-Stokes incompresible relaciona el gradiente de presion con la aceleración del fluido y la friccion viscosa.')} />
         <Equation tex={String.raw`\text{B} \Rightarrow \;\nabla^2 p=-\rho\,\nabla\cdot[(\mathbf{v}\cdot\nabla)\mathbf{v}]\equiv S(\mathbf{v})`}
           caption={pick(lang, 'Its divergence gives the pressure-Poisson equation: a well-posed elliptic problem whose source is a quadratic form of the measured velocity gradients.', 'Su divergencia da la ecuacion de Poisson de presion: un problema eliptico bien planteado cuya fuente es una forma cuadratica de los gradientes de velocidad medidos.')} />
         <dl className="def-grid">
@@ -103,10 +103,10 @@ export function Introduction() {
         <h3>{pick(lang, 'A. ECGi (volume conduction)', 'A. ECGi (conduccion de volumen)')}</h3>
         <ol>
           <li>{pick(lang, 'Load the REAL EDGAR torso-tank data: 192 body-surface + 256 heart-cage measured potentials over the beat, plus the real electrode geometries and triangulations.', 'Cargar los datos REALES del tanque de torso EDGAR: 192 potenciales medidos de superficie corporal + 256 de la jaula cardiaca durante el latido, mas las geometrias reales de electrodos y triangulaciones.')}</li>
-          <li>{pick(lang, 'Build the forward operator A on the real geometry (single-layer kernel, calibrated gain).', 'Construir el operador directo A sobre la geometria real (nucleo de capa simple, ganancia calibrada).')}</li>
+          <li>{pick(lang, 'Build the forward operator A on the real geometry (single-layer kernel, calibrated gain).', 'Construir el operador directo A sobre la geometría real (nucleo de capa simple, ganancia calibrada).')}</li>
           <li>{pick(lang, 'Reconstruct: Tikhonov (oracle lambda) and a graph-Laplacian-regularized inverse.', 'Reconstruir: Tikhonov (lambda oraculo) y un inverso regularizado por Laplaciano de grafo.')}</li>
           <li>{pick(lang, 'Deep ensemble over measurement-noise draws, recalibrated, for a per-node uncertainty.', 'Ensemble profundo sobre realizaciones de ruido de medicion, recalibrado, para una incertidumbre por nodo.')}</li>
-          <li>{pick(lang, 'Validate against the REAL measured heart-cage potentials (relative error, correlation).', 'Validar contra los potenciales REALES medidos de la jaula cardiaca (error relativo, correlacion).')}</li>
+          <li>{pick(lang, 'Validate against the REAL measured heart-cage potentials (relative error, correlation).', 'Validar contra los potenciales REALES medidos de la jaula cardiaca (error relativo, correlación).')}</li>
         </ol>
         <h3>{pick(lang, 'B. 4D-flow pressure (Navier-Stokes)', 'B. Presion de flujo 4D (Navier-Stokes)')}</h3>
         <ol>
@@ -114,7 +114,7 @@ export function Introduction() {
           <li>{pick(lang, 'Denoise with a divergence-free PINN that enforces incompressibility (∇·v=0) on the measured velocity.', 'Suavizar con un PINN sin divergencia que impone la incompresibilidad (∇·v=0) sobre la velocidad medida.')}</li>
           <li>{pick(lang, 'Build the analytic space-time source: differentiate the smoothed velocity to form the unsteady and convective terms S(v).', 'Construir la fuente analitica espacio-temporal: derivar la velocidad suavizada para formar los terminos no estacionario y convectivo S(v).')}</li>
           <li>{pick(lang, 'Solve the pressure-Poisson equation ∇²p = S(v) for the relative pressure field.', 'Resolver la ecuacion de Poisson de presion ∇²p = S(v) para el campo de presion relativa.')}</li>
-          <li>{pick(lang, 'Validate: gate on an analytic known-answer flow, check the physiological range, and confirm the recovered drop brackets the clinical Bernoulli estimate.', 'Validar: prueba sobre un flujo analitico de respuesta conocida, verificar el rango fisiologico y confirmar que la caida recuperada encuadra la estimacion clinica de Bernoulli.')}</li>
+          <li>{pick(lang, 'Validate: gate on an analytic known-answer flow, check the physiological range, and confirm the recovered drop brackets the clinical Bernoulli estimate.', 'Validar: prueba sobre un flujo analitico de respuesta conocida, verificar el rango fisiologico y confirmar que la caida recuperada encuadra la estimación clinica de Bernoulli.')}</li>
         </ol>
       </section>
 
@@ -123,7 +123,7 @@ export function Introduction() {
         <Callout>
           {pick(lang,
             'Case A (ECG imaging) runs on real torso-tank experiments, the one setting where a real heart-surface gold standard exists (clinical ECGi has none), so every number is the measured reconstruction quality against that real truth, never a synthetic field. Case B (4D-flow) has NO invasive pressure gold standard, which is exactly why the method exists; there the validated claims are the exact analytic gate (a known-answer flow), the physiological range, and the bracket of the clinical Bernoulli estimate, and the absolute magnitude carries the method uncertainty. Every engine is gated on an analytic problem before real data; raw datasets are used under their data-use agreements and not redistributed. Not clinically deployed.',
-            'El caso A (imagen de ECG) corre sobre experimentos reales de tanque de torso, el unico entorno donde existe un patron de oro real de superficie cardiaca (el ECGi clinico no tiene ninguno), asi que cada numero es la calidad de reconstruccion medida contra esa verdad real, nunca un campo sintetico. El caso B (flujo 4D) NO tiene patron de oro de presion invasivo, que es justo por lo que existe el metodo; alli las afirmaciones validadas son la prueba analitica exacta (un flujo de respuesta conocida), el rango fisiologico, y el encuadre de la estimacion clinica de Bernoulli, y la magnitud absoluta lleva la incertidumbre del metodo. Cada motor pasa una prueba analitica antes de datos reales; los datos crudos se usan bajo sus acuerdos y no se redistribuyen. No desplegado clinicamente.')}
+            'El caso A (imagen de ECG) corre sobre experimentos reales de tanque de torso, el unico entorno donde existe un patron de oro real de superficie cardiaca (el ECGi clinico no tiene ninguno), así que cada número es la calidad de reconstrucción medida contra esa verdad real, nunca un campo sintético. El caso B (flujo 4D) NO tiene patron de oro de presion invasivo, que es justo por lo que existe el método; allí las afirmaciones validadas son la prueba analitica exacta (un flujo de respuesta conocida), el rango fisiologico, y el encuadre de la estimación clinica de Bernoulli, y la magnitud absoluta lleva la incertidumbre del método. Cada motor pasa una prueba analitica antes de datos reales; los datos crudos se usan bajo sus acuerdos y no se redistribuyen. No desplegado clinicamente.')}
         </Callout>
         <Refs ids={['aras2015', 'cluitmans2018', 'raissi2020']} label="Refs" />
       </section>

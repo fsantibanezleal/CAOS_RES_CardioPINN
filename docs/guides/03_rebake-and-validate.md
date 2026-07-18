@@ -1,6 +1,6 @@
 # 03, Rebake and validate the artifacts
 
-CardioPINN is BAKE-AND-READ: the physics runs OFFLINE and writes a compact JSON trace under `data/derived/`,
+CardioPINN is BAKE-AND-READ: the physics runs offline and writes a compact JSON trace under `data/derived/`,
 and the static web only reads it. This guide covers regenerating those traces from the real raw data, the
 analytic gates that must pass before any real data is trusted, the validators and pytest floors, and the
 re-verify-before-commit discipline that keeps a bad bake from shipping.

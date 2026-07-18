@@ -41,7 +41,7 @@ const config: ShellConfig = {
     },
     disclaimer: {
       en: 'runs offline, the web reads baked traces; not clinically deployed',
-      es: 'corre offline, la web lee traces horneados; no desplegado clinicamente',
+      es: 'corre offline, la web lee traces precalculados; no desplegado clinicamente',
     },
   },
 };
