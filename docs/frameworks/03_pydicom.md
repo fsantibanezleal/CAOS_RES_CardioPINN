@@ -72,7 +72,7 @@ its neighbours, adds or subtracts $2\,\text{venc}$ toward the local value:
 $$v \;\leftarrow\; v \;-\; \operatorname{sign}(v - v_{\text{local}})\cdot 2\,\text{venc}
    \quad\text{where } \big|v - v_{\text{local}}\big| > \text{venc}.$$
 
-On this scan 27863 samples are corrected. This runs BEFORE any downstream reconstruction, because an aliased
+On this scan 27863 samples are corrected. This runs before any downstream reconstruction, because an aliased
 jet core would otherwise corrupt the velocity derivatives that drive the pressure-Poisson source.
 
 ## Honest limits and substitutions

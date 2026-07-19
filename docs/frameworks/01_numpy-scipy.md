@@ -32,7 +32,7 @@ broadcast: pairwise distances $d_{ij} = \lVert x_i^{\text{torso}} - x_j^{\text{c
 $a_{ij} = 1/d_{ij}$, row-normalized. This is an unbounded-medium Green's-function kernel on the real electrode
 positions, self-contained and honest about being an approximation.
 
-The scalar gain of $A$ is calibrated on the FIRST HALF of the time frames (leakage-safe) and then fixed, so the
+The scalar gain of $A$ is calibrated on the first half of the time frames (leakage-safe) and then fixed, so the
 reconstruction never sees the frames it is scored on with a tuned gain.
 
 ### The regularized least-squares solves
@@ -49,7 +49,7 @@ blocks $A^\top A$ and $A^\top \phi_{\text{body}}$, both solved with dense `numpy
   $\varepsilon = 10^{-6}$ jitter for conditioning.
 
 For each method the regularization strength $\lambda$ is swept over `np.logspace(-3, 2, 30)` and the value that
-minimizes the relative error against the REAL measured cage potentials is kept (an oracle-best baseline, the
+minimizes the relative error against the real measured cage potentials is kept (an oracle-best baseline, the
 fair comparison for a method whose only tuning knob is $\lambda$).
 
 ### The graph Laplacian
@@ -85,7 +85,7 @@ $$\big[D_{BB} - G_{BH} G_{HH}^{-1} D_{HB}\big]\,\phi_B
 
 It is gated on two concentric spheres, where the heart-to-body transfer of each spherical harmonic is known in
 closed form (`verify_bem_spheres`, correlation 1.00, error halving per mesh refinement). Honest finding on the
-real data: the BEM does NOT beat the calibrated single-layer (the human tank surface is open, and the coarse
+real data: the BEM does not beat the calibrated single-layer (the human tank surface is open, and the coarse
 140-node dog torso makes the solve regularization-dominated), so the single-layer stays the default.
 
 ## How CardioPINN uses SciPy in the 4D-flow case (`real/flow4d_ppe.py`)
@@ -123,11 +123,11 @@ is reserved for the PyTorch velocity networks of the 4D-flow case (see card 02).
   geometries it does not improve the reconstruction, so it is documented as a null result rather than shipped
   as the default.
 - The oracle-best $\lambda$ per method uses the true cage potentials to pick the regularization strength. This
-  is a fair BASELINE (both methods get their best $\lambda$), not a blind clinical estimator; in a patient with
+  is a fair baseline (both methods get their best $\lambda$), not a blind clinical estimator; in a patient with
   no gold standard, $\lambda$ would come from an L-curve or CRESO criterion. The docs state this plainly.
 - The dense graph-Laplacian assembly is $O(N^2)$ in memory. It is fine for a few-hundred to ~1300-node cage; a
   larger mesh would need a sparse Laplacian. The current meshes do not require it.
-- The ensemble captures MEASUREMENT-noise uncertainty only; it does not capture forward-model error or
+- The ensemble captures measurement-noise uncertainty only; it does not capture forward-model error or
   geometric misregistration, which the docs flag as the dominant real-world uncertainties.
 
 ## References

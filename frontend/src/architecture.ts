@@ -63,7 +63,7 @@ const SVG_APP = svg('0 0 880 300', `
     <text x="${80 + i * 142}" y="205" text-anchor="middle" class="it">${a}</text>
     <text x="${80 + i * 142}" y="221" text-anchor="middle" class="mu">${b}</text>
     ${i < 5 ? `<path class="flow" d="M${144 + i * 142} 208 H${158 + i * 142}" marker-end="url(#ah)"/>` : ''}`).join('')}
-  <text x="16" y="266" class="mu">Every engine passes an analytic gate (known closed-form answer) BEFORE any real data is trusted; the derived result is committed and the static web only reads it.</text>`);
+  <text x="16" y="266" class="mu">Every engine passes an analytic gate (known closed-form answer) before any real data is trusted; the derived result is committed and the static web only reads it.</text>`);
 
 // (2) Lanes: web vs offline vs compute
 const SVG_LANES = svg('0 0 880 320', `
@@ -170,7 +170,7 @@ const SVG_SCIENCE = svg('0 0 880 300', `
     ${i < 4 ? `<path class="flow" d="M${172 + i * 172} 192 H${188 + i * 172}" marker-end="url(#ah)"/>` : ''}`).join('')}
   <rect class="bx bx-gate" x="16" y="244" width="848" height="42" rx="8"/>
   <text x="30" y="262" class="ttl">Honesty</text>
-  <text x="30" y="278" class="mu">ECGi is validated vs a REAL heart-cage gold standard; 4D-flow has none (the reason the method exists), so validation = analytic gate + physiological range + Bernoulli bracket. Not clinically deployed.</text>`);
+  <text x="30" y="278" class="mu">ECGi is validated vs a real heart-cage gold standard; 4D-flow has none (the reason the method exists), so validation = analytic gate + physiological range + Bernoulli bracket. Not clinically deployed.</text>`);
 
 // (5) The data contracts / design
 const SVG_CONTRACTS = svg('0 0 880 230', `
@@ -190,7 +190,7 @@ const SVG_CONTRACTS = svg('0 0 880 230', `
   <text x="318" y="90" class="mono">real-flow4d-pressure/trace.json</text>
   <text x="318" y="110" class="it">mesh / point cloud + field over time</text>
   <text x="318" y="126" class="it">+ validation metrics</text>
-  <text x="318" y="148" class="mu">compact · the ONLY thing the web sees</text>
+  <text x="318" y="148" class="mu">compact · the only thing the web sees</text>
   <text x="318" y="164" class="mu">schema-versioned (v1 to v3)</text>
   <path class="flow-good" d="M570 105 H604" marker-end="url(#ahg)"/>
   <text x="574" y="97" class="lbl">reads</text>
@@ -208,32 +208,32 @@ const SVG_CONTRACTS = svg('0 0 880 230', `
 
 export const architecture: ArchitectureConfig = {
   title_en: 'How CardioPINN works',
-  title_es: 'Como funciona CardioPINN',
+  title_es: 'Cómo funciona CardioPINN',
   tabs: [
     {
       id: 'app', en: 'The app', es: 'La app', svg: SVG_APP,
       body_en: 'CardioPINN is a catalogue of real applied cases across two different physics domains: recovering heart-surface potentials (volume conduction) and recovering aortic pressure (Navier-Stokes). Each fits a real measured signal and is validated against a real reference. Every engine is gated on an analytic problem with a known answer before any real data is trusted, then baked to a committed trace.',
-      body_es: 'CardioPINN es un catalogo de casos aplicados reales en dos dominios físicos distintos: recuperar potenciales de superficie cardiaca (conduccion de volumen) y recuperar la presion aortica (Navier-Stokes). Cada uno ajusta una señal real medida y se valida contra una referencia real. Cada motor pasa una prueba analitica de respuesta conocida antes de confiar en datos reales, y luego se hornea a un trace comprometido.',
+      body_es: 'CardioPINN es un catálogo de casos aplicados reales en dos dominios físicos distintos: recuperar potenciales de superficie cardíaca (conducción de volumen) y recuperar la presión aórtica (Navier-Stokes). Cada uno ajusta una señal real medida y se valida contra una referencia real. Cada motor pasa una prueba analítica de respuesta conocida antes de confiar en datos reales, y luego se precalcula a un trace comprometido.',
     },
     {
-      id: 'lanes', en: 'Lanes: web / offline / compute', es: 'Carriles: web / offline / computo', svg: SVG_LANES,
-      body_en: 'The heavy physics runs offline: the ECGi reconstruction on CPU (NumPy/SciPy), the 4D-flow pressure on a local GPU (PyTorch). Each passes an analytic gate, then bakes a compact JSON trace. The static WEB only reads that trace and renders it on the real geometry with three.js. No model runs in the browser.',
-      body_es: 'La física pesada corre offline: la reconstrucción ECGi en CPU (NumPy/SciPy), la presion de flujo 4D en una GPU local (PyTorch). Cada una pasa una prueba analitica y luego hornea un trace JSON compacto. La WEB estatica solo lee ese trace y lo renderiza sobre la geometría real con three.js. Ningun modelo corre en el navegador.',
+      id: 'lanes', en: 'Lanes: web / offline / compute', es: 'Carriles: web / offline / cómputo', svg: SVG_LANES,
+      body_en: 'The heavy physics runs offline: the ECGi reconstruction on CPU (NumPy/SciPy), the 4D-flow pressure on a local GPU (PyTorch). Each passes an analytic gate, then bakes a compact JSON trace. The static web only reads that trace and renders it on the real geometry with three.js. No model runs in the browser.',
+      body_es: 'La física pesada se ejecuta offline: la reconstrucción ECGi en CPU (NumPy/SciPy), la presión de flujo 4D en una GPU local (PyTorch). Cada una pasa una prueba analítica y luego precalcula un trace JSON compacto. La web estática solo lee ese trace y lo renderiza sobre la geometría real con three.js. Ningún modelo se ejecuta en el navegador.',
     },
     {
       id: 'web', en: 'Web-app flow', es: 'Flujo de la web', svg: SVG_WEB,
       body_en: 'The SPA is the App page (a workbench: left-column controls + a wide 3D result, result-first tabs) plus five deep doc pages, all bilingual, light+dark, with per-section references carrying real DOIs. Header, footer, tabs, callouts, equations and references all come from the shared caos-app-shell, so every CAOS product looks and behaves identically. A build-time overlay copies the committed traces into the bundle; type-check and content-standards guards run; GitHub Actions deploys to Pages over the committed artifacts.',
-      body_es: 'La SPA es la página App (un banco de trabajo: controles en la columna izquierda + un resultado 3D amplio, pestanas con el resultado primero) mas cinco páginas de documentacion profundas, todas bilingues, claro+oscuro, con referencias por seccion con DOIs reales. El encabezado, pie, pestanas, notas, ecuaciones y referencias vienen del shell compartido caos-app-shell, así que cada producto CAOS se ve y se comporta igual. Un overlay de build copia los traces comprometidos al bundle; corren las guardas de tipos y de estandares de contenido; GitHub Actions despliega a Pages sobre los artefactos comprometidos.',
+      body_es: 'La SPA es la página App (un banco de trabajo: controles en la columna izquierda + un resultado 3D amplio, pestañas con el resultado primero) más cinco páginas de documentación profundas, todas bilingües, claro+oscuro, con referencias por sección con DOIs reales. El encabezado, pie, pestañas, notas, ecuaciones y referencias vienen del shell compartido caos-app-shell, así que cada producto CAOS se ve y se comporta igual. Un overlay de build copia los traces comprometidos al bundle; se ejecutan las guardas de tipos y de estándares de contenido; GitHub Actions despliega a Pages sobre los artefactos comprometidos.',
     },
     {
       id: 'science', en: 'The science', es: 'La ciencia', svg: SVG_SCIENCE,
       body_en: 'ECG imaging solves an ill-posed inverse: the body-surface potentials map to the heart surface by a forward operator from quasi-static volume conduction; a regularized inverse plus a deep ensemble recovers the heart map with a per-node uncertainty, validated against the real cage. 4D-flow forces pressure out of a measured velocity: a divergence-free PINN denoises the velocity, a space-time net gives the analytic unsteady term, and the pressure-Poisson equation yields the relative pressure.',
-      body_es: 'La imagen de ECG resuelve un inverso mal planteado: los potenciales de superficie corporal se mapean a la superficie cardiaca por un operador directo de conduccion de volumen cuasi-estatica; un inverso regularizado mas un ensemble profundo recupera el mapa cardiaco con incertidumbre por nodo, validado contra la jaula real. El flujo 4D fuerza la presion desde una velocidad medida: un PINN sin divergencia limpia la velocidad, una red espacio-temporal da el termino no estacionario analitico, y la ecuacion de Poisson de presion da la presion relativa.',
+      body_es: 'La imagen de ECG resuelve un inverso mal planteado: los potenciales de superficie corporal se mapean a la superficie cardíaca por un operador directo de conducción de volumen cuasiestática; un inverso regularizado más un ensemble profundo recupera el mapa cardíaco con incertidumbre por nodo, validado contra la jaula real. El flujo 4D fuerza la presión desde una velocidad medida: un PINN sin divergencia limpia la velocidad, una red espacio-temporal da el término no estacionario analítico, y la ecuación de Poisson de presión da la presión relativa.',
     },
     {
       id: 'contracts', en: 'Data contracts / design', es: 'Contratos de datos / diseño', svg: SVG_CONTRACTS,
       body_en: 'The bake is the boundary. Raw datasets stay gitignored under their data-use agreements; only the compact derived trace (schema-versioned) is committed and read by the web. Guards enforce completeness and physiological floors, so a partial or non-physiological bake fails CI and never silently ships.',
-      body_es: 'El precalculado es la frontera. Los conjuntos crudos quedan gitignored bajo sus acuerdos de uso; solo el trace derivado compacto (con version de esquema) se compromete y lo lee la web. Las guardas imponen pisos de completitud y fisiologicos, así que un precálculo parcial o no fisiologico falla el CI y nunca se despliega en silencio.',
+      body_es: 'El precalculado es la frontera. Los conjuntos crudos quedan gitignored bajo sus acuerdos de uso; solo el trace derivado compacto (con versión de esquema) se compromete y lo lee la web. Las guardas imponen pisos de completitud y fisiológicos, así que un precálculo parcial o no fisiológico falla el CI y nunca se despliega en silencio.',
     },
   ],
 };

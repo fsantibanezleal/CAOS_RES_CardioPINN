@@ -25,9 +25,9 @@ const config: ShellConfig = {
   product: { name: 'CardioPINN', mark: <Activity size={18} aria-hidden="true" /> },
   routes: [
     { path: '/', en: 'App', es: 'App' },
-    { path: '/introduction', en: 'Introduction', es: 'Introduccion' },
-    { path: '/methodology', en: 'Methodology', es: 'Metodologia' },
-    { path: '/implementation', en: 'Implementation', es: 'Implementacion' },
+    { path: '/introduction', en: 'Introduction', es: 'Introducción' },
+    { path: '/methodology', en: 'Methodology', es: 'Metodología' },
+    { path: '/implementation', en: 'Implementation', es: 'Implementación' },
     { path: '/experiments', en: 'Experiments', es: 'Experimentos' },
     { path: '/benchmark', en: 'Benchmark', es: 'Benchmark' },
   ],
@@ -41,7 +41,7 @@ const config: ShellConfig = {
     },
     disclaimer: {
       en: 'runs offline, the web reads baked traces; not clinically deployed',
-      es: 'corre offline, la web lee traces precalculados; no desplegado clinicamente',
+      es: 'se ejecuta offline, la web lee traces precalculados; no desplegado clínicamente',
     },
   },
 };

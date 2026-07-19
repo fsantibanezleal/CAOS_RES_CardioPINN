@@ -4,9 +4,9 @@ import type { Lang } from './store';
 
 const DICT: Record<string, { en: string; es: string }> = {
   'nav.app': { en: 'App', es: 'App' },
-  'nav.intro': { en: 'Introduction', es: 'Introduccion' },
-  'nav.method': { en: 'Methodology', es: 'Metodologia' },
-  'nav.impl': { en: 'Implementation', es: 'Implementacion' },
+  'nav.intro': { en: 'Introduction', es: 'Introducción' },
+  'nav.method': { en: 'Methodology', es: 'Metodología' },
+  'nav.impl': { en: 'Implementation', es: 'Implementación' },
   'nav.exp': { en: 'Experiments', es: 'Experimentos' },
   'nav.bench': { en: 'Benchmark', es: 'Benchmark' },
   'tab.field': { en: 'Field', es: 'Campo' },
@@ -19,7 +19,7 @@ const DICT: Record<string, { en: string; es: string }> = {
   'ui.play': { en: 'Play once', es: 'Reproducir' },
   'ui.arch': { en: 'Architecture', es: 'Arquitectura' },
   'ui.live_run': { en: 'Run PINN in browser', es: 'Ejecutar PINN en el navegador' },
-  'ui.select_case': { en: 'Select a research vertical', es: 'Selecciona un tema de investigacion' },
+  'ui.select_case': { en: 'Select a research vertical', es: 'Seleccionar un tema de investigación' },
 };
 
 export const t = (lang: Lang, key: string): string => {

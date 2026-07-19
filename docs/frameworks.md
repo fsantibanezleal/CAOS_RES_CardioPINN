@@ -7,7 +7,7 @@ hand-rolled toy substitutes for a real engine, and nothing is listed here that t
 
 ## The architecture the cards describe: bake-and-read, real-data-only
 
-Every result is computed offline on a local machine and committed as a JSON trace; the static web app READS
+Every result is computed offline on a local machine and committed as a JSON trace; the static web app reads
 those traces. No model runs in the browser. There is no ONNX / onnxruntime-web / Pyodide lane. The two physics
 cases split cleanly across the stack:
 
@@ -40,5 +40,5 @@ cases split cleanly across the stack:
 The persisted research dossier (`wip/cardiopinn/frameworks-and-tooling.md` in the management repo) surveyed a
 wider stack: DeepXDE, NVIDIA PhysicsNeMo, openCARP, fim-python, robust-laplacian, and an ONNX to
 onnxruntime-web export lane mirrored from PINN-Lab. The shipped real-data product uses none of those: it needs
-only the four engines above. Those tools stay as documented REFERENCES (SOTA anchors), not runtime
+only the four engines above. Those tools stay as documented references (SOTA anchors), not runtime
 dependencies. Keeping the cards honest to what the code imports is the point of this folder.

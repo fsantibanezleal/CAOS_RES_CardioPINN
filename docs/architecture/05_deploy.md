@@ -2,10 +2,10 @@
 
 ## What is deployed
 
-The web is a static single-page app: Vite + React, React Router with a HASH route (so deep links work on a
+The web is a static single-page app: Vite + React, React Router with a hash route (so deep links work on a
 GitHub Pages project site without server rewrites), and three.js via react-three-fiber for the 3D
 reconstruction views (the ECGi cage potential animation and the 4D-flow lumen point cloud). It is built
-FRONTEND-ONLY over the committed traces. There is no server, no API, no database, and no in-browser model: the
+frontend-only over the committed traces. There is no server, no API, no database, and no in-browser model: the
 app fetches `data/<case>/*.json` at load time and renders it. Every animation is baked, and it is paused by
 default (the viewer opts into playback).
 
@@ -30,7 +30,7 @@ build proceeds with no data (the bake must have run first).
 
 ## The GitHub Actions Pages workflow
 
-`.github/workflows/deploy-pages.yml` deploys on push to `main` (and on manual dispatch). It is a PURE frontend
+`.github/workflows/deploy-pages.yml` deploys on push to `main` (and on manual dispatch). It is a pure frontend
 build: no Python, no torch, no retraining. The steps are:
 
 1. `actions/checkout@v4`.
@@ -69,7 +69,7 @@ So by the time the Pages workflow runs, the committed traces have been validated
 and built, and the content standards have passed. Both cases and every doc page are additionally
 screenshot-verified in light and dark before shipping.
 
-## What is NOT in the deploy
+## What is not in the deploy
 
 For the avoidance of doubt, and because earlier revisions of these docs claimed otherwise: there is no ONNX
 export, no onnxruntime-web, no Pyodide, no WebAssembly inference, no live recompute, and no live/replay gate in

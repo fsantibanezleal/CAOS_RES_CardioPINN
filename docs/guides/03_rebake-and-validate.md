@@ -1,6 +1,6 @@
 # 03, Rebake and validate the artifacts
 
-CardioPINN is BAKE-AND-READ: the physics runs offline and writes a compact JSON trace under `data/derived/`,
+CardioPINN is bake-and-read: the physics runs offline and writes a compact JSON trace under `data/derived/`,
 and the static web only reads it. This guide covers regenerating those traces from the real raw data, the
 analytic gates that must pass before any real data is trusted, the validators and pytest floors, and the
 re-verify-before-commit discipline that keeps a bad bake from shipping.
@@ -18,7 +18,7 @@ stdlib-only and run in CI without the raw datasets.
 
 ## The gate-before-real-data rule
 
-Every physics engine must recover a KNOWN analytic answer before it is allowed near a real scan. The gates run
+Every physics engine must recover a known analytic answer before it is allowed near a real scan. The gates run
 in CI and are the honesty backbone of the product:
 
 - **ECGi BEM gate** (`tests/test_ecgi_bem.py`): on two concentric spheres, where the heart-to-body transfer of
@@ -27,12 +27,12 @@ in CI and are the honesty backbone of the product:
 - **4D-flow steady gate** (`tests/test_flow4d_ppe.py`): on an analytic converging-duct flow whose exact
   pressure drop is known, the pressure-Poisson solve recovers it to within 1 percent (correlation > 0.99,
   magnitude scale within 10 percent, pressure drop within 0.2 mmHg). This is exactly the gate the
-  momentum-residual NS-PINN FAILED (it recovered only about 1 percent of the true gradient), which is why the
+  momentum-residual NS-PINN failed (it recovered only about 1 percent of the true gradient), which is why the
   shipped method is the pressure-Poisson route, not the momentum residual.
 - **4D-flow unsteady gate** (`tests/test_flow4d_spacetime.py`, marked slow, trains a PINN): on a time-varying
   Poiseuille flow $w(r,t) = U_0(1 + A\sin\omega t)(1 - (r/R)^2)$, whose exact axial unsteady acceleration is
   $\partial_t w = U_0 A\,\omega\cos\omega t$, the space-time net recovers $\partial_t w$ at correlation 0.995
-  (amplitude within 20 percent). This is what makes the unsteady pressure term ANALYTIC rather than a noisy
+  (amplitude within 20 percent). This is what makes the unsteady pressure term analytic rather than a noisy
   three-frame finite difference.
 
 Run the fast gates (everything except the slow GPU/PINN tests) with:
@@ -76,7 +76,7 @@ AORTA4D_DIR=/path/to/4dflow/dicoms \
 `flow4d_bake` runs the full validated pipeline: decode the measured velocity, correct phase-wrap aliasing
 (`unwrap_aliasing`, 27863 samples corrected on this scan), segment the aortic lumen (pulsatile-flow threshold,
 largest connected component), pick the peak-systolic frame (max lumen kinetic energy), train the space-time
-divergence-free velocity PINN over the whole cycle to get the analytic source, Neumann flux AND unsteady term
+divergence-free velocity PINN over the whole cycle to get the analytic source, Neumann flux and unsteady term
 $\partial_t\mathbf{v}$, solve the pressure-Poisson equation $\nabla^2 p = S(\mathbf{v})$ by a sparse direct
 solve, run the velocity-noise robustness ensemble, and decimate the lumen to a browser-sized point cloud. It
 writes schema `cardiopinn.flow4d-pressure/v3` to `data/derived/real-flow4d-pressure/trace.json` and prints the
@@ -89,8 +89,8 @@ clinical Bernoulli $4V_{\max}^2 = 2.51$ mmHg, and a velocity-noise sensitivity u
 
 ## Validate the committed artifacts
 
-`scripts/check_artifacts.py` is the drift gate (stdlib only, runs in CI). It enforces both a COMPLETENESS floor
-and a PHYSIOLOGICAL floor:
+`scripts/check_artifacts.py` is the drift gate (stdlib only, runs in CI). It enforces both a completeness floor
+and a physiological floor:
 
 ```bash
 python scripts/check_artifacts.py
@@ -100,7 +100,7 @@ python scripts/check_artifacts.py
   `mesh` / `times_ms` / `fields_over_time` / `metrics`, correlation in [-1, 1], relative error non-negative.
   This is what stops a partial bake from silently shrinking the catalogue.
 - **4D-flow physiological floor:** the point cloud is non-degenerate (>= 1000 points, pressure length matches),
-  the recovered pressure range is PHYSIOLOGICAL (`0 < ppe_pressure_drop_mmHg < 60`, the guard against the
+  the recovered pressure range is physiological (`0 < ppe_pressure_drop_mmHg < 60`, the guard against the
   finite-difference boundary artifact that once produced thousands of mmHg), and the peak velocity is
   physiological (`0.1 < peak_velocity_ms < 6.0`).
 
@@ -115,10 +115,10 @@ job forbids tracked `.env` / venvs / native binaries / raw data (`.mat`, `.npy`,
 checks for template residue, and runs the content-standards check (no em-dash, no emoji, ADR-0067). The slow
 GPU/PINN bake tests are local-only.
 
-## Re-verify BEFORE `git add`
+## Re-verify before `git add`
 
-The committed trace is the ONLY thing that crosses into the web, so treat the bake as a boundary and verify the
-ACTUAL committed bytes, not the run you remember:
+The committed trace is the only thing that crosses into the web, so treat the bake as a boundary and verify the
+Actual committed bytes, not the run you remember:
 
 1. Rebake into `data/derived/` with the correct environment and data path.
 2. Run `python scripts/check_artifacts.py` and `pytest -q -m "not slow"` against the files on disk.

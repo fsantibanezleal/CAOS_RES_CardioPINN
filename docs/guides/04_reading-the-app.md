@@ -1,15 +1,15 @@
 # 04, Reading the live app
 
-The App is a workbench, not a slideshow. It shows REAL results, computed offline and committed as JSON traces,
+The App is a workbench, not a slideshow. It shows real results, computed offline and committed as JSON traces,
 rendered live on the real geometry: nothing trains or infers in your browser. This guide is how to drive it.
 
 Live: https://cardiopinn.fasl-work.com/ (or `npm run dev` locally, guide 01). The layout follows the shared
 shell: a sticky header (brand, nav, external links, the ⓘ Architecture button, language and theme toggles), a
-LEFT control column, and a wide result area. Everything is bilingual (EN/ES) and theme-aware (light/dark).
+Left control column, and a wide result area. Everything is bilingual (EN/ES) and theme-aware (light/dark).
 
 ## 1. The research-case selector (top of the left column)
 
-CardioPINN is a catalogue across TWO different physics domains, and the top block of the left column is the
+CardioPINN is a catalogue across two different physics domains, and the top block of the left column is the
 case selector (`Workbench.tsx`):
 
 - **ECG imaging**: recover heart-surface potentials by quasi-static volume conduction (a Laplace problem).
@@ -34,7 +34,7 @@ controls, live readout, and result-first tabs.
 ### Live diagnosis readout (against the real gold standard)
 
 Below the controls, the readout shows the live reconstruction quality for the selected dataset and beat,
-computed against the REAL measured cage potentials: relative error, spatial correlation, node-UQ reliability
+computed against the real measured cage potentials: relative error, spatial correlation, node-UQ reliability
 (fraction of nodes within 2 sigma), and the heart-node count. Expected honest ranges: human tank RE 0.54-0.65
 / CC 0.72-0.85, dog RE 0.54 / CC 0.78, node-UQ about 0.90 throughout. The paced beats reconstruct at higher
 correlation than sinus, which is physically expected: a focal paced activation is easier to localize than the
@@ -43,7 +43,7 @@ diffuse sinus wavefront.
 ### The result (main area)
 
 The default "Reconstruction" tab shows the recovered field on the real heart-cage geometry in an orbitable 3D
-view (drag to rotate). A "Beat time" slider scrubs through the beat; "Play beat" animates it ONCE (it stops at
+view (drag to rotate). A "Beat time" slider scrubs through the beat; "Play beat" animates it once (it stops at
 the end and halts if you switch tabs, never a background compute loop). The legend gives the colour scale (a
 diverging map for the signed potential fields, sequential for error/uncertainty), and the on-canvas readout
 marks the node of maximum absolute error at the current frame. Toggle the Field control to compare the
@@ -59,7 +59,7 @@ recovered map against the measured gold standard and see where the error concent
 
 Peak velocity (0.791 m/s), the recovered pressure range (0.79 mmHg), the clinical Bernoulli reference
 $4V_{\max}^2$ (2.51 mmHg), and the lumen voxel count. The physics-based pressure field is the same order as
-the routine Bernoulli estimate for this unobstructed aorta, while additionally revealing WHERE the pressure
+the routine Bernoulli estimate for this unobstructed aorta, while additionally revealing where the pressure
 varies, which a single Bernoulli number cannot.
 
 ### The result (main area)
@@ -69,13 +69,13 @@ selected field (diverging for signed relative pressure, sequential for speed). W
 phase" slider scrubs the cycle and "Play cycle" animates it once. Click any lumen point to plot that point's
 speed over the cardiac cycle in a linked interactive chart (it defaults to the peak-speed point). The honest-scope callout explains the
 noise-robustness result and its limit: a velocity-noise ensemble moves the pressure by under 0.01 mmHg, so the
-dominant uncertainty is NOT measurement noise (it is the absent invasive gold standard, the lumen
-segmentation, and the unsteady-term approximation), which is why a per-voxel uncertainty MAP is deliberately
+dominant uncertainty is not measurement noise (it is the absent invasive gold standard, the lumen
+segmentation, and the unsteady-term approximation), which is why a per-voxel uncertainty map is deliberately
 not shown (it would be a misleading uniform ~0 field); the robustness is reported as a scalar instead.
 
 ## 4. The result-first tabs (both cases)
 
-Both pages put the interactive result FIRST, then walk the pedagogy in tabs. For ECGi: The problem, The
+Both pages put the interactive result first, then walk the pedagogy in tabs. For ECGi: The problem, The
 target, How the PDE arises (volume conduction to the linear forward operator, single-layer and BEM), the
 Traditional approach (Tikhonov), and the Physics-informed proposal (graph-Laplacian prior + deep-ensemble
 UQ). For 4D-flow: The problem, The target, How the PDE arises (Navier-Stokes to the pressure-Poisson
@@ -125,9 +125,9 @@ theme-aware, and every equation is real KaTeX with inline references and real DO
 
 - It IS a real workbench over real results: real measured signals, validated offline, rendered live. Every
   number in the readouts is a committed, re-verified artifact metric.
-- It is NOT a live solver or a simulator with knobs that recompute physics in the browser. The sliders scrub
-  BAKED frames of a real beat or cardiac cycle; they never trigger training or inference.
-- It is NOT clinically deployed. The ECGi case is validated against a real torso-tank / in-situ cage gold
+- It is not a live solver or a simulator with knobs that recompute physics in the browser. The sliders scrub
+  Baked frames of a real beat or cardiac cycle; they never trigger training or inference.
+- It is not clinically deployed. The ECGi case is validated against a real torso-tank / in-situ cage gold
   standard; the 4D-flow case has no invasive gold standard (the reason the method exists), so its absolute
   pressure magnitude carries the method's uncertainty and the validation is the analytic gate, the
   physiological range, the noise-robustness, and the Bernoulli bracket.

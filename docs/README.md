@@ -27,7 +27,7 @@ The app is a catalogue across two physics domains, selected by a top-level case 
   correlation), never error against a field we invented. For 4D-flow there is no invasive pressure gold
   standard (the reason the method exists); the validated claims are the analytic gate, the physiological
   range, the divergence-free denoising, and the Bernoulli bracket.
-- Every result is produced offline and committed as a JSON trace; the static web app READS the traces (no
-  model runs in the browser). Raw datasets carry data-use agreements: read from a local path, NOT
+- Every result is produced offline and committed as a JSON trace; the static web app reads the traces (no
+  model runs in the browser). Raw datasets carry data-use agreements: read from a local path, not
   redistributed (gitignored).
 - Not clinically deployed; validated methodological results on real experimental data.
