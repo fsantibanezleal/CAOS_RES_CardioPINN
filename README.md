@@ -1,7 +1,7 @@
 # CardioPINN
 
 Applied physics-informed reconstruction of cardiac quantities that cannot be measured directly, from data
-that CAN be measured. Every case fits a REAL measured signal and is validated against a REAL gold standard.
+that can be measured. Every case fits a real measured signal and is validated against a real gold standard.
 There is no synthetic ground truth: a network that only re-solves an equation a classical solver already
 solves answers no clinical question.
 
@@ -10,17 +10,17 @@ Live: https://cardiopinn.fasl-work.com/
 > Status: real-data-first (0.1x, validated methodological results). Not clinically deployed; validated methodological results on real
 > experimental data. Raw datasets are used under their data-use agreements and are not redistributed.
 
-The app is a catalogue of real applied cases across TWO different physics domains, each recovering an
+The app is a catalogue of real applied cases across two different physics domains, each recovering an
 unmeasurable clinical field from a measurable one on real data, with a top-level case selector.
 
 ## Case 1: ECG imaging (ECGi) - quasi-static volume conduction
 
-A torso tank recorded, simultaneously, the real body-surface potentials AND the true heart-surface potentials
+A torso tank recorded, simultaneously, the real body-surface potentials and the true heart-surface potentials
 on a cage around the heart. In a patient you only ever get the body surface; the heart-surface cage is the
 gold standard you never have. ECGi reconstructs the heart-surface potentials from the body-surface recording
 (a severely ill-posed inverse) to localize an arrhythmia and guide ablation.
 
-This is a MULTI-DATASET catalogue reconstructed by the identical pipeline (no per-heart retuning) over
+This is a multi-dataset catalogue reconstructed by the identical pipeline (no per-heart retuning) over
 independent real EDGAR experiments:
 
 - **Human torso tank** (Utah 2018-08-09; 192 body -> 256 cage): sinus RE 0.65 / CC 0.72, PVP RE 0.58 /
@@ -41,7 +41,7 @@ and velocity are tied by the fluid equations, so the pressure field follows from
 
 - **The method.** A divergence-free velocity PINN (data fit + `div v = 0`, torch) denoises the measured
   velocity; the relative pressure is then recovered by the pressure-Poisson equation `lap(p) = S(v)` solved
-  from the network's ANALYTIC derivatives (computing the source and Neumann flux analytically, not by finite
+  from the network's analytic derivatives (computing the source and Neumann flux analytically, not by finite
   differences at the lumen edge, is what removes the boundary artifact that otherwise wrecks the map).
 - **What we validate.** There is no invasive pressure gold standard (the reason the method exists). The engine
   is gated on an analytic converging duct whose exact pressure drop is known (correlation 1.00) and on a
@@ -58,7 +58,7 @@ data-pipeline/cardiopinnlab/
   real/ecgi_edgar.py       # ECGi engine: forward operator -> Tikhonov / graph-reg / deep-ensemble node UQ
   real/ecgi_catalogue.py   # config-driven multi-dataset ECGi loader (per-lab field-name/mesh variants)
   real/flow4d_dicom.py     # decode the real Philips 4D-flow DICOM velocity series (pydicom)
-  real/flow4d_denoise.py   # divergence-free velocity PINN denoiser with ANALYTIC source/flux (torch)
+  real/flow4d_denoise.py   # divergence-free velocity PINN denoiser with analytic source/flux (torch)
   real/flow4d_ppe.py       # pressure-Poisson sparse direct solve (analytic-gated in tests)
   real/flow4d_pinn.py      # the momentum-residual NS-PINN, kept as the documented failed approach
   real/flow4d_bake.py      # bake the 4D-flow pressure artifact the web reads
@@ -70,7 +70,7 @@ docs/                      # the wiki (both cases, methods, data governance)
 ```
 
 Raw datasets live under gitignored paths (not redistributed). Every result is produced offline and committed;
-the static web app READS the committed traces (it does not run any model in the browser).
+the static web app reads the committed traces (it does not run any model in the browser).
 
 ## Run
 

@@ -6,12 +6,12 @@ The inverse problems in this product are ill-posed, and the fields they recover 
 direct measurement (ECGi: only in an experimental torso tank; 4D-flow: never, because no invasive pressure
 truth exists for a scan). An engine that produces a plausible-looking field on real data proves nothing: it can
 be wrong in a way no real measurement exposes. The discipline is therefore inverted: every physics engine is
-first run on a KNOWN-ANSWER analytic problem, where the exact solution is available in closed form, and it must
+first run on a known-answer analytic problem, where the exact solution is available in closed form, and it must
 recover that exact answer before it is allowed to touch any real data. The gate is a pytest that must pass;
 only then is the real bake trusted.
 
-This is not decoration. The 4D-flow momentum-residual PINN (`flow4d_pinn.py`) FAILED its analytic Poiseuille
-gate (it recovered under 10 percent of the true pressure gradient), and that failure is exactly why it was NOT
+This is not decoration. The 4D-flow momentum-residual PINN (`flow4d_pinn.py`) failed its analytic Poiseuille
+gate (it recovered under 10 percent of the true pressure gradient), and that failure is exactly why it was not
 shipped and the pressure-Poisson route was built instead. The gate is what turned a wrong method away.
 
 ## Gate A: the concentric-sphere BEM gate (ECGi)
@@ -55,7 +55,7 @@ enforces:
 
 - `corr > 0.99` (pressure field shape recovered),
 - `0.9 < scale < 1.1` (magnitude within 10 percent),
-- `abs(rec_drop_mmHg - true_drop_mmHg) < 0.2` (the pressure DROP, the physically meaningful quantity, within
+- `abs(rec_drop_mmHg - true_drop_mmHg) < 0.2` (the pressure drop, the physically meaningful quantity, within
   0.2 mmHg).
 
 This test runs in the CI light lane (no torch, no GPU, no raw data) and must pass before any real-scan pressure
@@ -79,7 +79,7 @@ machine rather than in the CI light lane) enforces:
 - `dwdt_corr > 0.98` (the temporal pattern is recovered),
 - `0.8 < dwdt_scale < 1.2` (amplitude within 20 percent).
 
-This is what licenses using an ANALYTIC unsteady term on the real scan instead of a noisy three-frame finite
+This is what licenses using an analytic unsteady term on the real scan instead of a noisy three-frame finite
 difference. The consequence is direct: with the analytic unsteady term the recovered real-scan relative-pressure
 range is a physiological 0.79 mmHg, whereas the earlier finite-difference term inflated it to 14.87 mmHg.
 
@@ -92,7 +92,7 @@ range is a physiological 0.79 mmHg, whereas the earlier finite-difference term i
 | Unsteady (4D-flow) | time-varying Poiseuille, exact dw/dt | `test_flow4d_spacetime.py` | dw/dt corr 0.995 |
 
 The real-data claims that these gates unlock: ECGi human RE 0.65-0.54 / CC 0.72-0.85 and dog RE 0.54 / CC 0.78
-against the REAL cage; 4D-flow peak velocity 0.791 m/s, pressure range 0.79 mmHg, bracketing the clinical
+against the real cage; 4D-flow peak velocity 0.791 m/s, pressure range 0.79 mmHg, bracketing the clinical
 Bernoulli 2.51 mmHg, with 27863 phase-wrap samples corrected. The gate proves the engine is correct on a
 known answer; the real bake then reports what that correct engine produces on real data, with its honest scope.
 

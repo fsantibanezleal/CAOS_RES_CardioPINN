@@ -1,7 +1,7 @@
 # 03 · Derived trace contract (the JSON the web reads)
 
 CardioPINN is bake-and-read: the offline pipeline computes every result and commits it as a compact JSON trace,
-and the static web app reads ONLY those traces (no model runs in the browser). This page specifies the exact
+and the static web app reads only those traces (no model runs in the browser). This page specifies the exact
 shape, field names, units, and ranges of the two committed traces, the schema-version discipline, and the CI
 floors a trace must clear before it is trusted. The frontend mirrors these shapes in
 `frontend/src/lib/contract.types.ts` (kept in lock-step so `tsc` fails on drift).
@@ -36,8 +36,8 @@ Schema string `cardiopinn.ecgi-catalogue/v2`. Baked by `cardiopinnlab.real.ecgi_
 | `mesh.n_vertices` | int | | node count (equals `n_heart_electrodes`) |
 | `mesh.n_triangles` | int | | triangle count |
 | `times_ms` | `number[nf]` | decimated frame indices over the beat | the time axis |
-| `fields_over_time.recovered_mV` | `number[nf][n]` | mV (signed), 3 dp | OUR reconstruction, per frame per node |
-| `fields_over_time.measured_mV` | `number[nf][n]` | mV (signed), 3 dp | the REAL cage gold standard |
+| `fields_over_time.recovered_mV` | `number[nf][n]` | mV (signed), 3 dp | Our reconstruction, per frame per node |
+| `fields_over_time.measured_mV` | `number[nf][n]` | mV (signed), 3 dp | the real cage gold standard |
 | `fields_over_time.abs_error_mV` | `number[nf][n]` | mV, 3 dp | `abs(recovered - measured)` |
 | `fields_over_time.uncertainty_mV` | `number[nf][n]` | mV, 3 dp | recalibrated per-node ensemble spread |
 | `metrics` | `{ str -> number }` | | validated metrics (below) |
@@ -45,9 +45,9 @@ Schema string `cardiopinn.ecgi-catalogue/v2`. Baked by `cardiopinnlab.real.ecgi_
 Frames are decimated to at most 40 (`np.unique(linspace(0, nt-1, 40))`), so `nf <= 40`; `times_ms` are the
 selected frame indices (a monotone time axis for the beat, not calibrated milliseconds). Values are rounded to
 3 decimals; mesh vertices to 2. The cage geometry is mean-centred and scaled by `60 / max|node|` to a
-consistent view box, which is a DISPLAY transform, not physical millimetres.
+consistent view box, which is a display transform, not physical millimetres.
 
-**`metrics`** (per beat, validated against the REAL measured cage potentials):
+**`metrics`** (per beat, validated against the real measured cage potentials):
 
 | Key | Meaning | Shipped values (human-tank sinus / dog sinus) |
 |---|---|---|
@@ -71,7 +71,7 @@ with $\hat\phi$ the recovered and $\phi$ the measured heart-surface potentials. 
 deep ensemble over measurement-noise draws, recalibrated by a temperature so that the reported $\sigma$ matches
 the observed error scale.
 
-**`forward_comparison`** (honest single-layer vs boundary-element record, first beat). When the BEM does NOT
+**`forward_comparison`** (honest single-layer vs boundary-element record, first beat). When the BEM does not
 apply (an open surface), it is `{ beat, bem_applicable: false, reason }`; on the human tank:
 `reason: "body surface open (32 boundary edges); BEM needs a closed 2-manifold"`. When it applies (dog, both
 surfaces closed): `{ beat, bem_applicable: true, single_layer: {RE, CC}, bem: {RE, CC} }`, with the honest
@@ -87,7 +87,7 @@ Schema string `cardiopinn.flow4d-pressure/v3`. Baked by `cardiopinnlab.real.flow
 | `schema` | string | | `cardiopinn.flow4d-pressure/v3` |
 | `unsteady_term` | string | | provenance, `"space-time PINN (analytic dv/dt over the whole cycle)"` |
 | `points_mm` | `number[n][3]` | centred + scaled to a ~60-unit view box, 2 dp | aortic-lumen point cloud (display coords) |
-| `pressure_mmHg` | `number[n]` | mmHg (signed), median-gauged, 3 dp | recovered RELATIVE pressure at peak systole |
+| `pressure_mmHg` | `number[n]` | mmHg (signed), median-gauged, 3 dp | recovered relative pressure at peak systole |
 | `speed_ms_peak` | `number[n]` | m/s, 3 dp | measured speed at the peak frame |
 | `speed_ms_over_time` | `number[nf][n]` | m/s, 3 dp | measured speed over the cardiac cycle |
 | `times_ms` | `number[nf]` | ms (DICOM `TriggerTime`) | the real cardiac-phase axis |
@@ -96,7 +96,7 @@ Schema string `cardiopinn.flow4d-pressure/v3`. Baked by `cardiopinnlab.real.flow
 
 The point cloud is decimated to at most `max_points = 9000` voxels for the browser (shipped: 9000), centred
 and rescaled to a fixed view box; `points_mm` reflects the physical origin (mm patient frame) but the committed
-values are display-normalized, not raw millimetres. Pressure is RELATIVE and gauge-free (the physical quantity
+values are display-normalized, not raw millimetres. Pressure is relative and gauge-free (the physical quantity
 is the difference), so it is committed median-zero; on the shipped scan it spans roughly $-0.70$ to $+0.15$
 mmHg. The frame axis has `nf = 16` real trigger times (0 to 937 ms), and `peak_frame = 5`.
 
@@ -118,24 +118,24 @@ mmHg. The frame axis has `nf = 16` real trigger times (0 to 937 ms), and `peak_f
 | `n_frames` | cardiac frames | 16 |
 
 The recovered pressure solves the pressure-Poisson equation $\nabla^2 p = S(\mathbf{v})$ with
-$S = -\rho\sum_{ij}(\partial_j v_i)(\partial_i v_j)$ from the divergence-free PINN's ANALYTIC derivatives, so
+$S = -\rho\sum_{ij}(\partial_j v_i)(\partial_i v_j)$ from the divergence-free PINN's analytic derivatives, so
 `ppe_pressure_drop_mmHg` (0.79 mmHg) brackets the clinical `bernoulli_mmHg` (2.51 mmHg) for this unobstructed
 aorta. Because the div-free denoiser absorbs velocity measurement noise, `noise_sensitivity_mmHg` is
-essentially 0; it is committed as a scalar ROBUSTNESS metric, NOT as a per-voxel uncertainty field (which would
+essentially 0; it is committed as a scalar robustness metric, not as a per-voxel uncertainty field (which would
 be a misleading uniform ~0 map). The absolute magnitude carries the method's uncertainty (no invasive gold
 standard).
 
 ## Schema-version discipline
 
 Every trace carries an explicit `schema` string with a version (`.../v2`, `.../v3`). The version bumps when the
-SHAPE the web reads changes (a new field, a new axis, a renamed key), never for a numeric re-bake. The frontend
+Shape the web reads changes (a new field, a new axis, a renamed key), never for a numeric re-bake. The frontend
 `contract.types.ts` interfaces annotate the exact version strings; a mismatch between the baked schema and the
 mirrored interface makes the TypeScript build fail, which is the guardrail against silent drift between the
 pipeline and the pages.
 
 ## Completeness and physiological floors (CI validators)
 
-Two tests READ the committed traces (they never write them) and fail the build if a trace is incomplete or
+Two tests read the committed traces (they never write them) and fail the build if a trace is incomplete or
 non-physiological. These floors are the concrete defence against a partial or corrupted bake reaching prod.
 
 **ECGi, `tests/test_real_ecgi.py`** (completeness floor + per-beat sanity):
@@ -159,7 +159,7 @@ non-physiological. These floors are the concrete defence against a partial or co
 
 ## Bring-your-own-data
 
-To render your own recording in the app you produce a trace that satisfies THIS contract: run the offline
+To render your own recording in the app you produce a trace that satisfies this contract: run the offline
 pipeline on an input that clears Contract 1 (see `01_ecgi-input-contract.md` / `02_4dflow-input-contract.md`),
 and the baker emits a `catalogue.json` / `trace.json` in these shapes with these fields, units, and ranges. If
 the trace clears the floors above, the static web reads it unchanged. No browser-side model, no server: the

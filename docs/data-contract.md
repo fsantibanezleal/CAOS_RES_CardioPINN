@@ -1,8 +1,8 @@
 # Data contract
 
-CardioPINN is a REAL-DATA-ONLY, BAKE-AND-READ product. Every result is computed offline by the Python
+CardioPINN is a real-data-only, bake-and-read product. Every result is computed offline by the Python
 pipeline (`data-pipeline/cardiopinnlab/`) and committed to disk as a compact JSON trace. The static web app
-READS those traces and nothing else: no model runs in the browser, there is no ONNX / onnxruntime-web /
+Reads those traces and nothing else: no model runs in the browser, there is no ONNX / onnxruntime-web /
 Pyodide lane, no WebGPU inference. The trust boundary therefore has exactly two documented contracts, and this
 theme specifies both.
 
@@ -19,11 +19,11 @@ theme specifies both.
 
 ## The two contracts
 
-- **Contract 1, the ingestion contract (raw INPUT).** What a raw recording must look like for the offline
+- **Contract 1, the ingestion contract (raw input).** What a raw recording must look like for the offline
   pipeline to accept it: array shapes, units, node/electrode counts, the phase-contrast velocity rescale, and
   the outlier/rejection policy. This is the bring-your-own-data contract: to run CardioPINN on your own
   recording it must satisfy these checks. The raw data is never redistributed (it carries a data-use
-  agreement); this contract documents and validates its SHAPE, not its content. It is codified in
+  agreement); this contract documents and validates its shape, not its content. It is codified in
   `data-pipeline/cardiopinnlab/io/contract.py` (`ECGI_CONTRACT` / `check_ecgi`, `FLOW4D_CONTRACT` /
   `check_flow4d`) and enforced by the loaders (`ecgi_catalogue.py`, `flow4d_dicom.py`).
   - [01_ecgi-input-contract.md](data-contract/01_ecgi-input-contract.md): the EDGAR ECGi input (per-lab `.mat`
@@ -32,7 +32,7 @@ theme specifies both.
     (magnitude + 3 phase encodings, venc, rescale-to-velocity mapping, voxel geometry, lumen segmentation,
     phase-wrap unwrap rule).
 
-- **Contract 2, the artifact contract (derived TRACE).** The exact JSON the web reads: field names, units,
+- **Contract 2, the artifact contract (derived trace).** The exact JSON the web reads: field names, units,
   ranges, array shapes, the schema-version string, and the completeness plus physiological floors a CI
   validator enforces before a trace is trusted. It is mirrored on the frontend side in
   `frontend/src/lib/contract.types.ts` (kept in lock-step so `tsc` fails on drift), and guarded by
@@ -51,12 +51,12 @@ the derived result stays fully specified and testable.
 ## Governance and honesty (applies to both contracts)
 
 - Raw datasets are read from a local, gitignored path (`EDGAR_ROOT` / `EDGAR_DIR` for ECGi, `AORTA4D_DIR` for
-  4D-flow) under their data-use agreements and are NOT redistributed. Only the derived traces are committed.
+  4D-flow) under their data-use agreements and are not redistributed. Only the derived traces are committed.
 - Every number in a committed trace is a real reconstruction quantity: for ECGi, the relative error and
-  correlation against the REAL measured heart-cage gold standard; for 4D-flow, the recovered relative-pressure
+  correlation against the real measured heart-cage gold standard; for 4D-flow, the recovered relative-pressure
   range, the analytic gate, and the clinical Bernoulli bracket (there is no invasive pressure gold standard, so
   the absolute magnitude carries the method's uncertainty). No number is error against a field we invented.
-- Tests never write canonical artifacts. The floor tests READ the committed traces; the bakers write them.
+- Tests never write canonical artifacts. The floor tests read the committed traces; the bakers write them.
 
 ## References
 

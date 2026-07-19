@@ -1,6 +1,6 @@
 # 02 · 4D-flow input contract (Philips phase-contrast DICOM)
 
-The raw INPUT for the aortic-pressure case is a Philips 4D-flow MRI DICOM series: a directory of DICOM images
+The raw input for the aortic-pressure case is a Philips 4D-flow MRI DICOM series: a directory of DICOM images
 that together encode the time-resolved, three-directional blood velocity in the thoracic aorta. This page
 specifies what that series must contain for the loader (`data-pipeline/cardiopinnlab/real/flow4d_dicom.py`) to
 decode it into a velocity field, including the phase-to-velocity rescale, the voxel geometry, the lumen
@@ -10,7 +10,7 @@ physics forces out of the measured velocity downstream.
 
 ## The series: one magnitude + three phase encodings per (slice, frame)
 
-For each cardiac frame and slice the scan stores FOUR images, identified by the Philips `SequenceName` tag:
+For each cardiac frame and slice the scan stores four images, identified by the Philips `SequenceName` tag:
 
 | Role | `SequenceName` contains | Meaning |
 |---|---|---|
@@ -37,7 +37,7 @@ is then converted to the pipeline unit by `CM_S_TO_MM_MS = 0.01`:
 
 $$v_{\text{mm/ms}} = 0.01 \cdot v_{\text{cm/s}}$$
 
-The stored velocity is therefore in mm/ms, which is NUMERICALLY EQUAL to m/s ($1\ \text{mm/ms} = 1\ \text{m/s}$),
+The stored velocity is therefore in mm/ms, which is numerically equal to m/s ($1\ \text{mm/ms} = 1\ \text{m/s}$),
 so the downstream SI physics (density $\rho = 1060\ \text{kg/m}^3$, viscosity $\mu = 3.5\times10^{-3}\ \text{Pa·s}$)
 consumes these values directly. `check_flow4d` requires the velocity array to be `(T, N, 3)` aligned to the
 coordinates, and the venc to lie in a plausible cardiovascular range $10 \le \text{venc} \le 600\ \text{cm/s}$.
@@ -63,7 +63,7 @@ separate step.
 ## Lumen segmentation (pulsatile-flow criterion)
 
 The aortic lumen is segmented by the standard 4D-flow pulsatile-flow criterion, not by an external mask: a
-voxel belongs to the lumen if its PEAK speed over the cardiac cycle exceeds a threshold (flowing blood), and
+voxel belongs to the lumen if its peak speed over the cardiac cycle exceeds a threshold (flowing blood), and
 only the largest connected component is kept:
 
 $$\text{lumen} = \operatorname*{arg\,max}_{\text{CC}}\Big\{\ \text{voxels with}\ \max_t \lVert \mathbf{v}(t)\rVert > s_{\text{thr}}\ \Big\}$$
@@ -71,7 +71,7 @@ $$\text{lumen} = \operatorname*{arg\,max}_{\text{CC}}\Big\{\ \text{voxels with}\
 `mask_lumen()` defaults to $s_{\text{thr}} = 12\ \text{cm/s}$; the bake (`flow4d_bake.py`) uses $40\ \text{cm/s}$
 for the aorta, labels connected components, keeps the largest, and applies one iteration of binary closing. On
 the shipped scan this yields 47902 lumen voxels. The contract explicitly notes that a provided STL of a
-DIFFERENT subject is NOT co-registered and is not used; the geometry comes from the scan itself. NaN/Inf voxels
+Different subject is not co-registered and is not used; the geometry comes from the scan itself. NaN/Inf voxels
 are excluded from the lumen.
 
 The peak-systolic frame is chosen as the frame of maximum kinetic energy in the lumen,
@@ -80,8 +80,8 @@ reported pressure field is evaluated there.
 
 ## Phase-wrap detection and unwrap rule
 
-A phase-contrast component ALIASES when the true velocity exceeds the venc: it wraps by $2\,\text{venc}$ to the
-opposite sign. `unwrap_aliasing()` corrects this BEFORE any reconstruction, per frame and per velocity
+A phase-contrast component aliases when the true velocity exceeds the venc: it wraps by $2\,\text{venc}$ to the
+opposite sign. `unwrap_aliasing()` corrects this before any reconstruction, per frame and per velocity
 component, against a robust local estimate:
 
 1. Compute a median-filtered reference of the component, `ref = median_filter(comp, size=3)`.
@@ -106,7 +106,7 @@ report:
 ## Data governance
 
 The raw DICOMs are read from `AORTA4D_DIR` under the study's data-use agreement and are gitignored; they are
-NOT redistributed. Only the derived pressure trace (Contract 2) is committed.
+Not redistributed. Only the derived pressure trace (Contract 2) is committed.
 
 ## References
 

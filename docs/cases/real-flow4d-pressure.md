@@ -1,6 +1,6 @@
 # Real 4D-flow: the aortic pressure field from a real velocity scan (Navier-Stokes)
 
-Case id: `real-flow4d-pressure`. This is a REAL-data case in a DIFFERENT physics domain from ECGi: the
+Case id: `real-flow4d-pressure`. This is a real-data case in a different physics domain from ECGi: the
 governing equation is incompressible Navier-Stokes (fluid dynamics), not volume conduction. The network fits a
 real measured velocity field and the pressure is forced out of it by the physics.
 
@@ -19,7 +19,7 @@ real measured velocity field and the pressure is forced out of it by the physics
   gives a Poisson equation for pressure, `lap(p) = S(v)`, whose source is built from the velocity's spatial
   derivatives. Because that source is a product of derivatives, measurement noise (which violates
   incompressibility) is amplified, so a physics-informed velocity step is required first: a network fits the
-  measured velocity while enforcing `div v = 0`, producing a smooth divergence-free field whose ANALYTIC
+  measured velocity while enforcing `div v = 0`, producing a smooth divergence-free field whose analytic
   derivatives are clean. The pressure-Poisson source and the Neumann wall flux are computed from those analytic
   derivatives, not by finite differences at the lumen edge (the edge is where finite differences manufacture
   the worst artifacts, and doing this analytically is what takes the recovered pressure from a
@@ -38,7 +38,7 @@ exists. The validation is therefore threefold:
 2. **Physiological range on the real scan.** The recovered relative pressure spans about 0.79 mmHg across the
    segment, small and physiological for an unobstructed aorta (with the analytic space-time unsteady term; the
    earlier three-frame finite difference inflated the unsteady contribution and gave ~15 mmHg), not thousands.
-3. **Clinical bracket.** The peak velocity here is the peak of the divergence-free DENOISED field, 0.791 m/s
+3. **Clinical bracket.** The peak velocity here is the peak of the divergence-free denoised field, 0.791 m/s
    (the raw phase-contrast measured speed on the same committed trace peaks near 1.6 m/s but is noise-inflated,
    violating incompressibility, which is exactly why the denoised field is used). The routine simplified-Bernoulli
    estimate from that denoised peak is 4 * Vmax^2 = 2.51 mmHg; the physics-based field brackets it, exactly what
@@ -55,7 +55,7 @@ exists. The validation is therefore threefold:
 | Analytic gate, unsteady (time-varying Poiseuille) | dv/dt corr 0.995 |
 | Phase-wrap aliasing corrected | 27863 samples |
 
-## Why the momentum-residual PINN was NOT used
+## Why the momentum-residual PINN was not used
 
 A single network `(x,y,z,t) -> (u,v,w,p)` trained on the momentum residual (the hidden-fluid-mechanics
 formulation) does not recover pressure at aortic Reynolds numbers: pressure is gauge-free and only weakly
@@ -66,7 +66,7 @@ shipped method separates the well-posed part (velocity, strongly data-constraine
 
 ## Honesty and scope
 
-- The target the network fits is REAL measured velocity; the pressure is never measured, it is forced out by
+- The target the network fits is real measured velocity; the pressure is never measured, it is forced out by
   the physics. The absolute pressure magnitude carries the method's uncertainty (no invasive truth to check
   against); the validated claims are the analytic gate, the physiological range, the divergence-free denoising,
   and the Bernoulli bracket.
@@ -76,7 +76,7 @@ shipped method separates the well-posed part (velocity, strongly data-constraine
   noise. This is a strength, but it also means an ensemble over that noise gives a near-zero, uninformative
   uncertainty; the dominant uncertainty is instead the absent invasive gold standard, the lumen segmentation,
   and the unsteady-term approximation, which such an ensemble cannot quantify. So a per-voxel pressure
-  uncertainty map is deliberately NOT shown (it would be a misleading uniform ~0 field); the robustness is
+  uncertainty map is deliberately not shown (it would be a misleading uniform ~0 field); the robustness is
   reported as a scalar instead.
 - The unsteady acceleration is differentiated exactly in time by a space-time network v(x,y,z,t) trained over
   the whole cardiac cycle (gated on an analytic time-varying Poiseuille flow, dv/dt correlation 0.995), and
@@ -87,7 +87,7 @@ shipped method separates the well-posed part (velocity, strongly data-constraine
 ## Data source and governance
 
 A real thoracic-aorta 4D-flow MRI (Philips, venc 120 cm/s), distortion-corrected. Used under its data-use
-agreement; the raw DICOMs are gitignored and NOT redistributed, only the derived pressure map is committed.
+agreement; the raw DICOMs are gitignored and not redistributed, only the derived pressure map is committed.
 
 ## References
 
