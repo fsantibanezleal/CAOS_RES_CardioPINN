@@ -1,16 +1,16 @@
 # 01, Run CardioPINN locally
 
-This guide takes you from a clean clone to the app running in a browser. CardioPINN keeps its Python in TWO
-virtual environments, split by LANE (offline bake vs thin runtime), not by physics case:
+This guide takes you from a clean clone to the app running in a browser. CardioPINN keeps its Python in two
+virtual environments, split by lane (offline bake vs thin runtime), not by physics case:
 
 - `.venv-pipeline` is the heavy offline bake lane and the only one that reproduces the physics. It installs
   the whole `cardiopinnlab` package editable (`pip install -e .`) plus `data-pipeline/requirements.txt`
-  (numpy, scipy, torch, pydicom) and the dev tools. BOTH real cases bake from here: the **ECGi case**
+  (numpy, scipy, torch, pydicom) and the dev tools. Both real cases bake from here: the **ECGi case**
   (recovering heart-surface potentials by quasi-static volume conduction, pure NumPy/SciPy linear algebra on
   the CPU, no deep-learning framework) and the **4D-flow case** (recovering aortic pressure by incompressible
   Navier-Stokes, PINNs in PyTorch, meant for a local NVIDIA GPU).
 - `.venv` is the thin runtime/live lane: the root `requirements.txt` only (numpy, scipy), enough to import the
-  data contracts and run the pure-python tests. It is what ships; it does NOT get the editable package or
+  data contracts and run the pure-python tests. It is what ships; it does not get the editable package or
   torch, so it cannot run the bake.
 
 If you only want the app to render the already-committed results, you need neither environment: the traces are
@@ -18,9 +18,9 @@ committed under `data/derived/`, so `npm run dev` alone renders everything.
 
 ## 0. What actually needs to run
 
-The product is BAKE-AND-READ. The heavy physics runs offline on your machine and writes a compact JSON trace;
+The product is bake-and-read. The heavy physics runs offline on your machine and writes a compact JSON trace;
 the static web only reads it. Nothing trains or infers in the browser. So the environments below are only
-needed when you want to REBAKE an artifact (see guide 03) or explore the engine. To just view the site, jump
+needed when you want to rebake an artifact (see guide 03) or explore the engine. To just view the site, jump
 to section 4.
 
 ```
@@ -38,7 +38,7 @@ cd CAOS_RES_CardioPINN
 
 The repo ships the committed derived artifacts (`data/derived/real-ecgi-catalogue/catalogue.json` and
 `data/derived/real-flow4d-pressure/trace.json`), so the app is renderable immediately. The raw datasets are
-NOT in the repo (they carry data-use agreements and are gitignored); you only need them to rebake.
+Not in the repo (they carry data-use agreements and are gitignored); you only need them to rebake.
 
 ## 2. The offline bake environment (`.venv-pipeline`)
 
@@ -85,8 +85,8 @@ EDGAR_ROOT=/path/to/your/edgar-data \
   "from cardiopinnlab.real import ecgi_catalogue as C; print(C.bake_case_beat(C.CASES[0], 'sinus')['metrics'])"
 ```
 
-Note that `C.bake_catalogue()` (used by the full rebake, guide 03) is NOT a single-case test: it reconstructs
-EVERY beat of EVERY dataset and runs the forward comparison, so it requires BOTH `edgar/` and
+Note that `C.bake_catalogue()` (used by the full rebake, guide 03) is not a single-case test: it reconstructs
+Every beat of every dataset and runs the forward comparison, so it requires both `edgar/` and
 `edgar_maastricht/` present. If you have only the human torso-tank data (a common partial EDGAR download), use
 the single-case command above. If you have no raw EDGAR data at all, skip this: the committed catalogue is
 already in `data/derived/` and the app reads it.
@@ -112,7 +112,7 @@ pressure range, Bernoulli reference, lumen voxels). Full rebake details are in g
 
 ### A note on the setup scripts
 
-`scripts/setup.ps1` / `scripts/setup.sh` create BOTH environments for you (idempotent, no global installs).
+`scripts/setup.ps1` / `scripts/setup.sh` create both environments for you (idempotent, no global installs).
 Into `.venv-pipeline` they install `data-pipeline/requirements.txt`, `requirements-dev.txt`, and the editable
 package (the offline bake lane, exactly the section-2 commands). Into `.venv` they install only the root
 `requirements.txt` (the thin runtime/tests lane, no editable package and no torch). They are the

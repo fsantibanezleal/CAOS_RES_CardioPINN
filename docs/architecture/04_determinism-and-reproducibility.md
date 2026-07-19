@@ -21,7 +21,7 @@ physiological-range and gate assertions absorb).
 ## The committed trace is the frozen output
 
 The boundary between the offline physics and the web is the committed JSON trace. Once baked and committed, the
-trace is FROZEN: it is the canonical record of what the engine produced, and it is what the web serves. The two
+trace is frozen: it is the canonical record of what the engine produced, and it is what the web serves. The two
 canonical artifacts are:
 
 - `data/derived/real-ecgi-catalogue/catalogue.json` (schema `cardiopinn.ecgi-catalogue/v2`, about 2.44 MB): 2
@@ -38,13 +38,13 @@ equals committed JSON value equals offline engine output. There is no recomputat
 ## CI validates the artifact; it never re-bakes
 
 CI does not run the physics. The heavy bake (the GPU-trained PINN, the raw DICOM decode, the raw EDGAR load)
-happens ONCE, locally, on the machine that has the data and the GPU, and the resulting trace is committed. CI's
-job is to VALIDATE that committed trace, not to reproduce it:
+happens once, locally, on the machine that has the data and the GPU, and the resulting trace is committed. CI's
+job is to validate that committed trace, not to reproduce it:
 
-- `scripts/check_artifacts.py` (the "CONTRACT 2" step in `ci.yml`) loads both committed traces with the
+- `scripts/check_artifacts.py` (the "contract 2" step in `ci.yml`) loads both committed traces with the
   standard library only and enforces hard floors: the ECGi catalogue must have at least 2 cases and 4 beats
   with every required field and metric present and correlations in $[-1,1]$; the 4D-flow trace must have a
-  matching point cloud and pressure array, a PHYSIOLOGICAL pressure drop ($0 <$ range $< 60$ mmHg, the guard
+  matching point cloud and pressure array, a physiological pressure drop ($0 <$ range $< 60$ mmHg, the guard
   against the finite-difference boundary artifact that once produced thousands of mmHg), and a physiological
   peak velocity ($0.1 < v < 6$ m/s).
 - `tests/test_flow4d_trace.py` and `tests/test_real_ecgi.py` assert the same contracts as pytest, plus the
@@ -62,7 +62,7 @@ This is a hard rule with its own scar tissue across the portfolio: a test that w
 could clobber the committed multi-dataset catalogue with a smaller CPU-only bake, and two releases could ship
 the degraded artifact before anyone noticed. The defenses here are structural:
 
-- Tests READ the committed trace (`tests/test_flow4d_trace.py`, `check_artifacts.py`); they never write it. The
+- Tests read the committed trace (`tests/test_flow4d_trace.py`, `check_artifacts.py`); they never write it. The
   bake entry points (`flow4d_bake.main`, `ecgi_catalogue.bake_catalogue`) are the only writers, and they are
   invoked deliberately on the bake machine, never from a test or from CI.
 - The completeness floors (`MIN_CASES = 2`, `MIN_BEATS = 4` in `check_artifacts.py`; the ECGi catalogue bake's

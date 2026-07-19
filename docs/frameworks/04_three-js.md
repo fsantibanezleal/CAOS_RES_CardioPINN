@@ -38,7 +38,7 @@ control points:
 
 - **magma** (`seq`), a sequential map, for magnitude / positive fields: absolute error, uncertainty, pressure
   magnitude, speed.
-- **coolwarm** (`div`, Kenneth Moreland's diverging map), for SIGNED fields centred at zero: the recovered and
+- **coolwarm** (`div`, Kenneth Moreland's diverging map), for signed fields centred at zero: the recovered and
   measured heart-surface potentials, which swing positive and negative around baseline.
 
 `fieldRange` computes the data extent so the color scale is honest to the actual values, and the accompanying
@@ -49,7 +49,7 @@ rather than decorative.
 
 Both animated views (the ECGi beat, the 4D-flow pulsatile cycle) obey the standing rule that a web page must
 never burn CPU unattended. The frame loop is a `requestAnimationFrame` step that advances the phase and then
-re-schedules ONLY while it is still within the cycle and the tab is visible:
+re-schedules only while it is still within the cycle and the tab is visible:
 
 ```
 if (p < 1 && document.visibilityState === 'visible') raf.current = requestAnimationFrame(step);

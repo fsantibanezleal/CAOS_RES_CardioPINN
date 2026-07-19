@@ -1,11 +1,11 @@
 # Real ECGi: heart-surface potentials from a real body-surface recording (EDGAR)
 
-Case id: `real-ecgi-edgar`. This is a REAL-data case: the network fits real measured potentials and is
+Case id: `real-ecgi-edgar`. This is a real-data case: the network fits real measured potentials and is
 validated against a real gold standard. No synthetic data.
 
 ## The case, the need, how the physics helps, what we compute
 
-- **The case.** A MULTI-DATASET catalogue of real EDGAR experiments reconstructed by the identical pipeline
+- **The case.** A multi-dataset catalogue of real EDGAR experiments reconstructed by the identical pipeline
   (no per-heart retuning): (1) a human torso tank (Utah 2018-08-09) where 192 tank electrodes record the
   body-surface potentials and a 256-electrode cage records the true heart-surface potentials, in sinus and two
   paced beats (PVP, AVP); (2) an in-situ dog (Maastricht) where 140 body electrodes record the body surface and
@@ -15,8 +15,8 @@ validated against a real gold standard. No synthetic data.
   body-surface recording, non-invasively, to localize the origin of an arrhythmia and guide ablation. In a
   patient you only have the body surface; the heart-surface cage is the gold standard you never get. The
   inverse is severely ill-posed, small measurement noise blows up into large reconstruction error.
-- **How the physics helps.** The reconstruction fits the REAL measured body-surface potentials through a
-  forward operator built on the REAL torso and cage geometry, with a spatial prior on the heart surface, and a
+- **How the physics helps.** The reconstruction fits the real measured body-surface potentials through a
+  forward operator built on the real torso and cage geometry, with a spatial prior on the heart surface, and a
   deep ensemble over measurement-noise draws that yields a calibrated per-node uncertainty. The physics (the
   forward operator + the smoothness prior) is what makes the ill-posed inverse solvable.
 - **What we compute.** The heart-surface potential map over the beat, on the real cage geometry, plus a
@@ -24,7 +24,7 @@ validated against a real gold standard. No synthetic data.
 
 ## Real validation (against the real measured heart potentials)
 
-The recovered heart-surface potentials are compared to the REAL measured cage potentials with the standard
+The recovered heart-surface potentials are compared to the real measured cage potentials with the standard
 ECGi metrics, the relative error (RE) and the spatial correlation (CC):
 
 | Dataset | Beat | Relative error | Correlation | Node-UQ reliability (2 sigma) |
@@ -41,12 +41,12 @@ standard deviations of the true error, which a single regularized point estimate
 
 ## Honesty and scope
 
-- The target the network fits is REAL measured body-surface data; the validation is REAL measured
+- The target the network fits is real measured body-surface data; the validation is real measured
   heart-surface data. Nothing here is synthetic.
 - Two forward operators are implemented: the single-layer (point-source) Green's-function approximation, and
   a full boundary-element operator (BEM) with exact triangle solid angles (Van Oosterom-Strackee) for the
   double layer. The BEM is analytic-gated on the concentric-sphere problem (correlation 1.00, error halving
-  per mesh refinement). Honest finding: on the real electrode geometry the BEM does NOT beat the calibrated
+  per mesh refinement). Honest finding: on the real electrode geometry the BEM does not beat the calibrated
   single-layer. It needs closed 2-manifold surfaces (the human torso-tank surface is open, so the BEM applies
   only to the dog case), and where it applies the coarse 140-node torso makes the reconstruction
   regularization-dominated (dog: single-layer RE 0.54 vs BEM RE 0.63), so forward-operator fidelity is not the
@@ -59,7 +59,7 @@ standard deviations of the true error, which a single regularized point estimate
 Consortium for ECG Imaging (CEI), EDGAR database, Utah torso-tank 2018-08-09. Aras K et al.,
 "Experimental Data and Geometric Analysis Repository (EDGAR)", J. Electrocardiol. 48(6):975-981 (2015),
 DOI 10.1016/j.jelectrocard.2015.08.008. The raw EDGAR data is used under its data-use agreement with
-attribution and is NOT redistributed in this repository; only the derived reconstruction result is shown.
+attribution and is not redistributed in this repository; only the derived reconstruction result is shown.
 
 ## References
 

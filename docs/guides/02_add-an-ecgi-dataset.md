@@ -1,9 +1,9 @@
 # 02, Add an ECGi dataset to the catalogue
 
-The ECGi case is a MULTI-DATASET catalogue: independent real EDGAR experiments (different hearts, species,
-pathologies, electrode counts and mesh layouts) reconstructed by the IDENTICAL pipeline, with no per-heart
+The ECGi case is a multi-dataset catalogue: independent real EDGAR experiments (different hearts, species,
+pathologies, electrode counts and mesh layouts) reconstructed by the identical pipeline, with no per-heart
 retuning. The reconstruction (forward operator, Tikhonov, graph-Laplacian prior, deep-ensemble node UQ) lives
-in `real/ecgi_edgar.py` and is shared; what differs per lab is only WHERE the four pieces of data live and
+in `real/ecgi_edgar.py` and is shared; what differs per lab is only where the four pieces of data live and
 what the MATLAB fields are called. That per-lab difference is captured in a small config, so adding a dataset
 is a config edit, not new engine code. This guide is how to add one honestly, or exclude it with a reason.
 
@@ -22,7 +22,7 @@ is never committed (data-use agreement); only the derived reconstruction is.
 ## The config-driven loader
 
 The catalogue lives in `data-pipeline/cardiopinnlab/real/ecgi_catalogue.py`. Each dataset is one dict in the
-`CASES` list. The two shipped configs show the range of variation the loader absorbs:
+`cases` list. The two shipped configs show the range of variation the loader absorbs:
 
 ```python
 CASES = [
@@ -69,10 +69,10 @@ CASES = [
   (`good = ~isnan(body) & ~isnan(heart)`), so a dataset with dropout channels still reconstructs on its clean
   frames.
 
-### How to add a CASE
+### How to add a case
 
 1. Put the raw `.mat` files under `EDGAR_ROOT/<your-dir>/` (gitignored; never commit them).
-2. Append a dict to `CASES` with: a unique `id`, a human `name`, bilingual `context_en` / `context_es`, the
+2. Append a dict to `cases` with: a unique `id`, a human `name`, bilingual `context_en` / `context_es`, the
    `dir`, the `beats` map (`{label: (body_relpath, heart_relpath)}`), the `body_mesh` and `heart_mesh` tuples
    `(relpath, structname)`, and `ts_struct` (whether the potentials are wrapped in a `ts` struct). Add
    `ts_field` only if the potential field inside the struct is not named `potvals`.
@@ -94,25 +94,25 @@ MIN_CASES = 2
 MIN_BEATS = 4
 ```
 
-A bake that produces fewer than 2 datasets or fewer than 4 beats FAILS, so a partial run (say, one dataset
+A bake that produces fewer than 2 datasets or fewer than 4 beats fails, so a partial run (say, one dataset
 because a data path was wrong) can never overwrite the committed multi-dataset catalogue with a smaller one.
 When you add datasets, raise these floors to the new totals. The pytest guard additionally checks each beat is
 a real reconstruction, not perfect and not garbage: `0.2 < relative_error < 1.0`, `0.5 < correlation <= 1.0`,
 `0.5 <= node-UQ <= 1.0`, and that the mesh vertex count matches the heart-electrode count.
 
-## How a dataset is honestly EXCLUDED
+## How a dataset is honestly excluded
 
 Not every EDGAR experiment can be reconstructed honestly. When a dataset fails the real-target rule or the
-forward-operator assumptions, it is inspected and DELIBERATELY excluded, with the reason written in the code
+forward-operator assumptions, it is inspected and deliberately excluded, with the reason written in the code
 (the block above `_potvals` in `ecgi_catalogue.py`), not silently dropped:
 
-- **Bordeaux (torso tank + LV/RV pacing): open sock, rank-deficient.** The epicardial recording is an OPEN
+- **Bordeaux (torso tank + LV/RV pacing): open sock, rank-deficient.** The epicardial recording is an open
   sock (`sockMeshOpen`, 108 electrodes covering one side of the epicardium). The surface-to-surface forward
-  operator assumes the source surface ENCLOSES the heart; a partial open sock makes the map rank-deficient
+  operator assumes the source surface encloses the heart; a partial open sock makes the map rank-deficient
   (measured correlation about 0.2). Presenting that as a reconstruction would be dishonest. Making it work
   would require interpolating potentials onto the closed 1182-node `epiMesh`, which fabricates data that was
   not measured.
-- **Valencia (atrial fibrillation): a simulation, not a measurement.** The folder is explicitly a SIMULATION
+- **Valencia (atrial fibrillation): a simulation, not a measurement.** The folder is explicitly a simulation
   (`sim_08-01-2014`); the "heart" electrograms are solver output, not a measured gold standard, so it violates
   the real-target rule (a network validated against a field a solver produced answers no real question).
 - **Ischemia BEM matrices: unreadable variant, torso-specific.** The transfer matrices are stored as MAT v7.3
@@ -126,7 +126,7 @@ otherwise.
 ## The BEM applicability check (a related honesty gate)
 
 A dataset can also be reconstructible but not eligible for the boundary-element (BEM) forward operator, which
-requires BOTH surfaces to be closed 2-manifolds. `is_closed()` counts boundary edges (edges shared by only
+requires both surfaces to be closed 2-manifolds. `is_closed()` counts boundary edges (edges shared by only
 one triangle) and the Euler characteristic; `forward_comparison()` runs the single-layer vs BEM comparison
 only when both surfaces are closed. On the real electrode geometry the human torso-tank surface is open (32
 boundary edges), so the BEM applies only to the dog case, and there it does not beat the calibrated

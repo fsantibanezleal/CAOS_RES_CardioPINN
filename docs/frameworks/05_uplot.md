@@ -8,7 +8,7 @@ CardioPINN pins `uplot@^1.6.32` in the frontend `package.json` and imports its s
 (`uplot/dist/uPlot.min.css`). It is the only 2D-charting engine in the bundle; every line chart the app draws
 goes through one wrapper, `frontend/src/kits/UPlotChart.tsx`, and nothing forks or re-implements it.
 
-uPlot draws the LINKED 2D charts that sit beside the three.js 3D views (card 04): the coupled per-point time
+uPlot draws the linked 2D charts that sit beside the three.js 3D views (card 04): the coupled per-point time
 series next to the interactive field, and the Bernoulli gradient curves in the 4D-flow explanatory tabs. Like
 the rest of the app it is bake-and-read: it plots arrays that came from the committed JSON traces, never a live
 computation.

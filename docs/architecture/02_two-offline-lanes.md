@@ -13,10 +13,10 @@ data-pipeline/cardiopinnlab/
   real/ecgi_bem.py         # boundary-element forward operator (analytic-gated) + single/double-layer blocks
   real/flow4d_dicom.py     # decode the real Philips 4D-flow DICOM velocity + phase-unwrap + lumen mask
   real/flow4d_denoise.py   # single-frame divergence-free velocity PINN with analytic source/flux (torch)
-  real/flow4d_spacetime.py # space-time v(x,y,z,t) PINN: analytic spatial source/flux AND analytic dv/dt
+  real/flow4d_spacetime.py # space-time v(x,y,z,t) PINN: analytic spatial source/flux and analytic dv/dt
   real/flow4d_ppe.py       # pressure-Poisson sparse direct solve + the analytic converging-duct gate
-  real/flow4d_pinn.py      # the SI momentum-residual NS-PINN, the documented FAILED approach (not imported by the bake)
-  real/ns_pinn.py          # earlier dimensional (mm/ms) NS-PINN prototype of the same FAILED approach, also unshipped
+  real/flow4d_pinn.py      # the SI momentum-residual NS-PINN, the documented failed approach (not imported by the bake)
+  real/ns_pinn.py          # earlier dimensional (mm/ms) NS-PINN prototype of the same failed approach, also unshipped
   real/flow4d_bake.py      # bake the 4D-flow pressure trace the web reads
 ```
 
@@ -26,13 +26,13 @@ data-pipeline/cardiopinnlab/
 
 This module holds the actual inverse solver. `load_edgar` reads the real EDGAR torso-tank potentials (a MATLAB
 `ts` struct, field `potvals`) and the real torso and cage triangulations, dropping any frames that contain
-NaNs. `forward_operator` builds the default single-layer (point-source) operator on the REAL electrode
+NaNs. `forward_operator` builds the default single-layer (point-source) operator on the real electrode
 geometry:
 
 $$A_{ij} = \frac{1/(\lVert x^{b}_i - x^{h}_j\rVert + 1)}{\sum_j 1/(\lVert x^{b}_i - x^{h}_j\rVert + 1)}$$
 
 so $\phi_{\text{body}} \approx A\,\phi_{\text{heart}}$, row-normalized. `reconstruct` calibrates a single scalar
-gain on the FIRST HALF of the beat frames (leakage-safe), then fixes it. It builds the mesh graph-Laplacian
+gain on the first half of the beat frames (leakage-safe), then fixes it. It builds the mesh graph-Laplacian
 `_graph_laplacian` from the real cage triangulation and solves the regularized normal equations at the
 oracle-best regularization strength (swept over 30 log-spaced $\lambda$ values, chosen to minimize the true
 error against the real cage, so each method is judged at its best), for two priors:
@@ -42,7 +42,7 @@ $$\hat\phi = (A^\top A + \lambda^2 L^\top L)^{-1} A^\top \phi_{\text{body}}$$
 with $L$ the identity (Tikhonov) or the graph-Laplacian. A deep ensemble of $K=6$ graph-regularized
 reconstructions over measurement-noise draws ($\sigma = 2\%$ of the data standard deviation) gives a per-node
 spread, recalibrated by a temperature $\tau$ so the 2-sigma band matches the real error. `evaluate` computes
-the relative error, the spatial correlation, and the UQ calibration against the REAL cage potentials.
+the relative error, the spatial correlation, and the UQ calibration against the real cage potentials.
 
 ### `ecgi_catalogue.py`, the multi-dataset loader and bake
 
@@ -66,7 +66,7 @@ current is eliminated to give the transfer matrix $Z$ with $\phi_{\text{body}} =
 $$Z = [D_{BB} - G_{BH} G_{HH}^{-1} D_{HB}]^{-1}\,[G_{BH} G_{HH}^{-1} D_{HH} - D_{BH}]$$
 
 `verify_bem_spheres` is the analytic gate (concentric spheres; see note 03). Honest finding: on the coarse real
-electrode geometry the BEM does NOT beat the calibrated single-layer (dog: single-layer RE 0.54 vs BEM RE
+electrode geometry the BEM does not beat the calibrated single-layer (dog: single-layer RE 0.54 vs BEM RE
 0.63), so the single-layer stays the default; the BEM matters as electrode density and mesh closure improve.
 
 ## Lane B: 4D-flow aortic pressure (GPU, PyTorch)
@@ -95,14 +95,14 @@ $$\min_\theta\; \lVert v_\theta - v^{\text{meas}}\rVert^2 + \lambda\,\lVert\nabl
 
 Because the pressure-Poisson source is a product of velocity derivatives, measurement noise (which violates
 continuity) would be amplified; the divergence-free fit projects it out. `DenoisedField.source_and_flux`
-returns the ANALYTIC (autograd) PPE source and the steady part of the Neumann wall flux, computed exactly (not
+returns the analytic (autograd) PPE source and the steady part of the Neumann wall flux, computed exactly (not
 by finite differences at the lumen edge, which is where FD manufactures the worst artifact). This per-frame
 denoiser is reused by the robustness ensemble in the bake.
 
 ### `flow4d_spacetime.py`, the space-time PINN
 
-`train_spacetime` fits a divergence-free $v_\theta(x,y,z,t)$ over the WHOLE cardiac cycle, so BOTH the PPE
-source AND the unsteady acceleration $\partial_t v$ are analytic (autograd in time), replacing an earlier
+`train_spacetime` fits a divergence-free $v_\theta(x,y,z,t)$ over the whole cardiac cycle, so both the PPE
+source and the unsteady acceleration $\partial_t v$ are analytic (autograd in time), replacing an earlier
 three-frame finite difference. `SpaceTimeField.source_flux_unsteady` returns the source $S$, the steady flux
 $b_{\text{steady}}$, and the acceleration $a = \partial_t v$; the caller assembles the full Neumann flux
 $b = b_{\text{steady}} - \rho\,a$. `verify_unsteady_poiseuille` is the analytic gate on a time-varying
@@ -124,7 +124,7 @@ Pa·s, $1$ mmHg $= 133.322$ Pa. `gate_converging` is the analytic gate (see note
 ### `flow4d_pinn.py` and `ns_pinn.py`, the two documented failed NS-PINN baselines
 
 A single network $(x,y,z,t)\to(u,v,w,p)$ trained on the momentum residual (the hidden-fluid-mechanics
-formulation) does NOT recover pressure at aortic Reynolds numbers: pressure is gauge-free and only weakly
+formulation) does not recover pressure at aortic Reynolds numbers: pressure is gauge-free and only weakly
 coupled to the loss, so it stays near its initialization (under 10 percent of the true gradient on analytic
 Poiseuille). Two versions of this attempt are kept: `flow4d_pinn.py` is the SI, non-dimensionalized network
 (gated by `verify_poiseuille_si`), and `ns_pinn.py` is an earlier dimensional (mm/ms) prototype of the same

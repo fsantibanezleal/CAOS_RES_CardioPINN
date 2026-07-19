@@ -9,15 +9,15 @@ wheel also works; these are small MLPs that train in minutes), and the recovered
 committed trace. No PyTorch runs in the browser, and there is no ONNX export lane; the web reads JSON.
 
 The reason PyTorch is here and not in the ECGi case is autograd. The pressure-Poisson source is built from
-velocity SPATIAL derivatives, and the unsteady pressure term from the TEMPORAL derivative. A network gives
-those derivatives ANALYTICALLY (`torch.autograd.grad`), cleanly and everywhere including the lumen boundary,
+velocity spatial derivatives, and the unsteady pressure term from the temporal derivative. A network gives
+those derivatives analytically (`torch.autograd.grad`), cleanly and everywhere including the lumen boundary,
 which is precisely what removes the finite-difference edge artifact that otherwise wrecks the pressure map.
 
 ## The shared engine (`core/pinn.py`)
 
 The cardiac-PINN literature ships small custom training loops rather than a turnkey framework, because the
 novelty lives in the input space and the physics loss, not in the optimizer. `core/pinn.py` is that generic
-core: the MODEL and the LOSS are supplied per case, the OPTIMIZATION is shared.
+core: the model and the loss are supplied per case, the optimization is shared.
 
 - **`MLP`** : a configurable multilayer perceptron, `tanh` activation by default, optional Fourier-feature
   input encoding, width and depth as constructor arguments. The output activation is left to the caller so the
@@ -40,7 +40,7 @@ derivatives (the pressure-Poisson source uses first derivatives; the viscous Neu
 derivative levels is numerically stable. A ReLU network has zero second derivative almost everywhere and cannot
 supply a Laplacian; a SIREN (sine) network is available in the `MLP` for oscillatory fields but is unnecessary
 here and can introduce spurious high-frequency structure. Fourier features exist in the engine for sharp
-wavefronts (the ECGi/activation lineage) but are OFF for the 4D-flow denoisers, where a smooth low-frequency
+wavefronts (the ECGi/activation lineage) but are off for the 4D-flow denoisers, where a smooth low-frequency
 fit is the goal. Inputs and outputs are non-dimensionalized (positions by a characteristic length $L$, velocity
 by $U$) so the network sees $O(1)$ values, with the SI chain-rule factors $U/L$ and $U/L^2$ applied when the
 analytic derivatives are read back out.
@@ -55,8 +55,8 @@ $$\mathcal{L} = \underbrace{\big\lVert v_\theta(x_{\text{data}}) - v_{\text{meas
 
 The divergence $\nabla\cdot v_\theta$ is assembled from `torch.autograd.grad` of each velocity component with
 respect to the input coordinates (`w_div=1.0`, `n_coll=6000` collocation points resampled each step). Unlike
-PRESSURE, VELOCITY is strongly constrained by the data, so this denoising is well-posed and robust. The trained
-`DenoisedField` then exposes `source_and_flux`, which returns the ANALYTIC pressure-Poisson source
+Pressure, velocity is strongly constrained by the data, so this denoising is well-posed and robust. The trained
+`DenoisedField` then exposes `source_and_flux`, which returns the analytic pressure-Poisson source
 $S = -\rho \sum_{ij}(\partial_j v_i)(\partial_i v_j)$ and the steady Neumann flux
 $b = -\rho\,(v\cdot\nabla)v + \mu\,\nabla^2 v$, both computed by second-order autograd (a Jacobian and a
 Laplacian per point, batched at 20000 points). These feed SciPy's sparse pressure-Poisson solve (card 01).
@@ -64,10 +64,10 @@ Laplacian per point, batched at 20000 points). These feed SciPy's sparse pressur
 This analytic-derivative choice is the decisive one, and it is now proven on a known answer (research dossier
 `beyond-sota-pinn-2026-07-14`). On an analytic converging duct whose exact pressure is known, a denoiser fit to
 noisy velocity recovers the pressure drop to a median 0.066 mmHg through this analytic path, versus 4.19 mmHg
-(about 50% inflated) when the SAME fitted field's source is finite-differenced on the grid instead, the
+(about 50% inflated) when the same fitted field's source is finite-differenced on the grid instead, the
 approach a standard finite-difference PPE/WERP pipeline uses. That is a 63x gap on identical data, gated in CI
 by `gate_analytic_vs_fd` / `test_flow4d_analytic_source`. Two candidate upgrades were tested adversarially
-against this baseline and REFUTED on the same benchmark: enforcing incompressibility by construction (velocity
+against this baseline and refuted on the same benchmark: enforcing incompressibility by construction (velocity
 as the curl of a learned vector potential, exact div-free) did not improve pressure, and an end-to-end
 differentiable coupling of the denoiser to the elliptic solve was subsumed by the two-stage pipeline. The
 honest record is in the dossier's `findings.md`.
@@ -76,7 +76,7 @@ honest record is in the dossier's `findings.md`.
 
 The unsteady pressure term needs $\partial v/\partial t$. Estimating it from three frames by finite difference
 inflated the pressure range to about 15 mmHg. The fix is a space-time network $v_\theta(x,y,z,t)$ trained
-divergence-free over the WHOLE cardiac cycle, so the temporal derivative is differentiated exactly:
+divergence-free over the whole cardiac cycle, so the temporal derivative is differentiated exactly:
 `source_flux_unsteady` returns $S$, the steady flux $b$, and the acceleration $a = \partial v/\partial t$ (via
 the fourth input column, with the SI factor $U/T$), and the caller assembles the full Neumann flux
 $b - \rho\,a$. With the analytic unsteady term the recovered relative-pressure range drops to 0.79 mmHg on the
@@ -85,16 +85,16 @@ estimate 2.51 mmHg. The temporal derivative is gated in CI on an analytic time-v
 exact $\partial w/\partial t$ is known (`verify_unsteady_poiseuille`, correlation 0.995) before any real data
 is trusted. The bake (`flow4d_bake.py`) trains this network with `width=128, depth=7, w_div=2.0`.
 
-## Why the momentum-residual PINN FAILED and is kept as a documented baseline (`real/flow4d_pinn.py`)
+## Why the momentum-residual PINN failed and is kept as a documented baseline (`real/flow4d_pinn.py`)
 
 The obvious approach, one network $(x,y,z,t)\to(u,v,w,p)$ trained on the full Navier-Stokes momentum residual
-(the "hidden fluid mechanics" formulation of Raissi et al.), does NOT recover pressure at aortic Reynolds
+(the "hidden fluid mechanics" formulation of Raissi et al.), does not recover pressure at aortic Reynolds
 numbers. The non-dimensional residual carries the pressure gradient only through a soft penalty term, and
 pressure is gauge-free (defined up to an additive constant) and weakly coupled to the loss, so the network
 leaves it near its zero initialization. On the analytic Poiseuille gate (`verify_poiseuille_si`, where the exact
 $dp/dz = -8\mu U/R^2$ is known) it recovered under 10 percent of the true gradient.
 
-This file is deliberately kept, complete and runnable, as the DOCUMENTED failed baseline. It is not a dead
+This file is deliberately kept, complete and runnable, as the documented failed baseline. It is not a dead
 stub: it holds the full non-dimensional NS residual (`residual_nd`, continuity + three momentum components with
 the Strouhal and Reynolds groupings) and its analytic Poiseuille gate, so the failure is reproducible and the
 design decision is auditable. The shipped method separates the well-posed part (velocity, strongly
@@ -109,7 +109,7 @@ equation in SciPy). That separation is the whole point, and the failed baseline 
   the batched evaluation (8000 to 20000 points per call).
 - The denoiser makes the pressure robust to velocity noise (the ensemble in `flow4d_bake.py` moves it under
   0.01 mmHg), which is a strength but also means a noise-only ensemble gives an uninformative near-zero
-  uncertainty; a per-voxel pressure uncertainty map is therefore NOT shown. The dominant uncertainty is the
+  uncertainty; a per-voxel pressure uncertainty map is therefore not shown. The dominant uncertainty is the
   absent invasive gold standard, the lumen segmentation, and the unsteady-term approximation.
 - No GPU is required for correctness; the CPU wheel produces the same result more slowly.
 
