@@ -554,14 +554,14 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
         <section>
           <h2>{pick(lang, 'Where and how the physics-informed reconstruction helps', 'Dónde y cómo ayuda la reconstrucción informada por física')}</h2>
           <p className="measure">{pick(lang,
-            'A physics-informed reconstruction keeps the same physical constraint (the recovered potentials must reproduce the REAL measured body-surface data through the forward operator A) but improves the two weaknesses of plain Tikhonov: a prior that respects the tissue, and a per-node uncertainty. Hover the pipeline to inspect each stage; toggle the what-if controls to read the baked reconstruction each choice produces.',
-            'Una reconstrucción informada por física mantiene la misma restricción física (los potenciales recuperados deben reproducir los datos reales medidos de superficie corporal a través del operador directo A) pero mejora las dos debilidades del Tikhonov simple: un prior que respeta el tejido, y una incertidumbre por nodo. Al pasar el cursor por la tubería se inspecciona cada etapa; los controles de hipótesis muestran la reconstrucción precalculada que produce cada elección.')}</p>
+            'A physics-informed reconstruction keeps the same physical constraint (the recovered potentials must reproduce the real measured body-surface data through the forward operator A) but improves the two weaknesses of plain Tikhonov: a prior that respects the tissue, and a per-node uncertainty. Hover the pipeline to inspect each stage; toggle the what-if controls to read the baked reconstruction each choice produces.',
+            'Una reconstrucción informada por física mantiene la misma restricción física (los potenciales recuperados deben reproducir los datos reales medidos de superficie corporal a través del operador directo A) pero mejora las dos debilidades del Tikhonov simple: un prior que respeta el tejido, y una incertidumbre por nodo. Al pasar el cursor por el pipeline se inspecciona cada etapa; los controles de hipótesis muestran la reconstrucción precalculada que produce cada elección.')}</p>
           <PipelineSvg
             animate
             selected={pipeSel} onSelect={(id) => setPipeSel((p) => (p === id ? null : id))}
             playLabel={pick(lang, 'Play flow', 'Reproducir flujo')}
             captionEmpty={pick(lang, 'Hover, focus, or select a stage to inspect it.', 'Pasar el cursor, enfocar o seleccionar una etapa para inspeccionarla.')}
-            ariaLabel={pick(lang, 'Physics-informed reconstruction pipeline', 'Tubería de reconstrucción informada por física')}
+            ariaLabel={pick(lang, 'Physics-informed reconstruction pipeline', 'Pipeline de reconstrucción informada por física')}
             stages={[
               { id: 'body', kind: 'in', label: 'phi_body', sub: pick(lang, '192 measured', '192 medido'), detail: pick(lang, 'The real body-surface recording, one value per tank electrode through the beat.', 'El registro real de superficie corporal, un valor por electrodo del tanque durante el latido.') },
               { id: 'A', kind: 'proc', label: 'A', sub: pick(lang, 'forward operator', 'operador directo'), detail: pick(lang, 'The fixed transfer matrix from the torso geometry; the reconstruction must reproduce the data through A.', 'La matriz de transferencia fija de la geometría del torso; la reconstrucción debe reproducir los datos a través de A.') },
@@ -597,7 +597,7 @@ export function RealEcgi({ selector }: { selector?: ReactNode }) {
             <HoverMathEq
               tex={String.raw`\mathcal{L}(\phi) = \lVert A\phi - \phi_{\text{body}}^{\text{meas}}\rVert_2^2 + \lambda^2\lVert L_{\text{mesh}}\phi\rVert_2^2, \quad \bar\phi = \tfrac1K\textstyle\sum_k \hat\phi^{(k)}, \;\; s = \tau\,\mathrm{std}_k\,\hat\phi^{(k)}`}
               terms={[
-                { tex: String.raw`\lVert A\phi - \phi_{\text{body}}^{\text{meas}}\rVert_2^2`, meaning: pick(lang, 'data misfit: the recovery must reproduce the REAL measured body data through A', 'desajuste a datos: la recuperación debe reproducir los datos corporales reales medidos a través de A') },
+                { tex: String.raw`\lVert A\phi - \phi_{\text{body}}^{\text{meas}}\rVert_2^2`, meaning: pick(lang, 'data misfit: the recovery must reproduce the real measured body data through A', 'desajuste a datos: la recuperación debe reproducir los datos corporales reales medidos a través de A') },
                 { tex: String.raw`L_{\text{mesh}}`, meaning: pick(lang, 'graph Laplacian of the real heart-cage triangulation: a piecewise-smooth prior on the surface', 'Laplaciano de grafo de la triangulación real de la jaula cardíaca: un prior suave por partes en la superficie') },
                 { tex: String.raw`\bar\phi`, meaning: pick(lang, 'the ensemble mean, which is the reconstruction', 'la media del ensemble, que es la reconstrucción') },
                 { tex: String.raw`s = \tau\,\mathrm{std}_k`, meaning: pick(lang, 'the recalibrated spread: tau matches the 2-sigma band to the real error, giving per-node uncertainty', 'la dispersión recalibrada: tau ajusta la banda de 2-sigma al error real, dando incertidumbre por nodo') },
