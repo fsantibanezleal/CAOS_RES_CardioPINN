@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="330" viewBox="0 0 720 330" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="as" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#4a5568"/></marker>
+    <style>
+      .t{fill:#1a202c;font-size:12px;text-anchor:middle;} .ts{fill:#4a5568;font-size:10px;text-anchor:middle;}
+      .meas{fill:#ebf8ff;stroke:#2b6cb0;stroke-width:1.4;} .ill{fill:#fffaf0;stroke:#c05621;stroke-width:1.4;}
+      .phys{fill:#f0fff4;stroke:#2f855a;stroke-width:1.4;} .gate{fill:#f7fafc;stroke:#4a5568;stroke-width:1.2;stroke-dasharray:4 3;}
+      .flow{stroke:#4a5568;stroke-width:1.6;fill:none;marker-end:url(#as);}
+      .hdr{fill:#718096;font-size:10.5px;font-weight:bold;letter-spacing:.4px;text-anchor:middle;}
+    </style>
+  </defs>
+
+  <text class="t" x="360" y="24" font-weight="bold" font-size="13">Recover an unmeasurable clinical field from a measurable one: separate the well-posed part from the ill-posed part</text>
+
+  <!-- spine headers -->
+  <text class="hdr" x="95"  y="58">MEASURABLE (non-invasive)</text>
+  <text class="hdr" x="285" y="58">WELL-POSED FIT</text>
+  <text class="hdr" x="475" y="58">ILL-POSED: PHYSICS SOLVE</text>
+  <text class="hdr" x="650" y="58">UNMEASURABLE FIELD</text>
+
+  <!-- ECGi row -->
+  <text class="ts" x="30" y="112" transform="rotate(-90 30 112)" fill="#2b6cb0" font-weight="bold">ECGi</text>
+  <rect class="meas" x="46" y="86" width="110" height="52" rx="5"/><text class="t" x="101" y="106">body-surface</text><text class="ts" x="101" y="122">potentials (192-140 leads)</text>
+  <rect class="phys" x="212" y="86" width="130" height="52" rx="5"/><text class="t" x="277" y="106">Laplace forward op.</text><text class="ts" x="277" y="122">single-layer / BEM</text>
+  <rect class="ill" x="398" y="86" width="150" height="52" rx="5"/><text class="t" x="473" y="102">Tikhonov + graph-Laplacian</text><text class="ts" x="473" y="118">+ deep-ensemble node UQ</text>
+  <rect class="meas" x="596" y="86" width="108" height="52" rx="5" style="fill:#f7fafc;stroke:#1a202c"/><text class="t" x="650" y="106">heart-surface</text><text class="ts" x="650" y="122">potentials (vs cage)</text>
+  <path class="flow" d="M156,112 L212,112"/><path class="flow" d="M342,112 L398,112"/><path class="flow" d="M548,112 L596,112"/>
+
+  <!-- 4D-flow row -->
+  <text class="ts" x="30" y="200" transform="rotate(-90 30 200)" fill="#c05621" font-weight="bold">4D-flow</text>
+  <rect class="meas" x="46" y="174" width="110" height="52" rx="5"/><text class="t" x="101" y="194">4D-flow velocity</text><text class="ts" x="101" y="210">(venc 120, 16 frames)</text>
+  <rect class="phys" x="212" y="174" width="130" height="52" rx="5"/><text class="t" x="277" y="190">divergence-free</text><text class="ts" x="277" y="206">velocity PINN (div v=0)</text>
+  <rect class="ill" x="398" y="174" width="150" height="52" rx="5"/><text class="t" x="473" y="190">pressure-Poisson lap(p)=S(v)</text><text class="ts" x="473" y="206">analytic source + Neumann flux</text>
+  <rect class="meas" x="596" y="174" width="108" height="52" rx="5" style="fill:#f7fafc;stroke:#1a202c"/><text class="t" x="650" y="194">relative pressure</text><text class="ts" x="650" y="210">(no invasive truth)</text>
+  <path class="flow" d="M156,200 L212,200"/><path class="flow" d="M342,200 L398,200"/><path class="flow" d="M548,200 L596,200"/>
+
+  <!-- gate -->
+  <rect class="gate" x="212" y="256" width="336" height="46" rx="6"/>
+  <text class="t" x="380" y="276" font-weight="bold">Analytic known-answer gate must pass BEFORE any real data</text>
+  <text class="ts" x="380" y="292">concentric-sphere BEM (corr &gt;0.999) . converging-duct PPE (4.74 vs 4.73 mmHg) . unsteady Poiseuille (dw/dt corr 0.995)</text>
+  <path class="flow" d="M380,256 L380,240 L473,240 L473,226"/>
+  <path class="flow" d="M300,256 L300,240 L277,240 L277,226"/>
+</svg>
