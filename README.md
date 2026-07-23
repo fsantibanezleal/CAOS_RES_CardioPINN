@@ -7,6 +7,13 @@ solves answers no clinical question.
 
 Live: https://cardiopinn.fasl-work.com/
 
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21508806-blue)](https://doi.org/10.5281/zenodo.21508806)
+
+Preprint (CC-BY-4.0): *"Physics-Informed Reconstruction of Unmeasurable Cardiac
+Fields from Real Data: Electrocardiographic Imaging and 4D-Flow Aortic Pressure,
+with Honest Nulls"*, concept DOI [10.5281/zenodo.21508806](https://doi.org/10.5281/zenodo.21508806)
+(source in [`manuscripts/physics-informed-cardiac-fields/`](manuscripts/physics-informed-cardiac-fields/)).
+
 > Status: real-data-first (0.1x, validated methodological results). Not clinically deployed; validated methodological results on real
 > experimental data. Raw datasets are used under their data-use agreements and are not redistributed.
 
