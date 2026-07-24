@@ -21,7 +21,7 @@ with Honest Nulls}
   Felipe Santib\'a\~nez-Leal~\orcidlink{0000-0002-0150-3246},~\IEEEmembership{Independent Researcher}%
   \thanks{F.\ Santib\'a\~nez-Leal is with the CAOS open-research programme, Santiago,
     Chile (e-mail: \texttt{fsantibanezleal@ug.uchile.cl}; ORCID: 0000-0002-0150-3246).}%
-  \thanks{Preprint, 2026, version 2 (comprehensive). Code, derived reconstruction
+  \thanks{Preprint, 2026, version 2.1 (revised). Code, derived reconstruction
     artifacts, and the interactive viewer are released under MIT at
     \url{https://github.com/fsantibanezleal/CAOS_RES_CardioPINN}; live at
     \url{https://cardiopinn.fasl-work.com}. Validated methodological result on real
@@ -29,7 +29,7 @@ with Honest Nulls}
     their data-use agreements and are not redistributed.}%
 }
 
-\markboth{Preprint, 2026 (v2) --- CAOS open-research programme}{Santib\'a\~nez-Leal:
+\markboth{Preprint, 2026 (v2.1) --- CAOS open-research programme}{Santib\'a\~nez-Leal:
 Physics-Informed Reconstruction of Unmeasurable Cardiac Fields from Real Data}
 
 \IEEEtitleabstractindextext{%
@@ -60,7 +60,7 @@ is forced out by the pressure-Poisson equation with the source and Neumann flux 
 from the network's analytic derivatives rather than by finite differences at the lumen edge,
 which takes the recovered pressure from a non-physiological thousands of mmHg to a
 physiological 0.79 mmHg range, the same order as the clinical simplified-Bernoulli estimate
-(2.51 mmHg). The solve is analytic-gated to correlation 1.00 on a converging duct and its
+(2.50 mmHg). The solve is analytic-gated to correlation 1.00 on a converging duct and its
 unsteady term to $dw/dt$ correlation 0.995 on a time-varying Poiseuille flow; the
 momentum-residual PINN that leaves pressure gauge-free is kept as the documented failed
 baseline. The uncertainty treatment is case-appropriate: informative and shown per node
@@ -278,10 +278,11 @@ PPE unsteady & time-varying Poiseuille & $dw/dt$ corr 0.995 \\
 
 There is no non-invasive pressure gold standard; the validation is threefold. The analytic gate
 is exact (above). On the real thoracic-aorta scan (Philips, venc 120 cm/s, 16 frames, 47{,}902
-lumen voxels, 27{,}863 phase-wrap samples corrected), the recovered relative pressure spans
-0.79 mmHg (Fig.~\ref{fig:flow}), small and physiological for an unobstructed aorta. And the
-clinical bracket holds: the simplified-Bernoulli estimate $4V_\text{max}^2=2.51$ mmHg from the
-denoised peak velocity 0.791 m/s is the same order, exactly what an unobstructed aorta should
+lumen voxels, 27{,}863 phase-wrap samples corrected), the recovered relative pressure has a
+p5--p95 range of 0.79 mmHg (full span 0.85 mmHg; Fig.~\ref{fig:flow}), small and physiological for an unobstructed aorta. And the
+clinical bracket holds: the simplified-Bernoulli estimate $4V_\text{max}^2=2.50$ mmHg from the
+denoised peak velocity 0.791 m/s (a robust, 95th-percentile peak of the lumen speed field, whose
+maximum is $\sim$1.44 m/s) is the same order, exactly what an unobstructed aorta should
 show, while the field additionally reveals where the pressure varies, which a single Bernoulli
 number cannot.
 
@@ -289,8 +290,8 @@ number cannot.
 \centering
 \includegraphics[width=\columnwidth]{fig-flow-pressure.pdf}
 \caption{Recovered relative pressure over the aortic lumen at peak systole, read from
-\texttt{trace.json}. The distribution spans a physiological 0.79 mmHg for this unobstructed
-aorta, the same order as the clinical Bernoulli estimate (2.51 mmHg).}
+\texttt{trace.json}. The distribution has a p5--p95 range of 0.79 mmHg (full span 0.85 mmHg)
+for this unobstructed aorta, the same order as the clinical Bernoulli estimate (2.50 mmHg).}
 \label{fig:flow}
 \end{figure}
 
@@ -327,7 +328,7 @@ tools. ECGi is shown on a torso tank and one in-situ animal, not a patient cohor
 pressure has no invasive truth to check its absolute magnitude against, so only its analytic gate,
 physiological range, divergence-free denoising, and Bernoulli bracket are claimed. Raw datasets are
 used under data-use agreements and are not redistributed; only the derived reconstruction artifacts
-are committed, and every number here is reproducible from them. The contribution is a demonstration
+are committed, and every number here is reproducible from them and the CI gate tests. The contribution is a demonstration
 that, with a real-data-only discipline, known-answer gates, and honest nulls, physics-informed
 reconstruction can recover two clinically meaningful unmeasurable cardiac fields, ECGi heart-surface
 potentials and 4D-flow aortic pressure, from the non-invasive measurements tied to them by a

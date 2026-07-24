@@ -27,14 +27,14 @@ def fig_ecgi():
     labels = [r[0] for r in rows] + ["Dog\nsinus"]
     RE = [r[1]["relative_error_tikhonov"] for r in rows] + [fc["RE"]]
     CC = [r[1]["correlation_tikhonov"] for r in rows] + [fc["CC"]]
-    UQ = [r[1]["uq_calibration_2sigma"] for r in rows] + [0.90]
+    UQ = [r[1]["uq_calibration_2sigma"] for r in rows] + [fc.get("uq_calibration_2sigma", 0.901)]
     x = range(len(labels)); w = 0.38
     fig, ax = plt.subplots(figsize=(4.7, 3.0))
     ax.bar([i - w / 2 for i in x], RE, width=w, color=ORANGE, label="relative error (lower better)", zorder=3)
     ax.bar([i + w / 2 for i in x], CC, width=w, color=BLUE, label="spatial correlation (higher better)", zorder=3)
     for i, (re, cc) in enumerate(zip(RE, CC)):
-        ax.text(i - w / 2, re + 0.015, f"{re:.2f}", ha="center", fontsize=7.5, color=ORANGE)
-        ax.text(i + w / 2, cc + 0.015, f"{cc:.2f}", ha="center", fontsize=7.5, color=BLUE)
+        ax.text(i - w / 2, re + 0.015, f"{re + 1e-9:.2f}", ha="center", fontsize=7.5, color=ORANGE)
+        ax.text(i + w / 2, cc + 0.015, f"{cc + 1e-9:.2f}", ha="center", fontsize=7.5, color=BLUE)
     ax.plot(list(x), UQ, "o--", color=GREEN, ms=4, lw=1, zorder=4, label="node UQ coverage (2$\\sigma$)")
     ax.set_xticks(list(x)); ax.set_xticklabels(labels, fontsize=7.5)
     ax.set_ylim(0, 1.0); ax.set_ylabel("metric vs measured cage")
