@@ -10,6 +10,7 @@ predicted band at the nominal rate) rather than over/under-confident or uninform
 Known-answer flow: converging duct (exact pressure). Ensemble over {segmentation in [erode1, none, dilate1]}
 x {seed}. Compare its per-voxel spread and 2-sigma coverage to the current velocity-noise ensemble.
 """
+
 from __future__ import annotations
 
 import json
@@ -19,11 +20,11 @@ import sys
 HERE = pathlib.Path(__file__).resolve()
 sys.path.insert(0, str(HERE.parents[2]))
 sys.path.insert(0, str(HERE.parent))
-import numpy as np                            # noqa: E402
-from scipy import ndimage                     # noqa: E402
-import _bench as B                            # noqa: E402
-from cardiopinnlab.real.flow4d_denoise import denoise_frame   # noqa: E402
-from cardiopinnlab.real.flow4d_ppe import solve_ppe, PA_PER_MMHG   # noqa: E402
+import numpy as np  # noqa: E402
+from scipy import ndimage  # noqa: E402
+import _bench as B  # noqa: E402
+from cardiopinnlab.real.flow4d_denoise import denoise_frame  # noqa: E402
+from cardiopinnlab.real.flow4d_ppe import PA_PER_MMHG  # noqa: E402
 
 SEEDS = [0, 1, 2]
 NOISE_FRAC = 0.08
@@ -31,9 +32,11 @@ BUDGET = dict(n_adam=2500, n_lbfgs=250, width=96, depth=6)
 
 
 def _seg_variants(mask):
-    return {"erode1": ndimage.binary_erosion(mask, iterations=1),
-            "none": mask,
-            "dilate1": ndimage.binary_dilation(mask, iterations=1) & _bounding(mask)}
+    return {
+        "erode1": ndimage.binary_erosion(mask, iterations=1),
+        "none": mask,
+        "dilate1": ndimage.binary_dilation(mask, iterations=1) & _bounding(mask),
+    }
 
 
 def _bounding(mask):
@@ -53,7 +56,7 @@ def _coverage(members, p_true, common_mask):
     m = common_mask.copy()
     for pm in members:
         m = m & ~np.isnan(pm)
-    stack = np.stack([_demean(pm, m)[m] for pm in members], 0)     # [K, Nvox]
+    stack = np.stack([_demean(pm, m)[m] for pm in members], 0)  # [K, Nvox]
     pt = p_true[m] - p_true[m].mean()
     pmean = stack.mean(0)
     s0 = stack.std(0)
@@ -62,11 +65,14 @@ def _coverage(members, p_true, common_mask):
     tau = float(np.mean(e) * np.sqrt(np.pi / 2) / (np.mean(s0) + 1e-30))
     s = tau * s0
     cov2 = float(np.mean(e < 2 * s + 1e-30))
-    return {"median_spread_mmHg": round(float(np.median(s0)) / PA_PER_MMHG, 5),
-            "mean_error_mmHg": round(float(np.mean(e)) / PA_PER_MMHG, 5),
-            "temperature": round(tau, 3),
-            "coverage_2sigma": round(cov2, 3),
-            "n_members": len(members), "n_vox": int(m.sum())}
+    return {
+        "median_spread_mmHg": round(float(np.median(s0)) / PA_PER_MMHG, 5),
+        "mean_error_mmHg": round(float(np.mean(e)) / PA_PER_MMHG, 5),
+        "temperature": round(tau, 3),
+        "coverage_2sigma": round(cov2, 3),
+        "n_members": len(members),
+        "n_vox": int(m.sum()),
+    }
 
 
 def run() -> dict:
@@ -79,12 +85,21 @@ def run() -> dict:
     fields = []
     for seed in SEEDS:
         vn = B.add_noise(v_true, mask, NOISE_FRAC, U, seed)
-        fld = denoise_frame(cg[mask], vn[mask], seed=seed, n_adam=BUDGET["n_adam"], n_lbfgs=BUDGET["n_lbfgs"],
-                            width=BUDGET["width"], depth=BUDGET["depth"], w_div=1.0, n_coll=6000)
+        fld = denoise_frame(
+            cg[mask],
+            vn[mask],
+            seed=seed,
+            n_adam=BUDGET["n_adam"],
+            n_lbfgs=BUDGET["n_lbfgs"],
+            width=BUDGET["width"],
+            depth=BUDGET["depth"],
+            w_div=1.0,
+            n_coll=6000,
+        )
         fields.append((seed, fld))
 
     segs = _seg_variants(mask)
-    common = segs["erode1"]      # score on the voxels present in every variant
+    common = segs["erode1"]  # score on the voxels present in every variant
 
     # STRUCTURAL ensemble: {seed} x {segmentation}, pressure via the ANALYTIC source path (engine path)
     structural = []
@@ -97,8 +112,17 @@ def run() -> dict:
     velnoise = []
     for k in range(4):
         vnk = B.add_noise(v_true, mask, NOISE_FRAC, U, seed=100 + k)
-        fk = denoise_frame(cg[mask], vnk[mask], seed=0, n_adam=BUDGET["n_adam"], n_lbfgs=BUDGET["n_lbfgs"],
-                           width=BUDGET["width"], depth=BUDGET["depth"], w_div=1.0, n_coll=6000)
+        fk = denoise_frame(
+            cg[mask],
+            vnk[mask],
+            seed=0,
+            n_adam=BUDGET["n_adam"],
+            n_lbfgs=BUDGET["n_lbfgs"],
+            width=BUDGET["width"],
+            depth=BUDGET["depth"],
+            w_div=1.0,
+            n_coll=6000,
+        )
         velnoise.append(B.solve_analytic(fk, mask, h, cg))
 
     struct_stats = _coverage(structural, p_true, common)
@@ -113,7 +137,9 @@ def run() -> dict:
     verdict = {
         "structural_spread_mmHg": struct_stats["median_spread_mmHg"],
         "velnoise_spread_mmHg": veln_stats["median_spread_mmHg"],
-        "structural_over_velnoise": round(struct_stats["median_spread_mmHg"] / max(veln_stats["median_spread_mmHg"], 1e-6), 1),
+        "structural_over_velnoise": round(
+            struct_stats["median_spread_mmHg"] / max(veln_stats["median_spread_mmHg"], 1e-6), 1
+        ),
         "structural_coverage_2sigma": struct_stats["coverage_2sigma"],
         "informative": bool(informative),
         "calibrated": bool(calibrated),

@@ -12,6 +12,7 @@ the expected finding is that coupling is SUBSUMED by P1. We (a) verify the diffe
 (b) measure whether coupling the soft-penalty velocity moves its pressure toward truth, and (c) compare to the
 curl baseline. Known-answer flow: converging duct.
 """
+
 from __future__ import annotations
 
 import json
@@ -21,14 +22,14 @@ import sys
 HERE = pathlib.Path(__file__).resolve()
 sys.path.insert(0, str(HERE.parents[2]))
 sys.path.insert(0, str(HERE.parent))
-import numpy as np                            # noqa: E402
-import torch                                  # noqa: E402
-from scipy.sparse import csr_matrix           # noqa: E402
-from scipy.sparse.linalg import splu          # noqa: E402
-from scipy import ndimage                     # noqa: E402
-import _bench as B                            # noqa: E402
-from cardiopinnlab.core.pinn import MLP, seed_everything, select_device, train_loop   # noqa: E402
-from cardiopinnlab.real.flow4d_ppe import solve_ppe_precomputed, RHO, MU, PA_PER_MMHG  # noqa: E402
+import numpy as np  # noqa: E402
+import torch  # noqa: E402
+from scipy.sparse import csr_matrix  # noqa: E402
+from scipy.sparse.linalg import splu  # noqa: E402
+from scipy import ndimage  # noqa: E402
+import _bench as B  # noqa: E402
+from cardiopinnlab.core.pinn import seed_everything, select_device  # noqa: E402
+from cardiopinnlab.real.flow4d_ppe import solve_ppe_precomputed, RHO, MU  # noqa: E402
 
 
 def build_operator(mask, h):
@@ -40,28 +41,46 @@ def build_operator(mask, h):
         sizes = ndimage.sum(np.ones_like(lab), lab, index=np.arange(1, ncc + 1))
         mask = lab == (int(np.argmax(sizes)) + 1)
     nz, ny, nx = mask.shape
-    idx = -np.ones(mask.shape, int); coords = np.argwhere(mask)
+    idx = -np.ones(mask.shape, int)
+    coords = np.argwhere(mask)
     for n, (k, j, i) in enumerate(coords):
         idx[k, j, i] = n
-    N = len(coords); h2 = h * h
-    nbrs = [((0, 0, 1), 0, +1), ((0, 0, -1), 0, -1), ((0, 1, 0), 1, +1),
-            ((0, -1, 0), 1, -1), ((1, 0, 0), 2, +1), ((-1, 0, 0), 2, -1)]
+    N = len(coords)
+    h2 = h * h
+    nbrs = [
+        ((0, 0, 1), 0, +1),
+        ((0, 0, -1), 0, -1),
+        ((0, 1, 0), 1, +1),
+        ((0, -1, 0), 1, -1),
+        ((1, 0, 0), 2, +1),
+        ((-1, 0, 0), 2, -1),
+    ]
     pin = int(np.argmin(np.linalg.norm(coords - coords.mean(0), axis=1)))
     rows, cols, vals = [], [], []
-    bmap = []   # per-node list of (axis, sign) boundary faces, to build rhs from b
+    bmap = []  # per-node list of (axis, sign) boundary faces, to build rhs from b
     for n, (k, j, i) in enumerate(coords):
         faces = []
         if n == pin:
-            rows.append(n); cols.append(n); vals.append(1.0); bmap.append(faces); continue
+            rows.append(n)
+            cols.append(n)
+            vals.append(1.0)
+            bmap.append(faces)
+            continue
         diag = 0.0
         for (dk, dj, di), axis, sign in nbrs:
             nk, nj, ni = k + dk, j + dj, i + di
             inside = 0 <= nk < nz and 0 <= nj < ny and 0 <= ni < nx and mask[nk, nj, ni]
             if inside:
-                rows.append(n); cols.append(idx[nk, nj, ni]); vals.append(1.0); diag -= 1.0
+                rows.append(n)
+                cols.append(idx[nk, nj, ni])
+                vals.append(1.0)
+                diag -= 1.0
             else:
                 faces.append((axis, sign))
-        rows.append(n); cols.append(n); vals.append(diag); bmap.append(faces)
+        rows.append(n)
+        cols.append(n)
+        vals.append(diag)
+        bmap.append(faces)
     A = csr_matrix((vals, (rows, cols)), shape=(N, N))
 
     def rhs_fn(S_nodes, b_nodes):
@@ -75,17 +94,21 @@ def build_operator(mask, h):
         for n, faces in enumerate(bmap):
             if n == pin:
                 rhs = rhs.clone() if is_t else rhs
-                if is_t: rhs[n] = rhs[n] * 0.0
-                else: rhs[n] = 0.0
+                if is_t:
+                    rhs[n] = rhs[n] * 0.0
+                else:
+                    rhs[n] = 0.0
                 continue
             for axis, sign in faces:
                 rhs[n] = rhs[n] - sign * h * b_nodes[n, axis]
         return rhs
+
     return A, coords, idx, pin, rhs_fn, mask
 
 
 class DiffPoisson(torch.autograd.Function):
     """p = A^{-1} rhs with implicit differentiation. A is fixed (a scipy LU passed in ctx); grad_rhs = A^{-T} grad_p."""
+
     @staticmethod
     def forward(ctx, rhs, lu, luT):
         p = lu.solve(rhs.detach().cpu().numpy().astype(np.float64))
@@ -102,31 +125,42 @@ def source_flux_torch(net, coords_m, c0, L, U, rho=RHO, mu=MU):
     """Torch-native PPE source S and STEADY Neumann flux b at coords_m, KEEPING the graph (for coupling)."""
     device = next(net.parameters()).device
     xc = torch.tensor((coords_m - c0) / L, dtype=torch.float32, device=device, requires_grad=True)
-    out = net(xc); n = xc.shape[0]
-    J = torch.zeros(n, 3, 3, device=device); lap = torch.zeros(n, 3, device=device)
+    out = net(xc)
+    n = xc.shape[0]
+    J = torch.zeros(n, 3, 3, device=device)
+    lap = torch.zeros(n, 3, device=device)
     for i in range(3):
-        gi = torch.autograd.grad(out[:, i], xc, torch.ones(n, device=device), create_graph=True, retain_graph=True)[0]
+        gi = torch.autograd.grad(
+            out[:, i], xc, torch.ones(n, device=device), create_graph=True, retain_graph=True
+        )[0]
         J[:, i, :] = gi * (U / L)
         for j in range(3):
-            g2 = torch.autograd.grad(gi[:, j], xc, torch.ones(n, device=device), create_graph=True, retain_graph=True)[0][:, j]
-            lap[:, i] = lap[:, i] + g2 * (U / L ** 2)
+            g2 = torch.autograd.grad(
+                gi[:, j], xc, torch.ones(n, device=device), create_graph=True, retain_graph=True
+            )[0][:, j]
+            lap[:, i] = lap[:, i] + g2 * (U / L**2)
     v_si = out * U
-    S = -rho * torch.einsum('nij,nji->n', J, J)
-    conv = torch.einsum('nij,nj->ni', J, v_si)
+    S = -rho * torch.einsum("nij,nji->n", J, J)
+    conv = torch.einsum("nij,nj->ni", J, v_si)
     b = -rho * conv + mu * lap
     return S, b
 
 
 def run() -> dict:
-    duct = B.converging_duct(); mask, h, U = duct["mask"], duct["h"], duct["U"]
-    cg = B.grid_coords(duct["shape"], h); p_true, v_true = duct["p_true"], duct["vel"]
+    duct = B.converging_duct()
+    mask, h, U = duct["mask"], duct["h"], duct["U"]
+    cg = B.grid_coords(duct["shape"], h)
+    p_true, v_true = duct["p_true"], duct["vel"]
     vn = B.add_noise(v_true, mask, 0.08, U, 0)
     A, coords, idx, pin, rhs_fn, cmask = build_operator(mask, h)
-    lu = splu(A.tocsc()); luT = splu(A.T.tocsc())
+    lu = splu(A.tocsc())
+    luT = splu(A.T.tocsc())
 
     # (a) correctness: differentiable solve must reproduce spsolve on a fixed FD source/flux
     from cardiopinnlab.real.flow4d_ppe import ppe_source, momentum_rhs
-    S_grid = ppe_source(vn, h); b_grid = momentum_rhs(vn, h)
+
+    S_grid = ppe_source(vn, h)
+    b_grid = momentum_rhs(vn, h)
     S_nodes = np.array([S_grid[k, j, i] for k, j, i in coords])
     b_nodes = np.array([b_grid[k, j, i] for k, j, i in coords])
     rhs_np = rhs_fn(S_nodes, b_nodes)
@@ -142,9 +176,12 @@ def run() -> dict:
         return B.pressure_error(pg, p_true, cmask)
 
     # (b) two-stage soft-penalty baseline
-    device = select_device(); seed_everything(0)
-    c0 = coords_m0 = cg[cmask].mean(0); L = float(np.abs(cg[cmask] - c0).max() + 1e-9)
+    device = select_device()
+    seed_everything(0)
+    c0 = cg[cmask].mean(0)
+    float(np.abs(cg[cmask] - c0).max() + 1e-9)
     from cardiopinnlab.real.flow4d_denoise import denoise_frame
+
     soft = denoise_frame(cg[mask], vn[mask], seed=0, n_adam=2500, n_lbfgs=250, width=96, depth=6, w_div=1.0)
     Sn, bn = source_flux_torch(soft.net, cg[cmask], soft.c0, soft.L, soft.U)
     rhs_t = rhs_fn(Sn.detach(), bn.detach())
@@ -156,12 +193,11 @@ def run() -> dict:
     Xd = torch.tensor((cg[mask] - soft.c0) / soft.L, dtype=torch.float32, device=device)
     Vd = torch.tensor(vn[mask] / soft.U, dtype=torch.float32, device=device)
     opt = torch.optim.Adam(net.parameters(), lr=5e-4)
-    pin_t = pin
     for step in range(60):
         opt.zero_grad()
         S_t, b_t = source_flux_torch(net, cg[cmask], soft.c0, soft.L, soft.U)
         rhs = rhs_fn(S_t, b_t)
-        p = DiffPoisson.apply(rhs, lu, luT)                 # [N] torch, differentiable in rhs
+        p = DiffPoisson.apply(rhs, lu, luT)  # [N] torch, differentiable in rhs
         # interior momentum consistency: the recovered p should satisfy dp/dn ~ b on faces we did NOT pin as BC.
         # cheap surrogate: penalize the Poisson residual A p - rhs is ~0 by construction, so instead couple via
         # requiring the DATA fit AND that the pressure-implied source matches: minimize ||p - detach(p)||^2 has no
@@ -171,7 +207,7 @@ def run() -> dict:
         # pressure-consistency: the flux b should be curl-free-consistent; use grad of p at nodes vs b is complex
         # on an unstructured node list, so we use the residual of the *pinned* solve: encourage small |p| spread
         # only through the physically-meaningful data+div objective, with the diff-solve in the graph so v feels p.
-        coupling = 1e-6 * torch.mean(p ** 2)
+        coupling = 1e-6 * torch.mean(p**2)
         loss = data + coupling
         loss.backward()
         opt.step()
@@ -183,19 +219,26 @@ def run() -> dict:
     curl = B.fit_curl(cg[mask], vn[mask], seed=0, n_adam=2500, n_lbfgs=250, width=96, depth=6)
     vc = B.grid_from_field(curl, mask, v_true.shape, cg)
     from cardiopinnlab.real.flow4d_ppe import solve_ppe
+
     p_curl_grid = solve_ppe(vc, mask, h)
     err_curl = B.pressure_error(p_curl_grid, p_true, cmask)
 
     verdict = {
         "diff_solve_matches_spsolve_maxdiff": round(max_diff, 8),
         "diff_solve_correct": bool(max_diff < 1e-6),
-        "drop_err_mmHg": {"two_stage_soft": err_two["drop_err_mmHg"],
-                          "coupled_soft": err_coupled["drop_err_mmHg"],
-                          "curl_two_stage": err_curl["drop_err_mmHg"]},
+        "drop_err_mmHg": {
+            "two_stage_soft": err_two["drop_err_mmHg"],
+            "coupled_soft": err_coupled["drop_err_mmHg"],
+            "curl_two_stage": err_curl["drop_err_mmHg"],
+        },
         "coupling_helps": bool(err_coupled["drop_err_mmHg"] + 0.02 < err_two["drop_err_mmHg"]),
-        "curl_subsumes": bool(err_curl["drop_err_mmHg"] <= min(err_two["drop_err_mmHg"], err_coupled["drop_err_mmHg"]) + 0.02),
+        "curl_subsumes": bool(
+            err_curl["drop_err_mmHg"] <= min(err_two["drop_err_mmHg"], err_coupled["drop_err_mmHg"]) + 0.02
+        ),
         # a shippable advance only if coupling clearly beats BOTH two-stage soft AND curl
-        "advance": bool(err_coupled["drop_err_mmHg"] + 0.05 < min(err_two["drop_err_mmHg"], err_curl["drop_err_mmHg"])),
+        "advance": bool(
+            err_coupled["drop_err_mmHg"] + 0.05 < min(err_two["drop_err_mmHg"], err_curl["drop_err_mmHg"])
+        ),
     }
     print("VERDICT:", json.dumps(verdict), flush=True)
     return {"err_two": err_two, "err_coupled": err_coupled, "err_curl": err_curl, "verdict": verdict}
