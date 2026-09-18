@@ -11,26 +11,63 @@
 \usepackage{orcidlink}
 \graphicspath{{../figures/}}
 
+% IEEEtran hard-codes an em-dash after the abstract and index-terms names; the CAOS
+% content standard (ADR-0067) excludes em-dashes, so the separator is a full stop.
+\makeatletter
+\def\abstract{\normalfont
+    \if@twocolumn
+      \@IEEEabskeysecsize\bfseries\textit{\abstractname}.\ \relax
+    \else
+      \bgroup\par\addvspace{0.5\baselineskip}\centering\vspace{-1.78ex}\@IEEEabskeysecsize\textbf{\abstractname}\par\addvspace{0.5\baselineskip}\egroup\quotation\@IEEEabskeysecsize
+    \fi\@IEEEgobbleleadPARNLSP}
+\def\IEEEkeywords{\normalfont
+    \if@twocolumn
+      \@IEEEabskeysecsize\bfseries\textit{\IEEEkeywordsname}.\ \relax
+    \else
+      \bgroup\par\addvspace{0.5\baselineskip}\centering\@IEEEabskeysecsize\textbf{\IEEEkeywordsname}\par\addvspace{0.5\baselineskip}\egroup\quotation\@IEEEabskeysecsize
+    \fi\@IEEEgobbleleadPARNLSP}
+\makeatother
+
+% Page-1 header block (conventions/manuscript-header-standard.md). The four document
+% macros are set by the publishing tool when the version DOI is reserved.
+\newcommand{\doctype}{Preprint}
+\newcommand{\docversion}{v2.2}
+\newcommand{\docdate}{18 September 2026}
+\newcommand{\versiondoi}{10.5281/zenodo.22822857}
+\newcommand{\conceptdoi}{10.5281/zenodo.21508806}
+\newcommand{\docrepo}{github.com/fsantibanezleal/CAOS\_RES\_CardioPINN}
+\newcommand{\headerblock}{%
+\begin{center}
+\fbox{\parbox{0.94\textwidth}{\small\raggedright
+\textbf{\doctype} \quad$\cdot$\quad \docversion, \docdate \quad$\cdot$\quad Licence CC BY 4.0\\[2pt]
+CAOS open-research programme \quad$\cdot$\quad CAOS\_RES\_CardioPINN, physics-informed reconstruction of cardiac fields\\[2pt]
+Version DOI \href{https://doi.org/\versiondoi}{\texttt{\versiondoi}} \quad$\cdot$\quad
+concept DOI (always latest) \href{https://doi.org/\conceptdoi}{\texttt{\conceptdoi}}\\[2pt]
+Not peer reviewed. Source code, data and computational records: \href{https://\docrepo}{\texttt{\docrepo}}
+}}
+\end{center}}
+
 \begin{document}
 
 \title{Physics-Informed Reconstruction of Unmeasurable Cardiac Fields from Real Data:
-Electrocardiographic Imaging and 4D-Flow Aortic Pressure, Gated on Known Answers,
-with Honest Nulls}
+Electrocardiographic Imaging and 4D-Flow Aortic Pressure, Verified Against Known Answers,
+with Null Results}
 
 \author{%
   Felipe Santib\'a\~nez-Leal~\orcidlink{0000-0002-0150-3246},~\IEEEmembership{Independent Researcher}%
   \thanks{F.\ Santib\'a\~nez-Leal is with the CAOS open-research programme, Santiago,
     Chile (e-mail: \texttt{fsantibanezleal@ug.uchile.cl}; ORCID: 0000-0002-0150-3246).}%
-  \thanks{Preprint, 2026, version 2.1 (revised). Code, derived reconstruction
-    artifacts, and the interactive viewer are released under MIT at
-    \url{https://github.com/fsantibanezleal/CAOS_RES_CardioPINN}; live at
-    \url{https://cardiopinn.fasl-work.com}. Validated methodological result on real
-    experimental data, not a clinically deployed system; raw datasets are used under
-    their data-use agreements and are not redistributed.}%
+  \thanks{Code, derived reconstruction artifacts, and the interactive viewer are
+    released under MIT at \url{https://github.com/fsantibanezleal/CAOS_RES_CardioPINN};
+    the viewer is available at \url{https://cardiopinn.fasl-work.com}. Validated
+    methodological result on real experimental data, not a clinically deployed system;
+    raw datasets are used under their data-use agreements and are not redistributed.}%
 }
 
-\markboth{Preprint, 2026 (v2.1) --- CAOS open-research programme}{Santib\'a\~nez-Leal:
+\markboth{\doctype\ \docversion, 2026 \textperiodcentered\ CAOS open-research programme}{Santib\'a\~nez-Leal:
 Physics-Informed Reconstruction of Unmeasurable Cardiac Fields from Real Data}
+
+\IEEEaftertitletext{\vspace{-0.6\baselineskip}\headerblock\vspace{0.2\baselineskip}}
 
 \IEEEtitleabstractindextext{%
 \begin{abstract}
@@ -41,40 +78,39 @@ equation to a quantity measurable non-invasively, the body-surface potential and
 4D-flow velocity, so each can be reconstructed. We report a real-data-only study of this
 reconstruction across two distinct physics domains under one discipline: fit only real
 measured signals; validate against a real gold standard where one exists and against an
-exact analytic known-answer gate where none can; and publish the honest nulls. The common
+exact analytic known-answer test where none can; and report the null results. The common
 methodological spine is to separate the well-posed part that data constrains from the
-ill-posed part that the physics forces out, and to gate every physics engine on a
-closed-form problem before it may touch real data. \emph{Case 1 (electrocardiographic
+ill-posed part that the physics forces out, and to verify every physics engine on a
+closed-form problem before it is applied to real data. \emph{Case 1 (electrocardiographic
 imaging, quasi-static volume conduction).} A forward operator on the real geometry with a
 graph-Laplacian Tikhonov prior and a deep-ensemble node uncertainty recovers heart-surface
 potentials from real EDGAR experiments by an identical pipeline with no per-heart retuning,
 at relative error 0.54--0.65 and spatial correlation 0.72--0.85 against the measured cage,
 with about $90\%$ of nodes inside two standard deviations, and the paced beats reconstructing
 better than sinus as physically expected. A full boundary-element forward operator,
-analytic-gated to correlation above $0.999$ on a concentric-sphere problem, honestly does
+verified to correlation above $0.999$ on an analytic concentric-sphere problem, does
 \emph{not} beat the calibrated single-layer on the real coarse electrode geometry (dog:
-0.542 vs 0.629 relative error); the null is reported. \emph{Case 2 (4D-flow aortic pressure,
+0.542 vs 0.629 relative error), a null result. \emph{Case 2 (4D-flow aortic pressure,
 incompressible Navier--Stokes).} A divergence-free velocity network denoises a real
 thoracic-aorta 4D-flow scan (raw divergence reduced $2.3\times$) and the relative pressure
 is forced out by the pressure-Poisson equation with the source and Neumann flux computed
 from the network's analytic derivatives rather than by finite differences at the lumen edge,
 which takes the recovered pressure from a non-physiological thousands of mmHg to a
 physiological 0.79 mmHg range, the same order as the clinical simplified-Bernoulli estimate
-(2.50 mmHg). The solve is analytic-gated to correlation 1.00 on a converging duct and its
-unsteady term to $dw/dt$ correlation 0.995 on a time-varying Poiseuille flow; the
-momentum-residual PINN that leaves pressure gauge-free is kept as the documented failed
-baseline. The uncertainty treatment is case-appropriate: informative and shown per node
-where the inverse is ill-posed, and honestly suppressed to a scalar where the denoiser makes
-it near-zero. The contribution is a demonstration that, with a real-data-only discipline,
-known-answer gates, and honest nulls, physics-informed reconstruction recovers two
-clinically meaningful unmeasurable cardiac fields from the non-invasive measurements tied to
-them.
+(2.50 mmHg). The solve is verified to correlation 1.00 on an analytic converging duct, and
+its unsteady term to $dw/dt$ correlation 0.995 on a time-varying Poiseuille flow; the
+momentum-residual PINN, which leaves pressure gauge-free, serves as a failed baseline. The
+uncertainty treatment is case-appropriate: informative and shown per node where the inverse
+is ill-posed, and summarized as a scalar where the denoiser makes it near-zero. The
+contribution is a demonstration that, with a real-data-only discipline and known-answer
+verification, physics-informed reconstruction recovers two clinically meaningful
+unmeasurable cardiac fields from the non-invasive measurements tied to them.
 \end{abstract}
 
 \begin{IEEEkeywords}
 physics-informed neural networks, electrocardiographic imaging, inverse problems, 4D-flow
 MRI, pressure-Poisson equation, Navier--Stokes, volume conduction, boundary element method,
-deep ensembles, uncertainty quantification, analytic gate, cardiac reconstruction.
+deep ensembles, uncertainty quantification, analytic verification, cardiac reconstruction.
 \end{IEEEkeywords}}
 
 \maketitle
@@ -102,15 +138,16 @@ reconstruction is to validate on synthetic data, where a network is scored again
 solver produced under the same assumptions the network uses; such a result demonstrates code
 correctness, not a clinical capability. We therefore fit only real measured signals and
 validate only against a real measured gold standard or, where none can exist, against an
-exact analytic gate that must pass before any real datum is trusted. We report two cases in
-two different physics domains and, crucially, the honest negative results each produced: a
+exact analytic test that must pass before any real datum is trusted. We report two cases in
+two different physics domains and, crucially, the negative results each produced: a
 boundary-element forward operator that does not beat a simpler one on real geometry, and a
 momentum-residual PINN that cannot recover pressure at aortic Reynolds number. The
-contributions are (i) a shared, gated methodological spine for recovering an unmeasurable
-clinical field from a measurable one; (ii) a real-data ECGi reconstruction validated per beat
-against the measured cage, with the boundary-element null; and (iii) a real-data 4D-flow
-pressure reconstruction validated on two analytic gates and bracketed by the clinical
-Bernoulli estimate, with the momentum-residual failure documented.
+contributions are (i) a shared methodological spine, with known-answer verification of every
+physics engine, for recovering an unmeasurable clinical field from a measurable one; (ii) a
+real-data ECGi reconstruction validated per beat against the measured cage, with the
+boundary-element null; and (iii) a real-data 4D-flow pressure reconstruction validated on two
+analytic tests and bracketed by the clinical Bernoulli estimate, with the momentum-residual
+failure documented.
 
 % =====================================================================
 \section{The common methodological spine}
@@ -131,12 +168,12 @@ applied to real data.}
 Both cases share one spine (Fig.~\ref{fig:spine}). Each separates a well-posed part that data
 constrains (the body-surface potentials; the velocity field) from an ill-posed part that the
 physics forces out (the heart-surface potentials via a regularized inverse; the pressure via
-an elliptic equation). And each gates its physics engine on a known-answer analytic problem
-before any real data: an engine that produces a plausible-looking field on real data proves
-nothing, because it can be wrong in a way no real measurement exposes. The gate is a test that
-must pass; only then is the real reconstruction trusted. This discipline is not decoration: it
-is precisely what turned away the momentum-residual PINN of Section~\ref{sec:flow}, which
-failed its analytic Poiseuille gate.
+an elliptic equation). And each verifies its physics engine on a known-answer analytic
+problem before any real data are used: an engine that produces a plausible-looking field on
+real data proves nothing, because it can be wrong in a way no real measurement exposes. The
+test must pass before the real reconstruction is trusted. This requirement is what excluded
+the momentum-residual PINN of Section~\ref{sec:flow}, which failed its analytic Poiseuille
+test.
 
 % =====================================================================
 \section{Case 1: electrocardiographic imaging}
@@ -159,13 +196,13 @@ reconstruction is a Tikhonov problem with a graph-Laplacian prior $L$ on the hea
 \label{eq:tikhonov}
 \end{equation}
 with $\lambda$ chosen on the L-curve~\cite{hansen1992}. Because a single point estimate carries
-no honest error bar, we draw a deep ensemble over realistic measurement-noise perturbations of
+no error bar, we draw a deep ensemble over realistic measurement-noise perturbations of
 $b$ and re-solve~\cite{lakshminarayanan2017}, and recalibrate its two-standard-deviation band to
 cover the true per-node error at the nominal rate.
 
-\subsection{The concentric-sphere analytic gate}
+\subsection{The concentric-sphere analytic test}
 
-The BEM is gated on two concentric spheres, an inner heart sphere of radius $a=0.7$ and an
+The BEM is verified on two concentric spheres, an inner heart sphere of radius $a=0.7$ and an
 outer insulating body sphere $b=1.0$. For a heart-surface potential equal to the degree-one
 harmonic $\phi_H=\cos\theta$, the shell solution $\phi=(Ar+B/r^2)\cos\theta$ with the
 insulating condition $\partial\phi/\partial r=0$ at $r=b$ gives, in closed form,
@@ -193,20 +230,19 @@ easier to localize than a diffuse sinus wavefront.
 \centering
 \includegraphics[width=\columnwidth]{fig-ecgi.pdf}
 \caption{Real ECGi validation against the measured cage potentials (identical pipeline, no
-per-heart retuning), read from \texttt{catalogue.json}. Relative error (orange, lower better)
-and spatial correlation (blue, higher better) per beat, with the node uncertainty coverage at
-two standard deviations (green). Paced beats reconstruct better than sinus.}
+per-heart retuning). Relative error (orange, lower better) and spatial correlation (blue,
+higher better) per beat, with the node uncertainty coverage at two standard deviations
+(green). Paced beats reconstruct better than sinus. Data: \texttt{catalogue.json}.}
 \label{fig:ecgi}
 \end{figure}
 
-A more physically complete forward operator is not automatically a better one. The BEM is
-correct on its analytic gate, yet on the real electrode geometry it does not beat the calibrated
+A more physically complete forward operator is not automatically a better one. The BEM passes
+its analytic test, yet on the real electrode geometry it does not beat the calibrated
 single-layer: it requires closed 2-manifold surfaces (so it applies only to the dog case), and
 where it applies the coarse 140-node torso makes the reconstruction regularization-dominated,
 single-layer relative error 0.542 versus BEM 0.629. Forward-operator fidelity is not the
 bottleneck at this electrode density; the single-layer stays the default, and the BEM is
-expected to matter only as electrode density and mesh closure improve. This null is reported,
-not hidden.
+expected to matter only as electrode density and mesh closure improve.
 
 % =====================================================================
 \section{Case 2: 4D-flow aortic pressure}
@@ -237,35 +273,35 @@ $\partial_t v$ is differentiated exactly by a space-time network trained over th
 cycle. A single network trained on the raw momentum residual (the hidden-fluid-mechanics
 formulation~\cite{raissi2020}) does not recover pressure at aortic Reynolds number: pressure is
 gauge-free and only weakly coupled to the loss, so it stays near its initialization (under
-$10\%$ of the true gradient on analytic Poiseuille). That approach is kept as the documented
-failed baseline; the shipped method separates the well-posed velocity from the ill-posed
-pressure.
+$10\%$ of the true gradient on analytic Poiseuille). That approach is retained as a failed
+baseline; the adopted method separates the well-posed velocity from the ill-posed pressure.
 
-\subsection{Two analytic gates}
+\subsection{Two analytic tests}
 
-The steady solver is gated on an analytic converging duct with a mass-conserving field
+The steady solver is verified on an analytic converging duct with a mass-conserving field
 $w=U_0(1+az)$, $u=-\tfrac{a}{2}U_0 x$, $v=-\tfrac{a}{2}U_0 y$, whose axial Euler pressure is
 known,
 \begin{equation}
 p(z)=-\rho\,U_0^2\Big(az+\tfrac{a^2z^2}{2}\Big)+c,
 \end{equation}
 recovered at correlation 1.00 and a pressure drop of 4.74 mmHg against the analytic 4.73. The
-unsteady term is gated on a time-varying Poiseuille flow
-$w(r,t)=U_0(1+A\sin\omega t)(1-(r/R)^2)$, whose exact axial acceleration
-$\partial_z p|_\text{unsteady}=-\rho\,\partial_t w=-\rho\,U_0 A\,\omega\cos\omega t$ is recovered
-at correlation 0.995. These gates are what license the analytic unsteady term on the real scan
+unsteady term is verified on a time-varying Poiseuille flow
+$w(r,t)=U_0(1+A\sin\omega t)(1-(r/R)^2)$, whose exact axial acceleration on the axis ($r=0$),
+$\partial_z p|_\text{unsteady}=-\rho\,\partial_t w|_{r=0}=-\rho\,U_0 A\,\omega\cos\omega t$, is
+recovered there at correlation 0.995. These tests are what license the analytic unsteady term on the real scan
 instead of a noisy three-frame finite difference; the consequence is direct (the finite-difference
-term had inflated the recovered range to 14.87 mmHg, the analytic term gives 0.79). The three
-gates are summarized in Table~\ref{tab:gates}.
+term inflates the recovered range to 14.87 mmHg, the analytic term gives 0.79). The three
+tests are summarized in Table~\ref{tab:tests}.
 
 \begin{table}[!t]
-\caption{The analytic known-answer gates. Each engine reproduces an exact closed-form answer
+\caption{The analytic known-answer tests. Each engine reproduces an exact closed-form answer
 before it is applied to real data.}
-\label{tab:gates}
+\label{tab:tests}
 \centering
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lll}
 \toprule
-Gate & Analytic problem & Recovered vs true \\
+Test & Analytic problem & Recovered vs true \\
 \midrule
 BEM (ECGi) & concentric spheres & corr $>0.999$; err halves/refine \\
 PPE steady & converging duct & corr 1.00; 4.74 vs 4.73 mmHg \\
@@ -276,30 +312,33 @@ PPE unsteady & time-varying Poiseuille & $dw/dt$ corr 0.995 \\
 
 \subsection{Real validation with no invasive gold standard}
 
-There is no non-invasive pressure gold standard; the validation is threefold. The analytic gate
+There is no non-invasive pressure gold standard; the validation is threefold. The analytic test
 is exact (above). On the real thoracic-aorta scan (Philips, venc 120 cm/s, 16 frames, 47{,}902
 lumen voxels, 27{,}863 phase-wrap samples corrected), the recovered relative pressure has a
-p5--p95 range of 0.79 mmHg (full span 0.85 mmHg; Fig.~\ref{fig:flow}), small and physiological for an unobstructed aorta. And the
-clinical bracket holds: the simplified-Bernoulli estimate $4V_\text{max}^2=2.50$ mmHg from the
-denoised peak velocity 0.791 m/s (a robust, 95th-percentile peak of the lumen speed field, whose
-maximum is $\sim$1.44 m/s) is the same order, exactly what an unobstructed aorta should
-show, while the field additionally reveals where the pressure varies, which a single Bernoulli
-number cannot.
+2.5--97.5 percentile range of 0.79 mmHg over the 9{,}000 lumen voxels sampled for the released
+trace (full span 0.85 mmHg; Fig.~\ref{fig:flow}), small and physiological for an unobstructed
+aorta. The simplified-Bernoulli estimate $4V_\text{max}^2=2.50$ mmHg, computed from the
+denoised peak velocity 0.791 m/s (the maximum speed of the denoised velocity field over the
+lumen), is of the same order. The measured speed, lightly smoothed, reaches about 1.44 m/s in
+the sampled voxels, which would give about 8.3 mmHg; the agreement therefore holds for the
+denoised peak velocity and not for the raw measured peak. The field additionally shows where
+the pressure varies, which a single Bernoulli number cannot.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{fig-flow-pressure.pdf}
-\caption{Recovered relative pressure over the aortic lumen at peak systole, read from
-\texttt{trace.json}. The distribution has a p5--p95 range of 0.79 mmHg (full span 0.85 mmHg)
-for this unobstructed aorta, the same order as the clinical Bernoulli estimate (2.50 mmHg).}
+\caption{Recovered relative pressure over the aortic lumen at peak systole. The distribution
+over the 9{,}000 lumen voxels sampled for the released trace has a 2.5--97.5 percentile range of
+0.79 mmHg (arrow) and a full span of 0.85 mmHg (shaded) for this unobstructed aorta, the same
+order as the clinical Bernoulli estimate (2.50 mmHg). Data: \texttt{trace.json}.}
 \label{fig:flow}
 \end{figure}
 
 A deep ensemble that perturbs the measured velocity with realistic phase-contrast noise ($5\%$
 of the venc) and re-runs the whole pipeline moves the recovered pressure by under 0.01 mmHg:
 the divergence-free denoiser makes the pressure essentially insensitive to velocity measurement
-noise. This is a genuine robustness, but it also means such an ensemble gives a near-zero,
-uninformative uncertainty, so we report the robustness as a scalar and deliberately do not show a
+noise. The same robustness means that such an ensemble gives a near-zero, uninformative
+uncertainty, so we report the robustness as a scalar and deliberately do not show a
 per-voxel uncertainty map, which would be a misleadingly uniform near-zero field. This is the
 opposite of Case~1, where the ill-posed inverse makes the ensemble uncertainty large and
 informative, so it is shown per node.
@@ -311,12 +350,12 @@ informative, so it is shown per node.
 The two cases share one methodological spine and differ exactly where the physics differs. Each
 separates a well-posed part that data constrains from an ill-posed part that the physics forces
 out; each validates against something real, a measured gold standard where one exists (the ECGi
-cage) and an exact analytic gate where one cannot (the converging-duct pressure drop); and each
-reports what did not work, the BEM that does not beat the single-layer on real coarse geometry
+cage) and an exact analytic test where one cannot (the converging-duct pressure drop); and each
+has a negative result, the BEM that does not beat the single-layer on real coarse geometry
 and the momentum-residual PINN that leaves pressure gauge-free. The uncertainty treatment is
 case-appropriate rather than uniform: informative and shown per node where the inverse is
-ill-posed, and honestly suppressed to a scalar where the denoiser makes it near-zero. Reporting
-the nulls and matching the uncertainty to the problem is what separates a validated methodological
+ill-posed, and summarized as a scalar where the denoiser makes it near-zero. The null results
+and the uncertainty matched to the problem are what separate a validated methodological
 result from a demonstration.
 
 % =====================================================================
@@ -325,26 +364,27 @@ result from a demonstration.
 
 These are validated methodological results on real experimental data, not clinically deployed
 tools. ECGi is shown on a torso tank and one in-situ animal, not a patient cohort; the 4D-flow
-pressure has no invasive truth to check its absolute magnitude against, so only its analytic gate,
-physiological range, divergence-free denoising, and Bernoulli bracket are claimed. Raw datasets are
-used under data-use agreements and are not redistributed; only the derived reconstruction artifacts
-are committed, and every number here is reproducible from them and the CI gate tests. The contribution is a demonstration
-that, with a real-data-only discipline, known-answer gates, and honest nulls, physics-informed
-reconstruction can recover two clinically meaningful unmeasurable cardiac fields, ECGi heart-surface
-potentials and 4D-flow aortic pressure, from the non-invasive measurements tied to them by a
-governing equation.
+pressure has no invasive truth to check its absolute magnitude against, so only its analytic
+verification, physiological range, divergence-free denoising, and Bernoulli bracket are claimed.
+Raw datasets are used under data-use agreements and are not redistributed; only the derived
+reconstruction artifacts are released, and every number here is reproducible from them and from
+the automated tests in the repository. The contribution is a demonstration that, with a
+real-data-only discipline and known-answer verification, physics-informed reconstruction can
+recover two clinically meaningful unmeasurable cardiac fields, ECGi heart-surface potentials and
+4D-flow aortic pressure, from the non-invasive measurements tied to them by a governing equation.
 
 % =====================================================================
 \section*{Data and code availability}
 % =====================================================================
 
+{\raggedright
 Code, the derived reconstruction artifacts (the ECGi catalogue and the 4D-flow pressure trace),
 and the interactive viewer are at \url{https://github.com/fsantibanezleal/CAOS_RES_CardioPINN}
-under the MIT license; a static viewer is live at \url{https://cardiopinn.fasl-work.com}. ECGi
-data are from the EDGAR repository (Consortium for ECG Imaging); the 4D-flow scan is used under
-its data-use agreement. Raw datasets are not redistributed. The figures are regenerated
-deterministically from the committed artifacts by
-\texttt{manuscripts/physics-informed-cardiac-fields/figures/make\_figs.py}.
+under the MIT license; a static viewer is available at \url{https://cardiopinn.fasl-work.com}.
+ECGi data are from the EDGAR repository (Consortium for ECG Imaging); the 4D-flow scan is used
+under its data-use agreement. Raw datasets are not redistributed. The figures are regenerated
+deterministically from these artifacts by
+\path{manuscripts/physics-informed-cardiac-fields/figures/make_figs.py}.\par}
 
 \appendices
 \section{Per-beat ECGi regularizers}
@@ -353,7 +393,7 @@ records a graph-regularized and a deep-ensemble variant per beat; on the human t
 single-layer relative error / correlation are $0.654/0.718$ (sinus), $0.579/0.804$ (paced PVP),
 and $0.539/0.845$ (paced AVP), with node-uncertainty two-standard-deviation coverage
 $0.895/0.890/0.895$; the dog sinus case is $0.542/0.779$ (single-layer) versus $0.629/0.775$
-(BEM). All per-beat, per-regularizer values are committed in \texttt{catalogue.json}.
+(BEM). All per-beat, per-regularizer values are available in \texttt{catalogue.json}.
 
 % =====================================================================
 \begin{thebibliography}{99}
